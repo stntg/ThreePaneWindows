@@ -1,0 +1,129 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! 💡
+        
+        Please provide as much detail as possible to help us understand your request.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have read the documentation to confirm this feature doesn't already exist
+          required: true
+        - label: This feature would benefit other users, not just my specific use case
+          required: true
+
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature are you requesting?
+      options:
+        - "New layout type"
+        - "Enhancement to existing layout"
+        - "New theming option"
+        - "New utility function"
+        - "Performance improvement"
+        - "Developer experience improvement"
+        - "Documentation improvement"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What's the current limitation?
+      placeholder: "I'm frustrated when... / It would be helpful if... / Currently there's no way to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see
+      placeholder: "I would like to be able to... / The feature should work by..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: "I've tried... / Another approach could be... / Workarounds I've used..."
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific use cases where this feature would be valuable
+      placeholder: |
+        1. When building a file manager application...
+        2. For IDE-like interfaces...
+        3. In data analysis tools...
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-design
+    attributes:
+      label: Proposed API Design
+      description: If you have ideas about how the API should look, describe them here
+      render: python
+      placeholder: |
+        # Example of how you envision using this feature
+        from threepanewindows import FixedThreePaneWindow
+        
+        window = FixedThreePaneWindow(root, new_feature=True)
+        window.new_method()
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - "Low - Nice to have"
+        - "Medium - Would improve my workflow"
+        - "High - Blocking my use case"
+        - "Critical - Can't use the library without this"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, mockups, or examples
+      placeholder: |
+        - Screenshots or mockups
+        - Links to similar features in other libraries
+        - Any other relevant information
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you be willing to help implement this feature?
+      options:
+        - label: I would be willing to submit a pull request to implement this feature
+          required: false
+        - label: I would be willing to help with testing this feature
+          required: false
+        - label: I would be willing to help with documentation for this feature
+          required: false

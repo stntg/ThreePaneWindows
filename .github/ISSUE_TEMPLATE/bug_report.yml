@@ -1,0 +1,151 @@
+name: Bug Report
+description: File a bug report to help us improve
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! 🐛
+        
+        Please provide as much detail as possible to help us understand and reproduce the issue.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have read the documentation and troubleshooting guide
+          required: true
+        - label: I can reproduce this issue consistently
+          required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: ThreePaneWindows Version
+      description: What version of ThreePaneWindows are you using?
+      placeholder: "e.g., 0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: python-version
+    attributes:
+      label: Python Version
+      description: What version of Python are you using?
+      options:
+        - "3.12"
+        - "3.11"
+        - "3.10"
+        - "3.9"
+        - "3.8"
+        - "Other (please specify in description)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      options:
+        - "Windows 11"
+        - "Windows 10"
+        - "macOS (latest)"
+        - "macOS (older version)"
+        - "Ubuntu/Debian"
+        - "CentOS/RHEL/Fedora"
+        - "Other Linux"
+        - "Other (please specify)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: "Describe what happened and what you expected to happen"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Create a FixedThreePaneWindow with...
+        2. Add widgets to...
+        3. Call method...
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Minimal Code Example
+      description: Please provide a minimal code example that reproduces the issue
+      render: python
+      placeholder: |
+        import tkinter as tk
+        from threepanewindows import FixedThreePaneWindow
+        
+        root = tk.Tk()
+        # Your code here that reproduces the issue
+        root.mainloop()
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: "Describe the expected behavior"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: "Describe what actually happened, including any error messages"
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Error Messages/Traceback
+      description: If applicable, paste the full error message or traceback
+      render: text
+      placeholder: "Paste the full error message or traceback here"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: |
+        - Screenshots (if applicable)
+        - Related issues
+        - Workarounds you've tried
+        - Any other relevant information
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you be willing to help fix this issue?
+      options:
+        - label: I would be willing to submit a pull request to fix this issue
+          required: false

@@ -1,0 +1,162 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+    
+    - name: Run full test suite
+      run: |
+        pytest tests/ --cov=threepanewindows
+        flake8 threepanewindows/
+        mypy threepanewindows/ --ignore-missing-imports
+        bandit -r threepanewindows/
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+    
+    - name: Build package
+      run: python -m build
+    
+    - name: Check package
+      run: |
+        twine check dist/*
+        # Verify package contents
+        python -m tarfile -l dist/*.tar.gz
+        python -c "import zipfile; [print(f) for f in zipfile.ZipFile('dist/' + [f for f in __import__('os').listdir('dist/') if f.endswith('.whl')][0]).namelist()]"
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: dist/
+
+  test-pypi-publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: test-release
+    permissions:
+      id-token: write
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+        path: dist/
+    
+    - name: Publish to Test PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        skip-existing: true
+    
+    - name: Test installation from Test PyPI
+      run: |
+        sleep 60  # Wait for package to be available
+        python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ threepanewindows
+        python -c "import threepanewindows; print(f'Successfully imported threepanewindows v{threepanewindows.__version__}')"
+
+  approval:
+    needs: test-pypi-publish
+    runs-on: ubuntu-latest
+    environment: production-release
+    steps:
+    - name: Manual approval checkpoint
+      run: |
+        echo "✅ Test PyPI upload successful!"
+        echo "✅ Package installation from Test PyPI verified!"
+        echo "🚀 Ready for production PyPI release"
+        echo ""
+        echo "Please verify the package on Test PyPI:"
+        echo "https://test.pypi.org/project/threepanewindows/"
+        echo ""
+        echo "If everything looks good, approve this workflow to proceed with production release."
+
+  publish:
+    needs: approval
+    runs-on: ubuntu-latest
+    environment: production-release
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+        path: dist/
+    
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+    
+    - name: Verify PyPI publication
+      run: |
+        sleep 60  # Wait for package to be available
+        python -m pip install threepanewindows
+        python -c "import threepanewindows; print(f'✅ Successfully installed threepanewindows v{threepanewindows.__version__} from PyPI')"
+
+  github-release:
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+        path: dist/
+    
+    - name: Extract release notes
+      id: extract-notes
+      run: |
+        # Extract release notes from CHANGELOG.md for this version
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        
+        # Try to extract changelog section for this version
+        if grep -q "## \[$VERSION\]" CHANGELOG.md; then
+          sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
+        else
+          echo "Release $VERSION" > release_notes.md
+          echo "" >> release_notes.md
+          echo "See [CHANGELOG.md](CHANGELOG.md) for details." >> release_notes.md
+        fi
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*
+        body_path: release_notes.md
+        draft: false
+        prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,179 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "threepanewindows"
+version = "0.1.0"
+description = "Professional three-pane window layouts for Tkinter applications with docking, theming, and advanced UI components"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Stan Griffiths", email = "stantgriffiths@gmail.com"},
+]
+maintainers = [
+    {name = "Stan Griffiths", email = "stantgriffiths@gmail.com"},
+]
+keywords = ["tkinter", "gui", "layout", "three-pane", "dockable", "ui", "desktop", "application", "framework"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: User Interfaces",
+    "Topic :: Desktop Environment",
+    "Environment :: X11 Applications",
+    "Environment :: Win32 (MS Windows)",
+    "Environment :: MacOS X",
+]
+dependencies = [
+    "typing-extensions>=4.0.0; python_version<'3.10'",
+]
+
+[project.urls]
+Homepage = "https://github.com/stntg/threepanewindows"
+Documentation = "https://threepanewindows.readthedocs.io/"
+Repository = "https://github.com/stntg/threepanewindows.git"
+"Bug Tracker" = "https://github.com/stntg/threepanewindows/issues"
+Changelog = "https://github.com/stntg/threepanewindows/blob/main/CHANGELOG.md"
+"Source Code" = "https://github.com/stntg/threepanewindows"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-xvfb>=2.0; sys_platform=='linux'",
+    "black>=22.0",
+    "flake8>=5.0",
+    "mypy>=1.0",
+    "isort>=5.0",
+    "pre-commit>=2.20",
+    "bandit>=1.7",
+    "safety>=2.0",
+    "tox>=4.0",
+]
+docs = [
+    "sphinx>=5.0",
+    "sphinx-rtd-theme>=1.0",
+    "myst-parser>=0.18",
+    "sphinx-autodoc-typehints>=1.19",
+    "sphinx-copybutton>=0.5",
+]
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-xvfb>=2.0; sys_platform=='linux'",
+]
+
+[project.scripts]
+threepane = "threepanewindows.cli:main"
+threepane-demo = "threepanewindows.examples:run_demo"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["threepanewindows*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+threepanewindows = ["py.typed"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["threepanewindows"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = "tkinter.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=threepanewindows",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "visual: marks tests requiring visual inspection",
+    "integration: marks tests as integration tests",
+]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["threepanewindows"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101"]  # Skip assert_used test

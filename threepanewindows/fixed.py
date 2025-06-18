@@ -1,0 +1,142 @@
+import tkinter as tk
+
+class FixedThreePaneLayout(tk.Frame):
+    def __init__(self, master, side_width=150, sash_width=2, left_fixed_width=None, right_fixed_width=None, menu_bar=None, **kwargs):
+        super().__init__(master, **kwargs)
+        self.side_width = side_width
+        self.sash_width = sash_width
+        self.left_fixed_width = left_fixed_width
+        self.right_fixed_width = right_fixed_width
+        self.menu_bar = menu_bar
+        
+        # Add menu bar if provided
+        if self.menu_bar and hasattr(master, 'config'):
+            master.config(menu=self.menu_bar)
+
+        # Left panel
+        self._frame_left = tk.Frame(self, bg="#3A7CA5")
+        self.label_left = tk.Label(self._frame_left, text="Left Panel", bg="#3A7CA5", fg="white", font=("Segoe UI", 12, "bold"))
+        self.label_left.pack(pady=10)
+
+        self._sash_left = tk.Frame(self, bg="#888888")
+
+        # Center panel
+        self._frame_center = tk.Frame(self, bg="#FFFFFF")
+        self.label_center = tk.Label(self._frame_center, text="Center Panel", bg="#FFFFFF", font=("Segoe UI", 12, "bold"))
+        self.label_center.pack(pady=10)
+
+        self._sash_right = tk.Frame(self, bg="#888888")
+
+        # Right panel
+        self._frame_right = tk.Frame(self, bg="#F4A261")
+        self.label_right = tk.Label(self._frame_right, text="Right Panel", bg="#F4A261", fg="black", font=("Segoe UI", 12, "bold"))
+        self.label_right.pack(pady=10)
+
+        self.place(relwidth=1, relheight=1)
+        self.bind("<Configure>", self._resize)
+
+    def _resize(self, event=None):
+        w = self.winfo_width()
+        h = self.winfo_height()
+        
+        # Use fixed widths if specified, otherwise use default side_width
+        left_width = self.left_fixed_width or self.side_width
+        right_width = self.right_fixed_width or self.side_width
+        
+        center_width = w - (left_width + right_width + 2 * self.sash_width)
+
+        self._frame_left.place(x=0, y=0, width=left_width, height=h)
+        self._sash_left.place(x=left_width, y=0, width=self.sash_width, height=h)
+
+        self._frame_center.place(x=left_width + self.sash_width, y=0, width=center_width, height=h)
+        self._sash_right.place(x=left_width + self.sash_width + center_width, y=0, width=self.sash_width, height=h)
+
+        self._frame_right.place(x=w - right_width, y=0, width=right_width, height=h)
+
+    def set_label_texts(self, left=None, center=None, right=None):
+        if left is not None:
+            self.label_left.config(text=left)
+        if center is not None:
+            self.label_center.config(text=center)
+        if right is not None:
+            self.label_right.config(text=right)
+    
+    def add_to_left(self, widget):
+        # Reparent the widget to the left frame
+        widget.pack_forget()
+        widget.master = self._frame_left
+        widget.pack(in_=self._frame_left, pady=5)
+
+    def add_to_center(self, widget):
+        # Reparent the widget to the center frame
+        widget.pack_forget()
+        widget.master = self._frame_center
+        widget.pack(in_=self._frame_center, fill=tk.BOTH, expand=True, pady=5)
+
+    def add_to_right(self, widget):
+        # Reparent the widget to the right frame
+        widget.pack_forget()
+        widget.master = self._frame_right
+        widget.pack(in_=self._frame_right, pady=5)
+
+    @property
+    def frame_left(self):
+        return self._frame_left
+
+    @property
+    def frame_center(self):
+        return self._frame_center
+
+    @property
+    def frame_right(self):
+        return self._frame_right
+    
+    def clear_left(self):
+        for widget in self._frame_left.winfo_children():
+            if widget != self.label_left:
+                widget.destroy()
+
+    def clear_center(self):
+        for widget in self._frame_center.winfo_children():
+            if widget != self.label_center:
+                widget.destroy()
+
+    def clear_right(self):
+        for widget in self._frame_right.winfo_children():
+            if widget != self.label_right:
+                widget.destroy()
+
+    def set_left_width(self, width: int):
+        """Set the left pane width."""
+        self.left_fixed_width = width
+        self._resize()
+    
+    def set_right_width(self, width: int):
+        """Set the right pane width."""
+        self.right_fixed_width = width
+        self._resize()
+    
+    def get_left_width(self) -> int:
+        """Get the current left pane width."""
+        return self.left_fixed_width or self.side_width
+    
+    def get_right_width(self) -> int:
+        """Get the current right pane width."""
+        return self.right_fixed_width or self.side_width
+    
+    def is_left_fixed(self) -> bool:
+        """Check if left pane has fixed width."""
+        return self.left_fixed_width is not None
+    
+    def is_right_fixed(self) -> bool:
+        """Check if right pane has fixed width."""
+        return self.right_fixed_width is not None
+
+    @property
+    def frame_left(self): return self._frame_left
+
+    @property
+    def frame_center(self): return self._frame_center
+
+    @property
+    def frame_right(self): return self._frame_right

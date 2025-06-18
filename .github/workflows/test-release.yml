@@ -1,0 +1,144 @@
+name: Test Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to test (e.g., 0.1.0-rc1)'
+        required: true
+        type: string
+      test_pypi_only:
+        description: 'Upload to Test PyPI only (no production release)'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+    
+    - name: Update version for testing
+      run: |
+        # Update version in _version.py
+        sed -i 's/__version__ = ".*"/__version__ = "${{ inputs.version }}"/' threepanewindows/_version.py
+        
+        # Update version in pyproject.toml
+        sed -i 's/version = ".*"/version = "${{ inputs.version }}"/' pyproject.toml
+        
+        echo "Updated version to ${{ inputs.version }}"
+        grep -n "version" threepanewindows/_version.py pyproject.toml
+    
+    - name: Build package
+      run: python -m build
+    
+    - name: Check package
+      run: |
+        twine check dist/*
+        echo "📦 Package contents:"
+        python -m tarfile -l dist/*.tar.gz
+        echo ""
+        echo "🎯 Wheel contents:"
+        python -c "import zipfile; [print(f) for f in zipfile.ZipFile('dist/' + [f for f in __import__('os').listdir('dist/') if f.endswith('.whl')][0]).namelist()]"
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-dist
+        path: dist/
+
+  test-pypi-upload:
+    needs: test-build
+    runs-on: ubuntu-latest
+    environment: test-release
+    permissions:
+      id-token: write
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: test-dist
+        path: dist/
+    
+    - name: Publish to Test PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        skip-existing: true
+    
+    - name: Test installation from Test PyPI
+      run: |
+        echo "⏳ Waiting for package to be available on Test PyPI..."
+        sleep 60
+        
+        echo "📥 Installing from Test PyPI..."
+        python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ threepanewindows==${{ inputs.version }}
+        
+        echo "✅ Testing import..."
+        python -c "
+        import threepanewindows
+        print(f'Successfully imported threepanewindows v{threepanewindows.__version__}')
+        print(f'Available classes: {threepanewindows.__all__}')
+        
+        # Test basic functionality
+        import tkinter as tk
+        root = tk.Tk()
+        root.withdraw()  # Hide window
+        
+        try:
+            from threepanewindows import FixedThreePaneWindow
+            window = FixedThreePaneWindow(root)
+            print('✅ FixedThreePaneWindow created successfully')
+            window.destroy()
+        except Exception as e:
+            print(f'❌ Error creating FixedThreePaneWindow: {e}')
+            raise
+        finally:
+            root.destroy()
+        "
+        
+        echo "🎉 Test PyPI installation and basic functionality test completed!"
+
+  production-release:
+    if: ${{ !inputs.test_pypi_only }}
+    needs: test-pypi-upload
+    runs-on: ubuntu-latest
+    environment: production-release
+    permissions:
+      id-token: write
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: test-dist
+        path: dist/
+    
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+    
+    - name: Verify PyPI publication
+      run: |
+        echo "⏳ Waiting for package to be available on PyPI..."
+        sleep 60
+        
+        echo "📥 Installing from PyPI..."
+        python -m pip install threepanewindows==${{ inputs.version }}
+        
+        echo "✅ Verifying installation..."
+        python -c "
+        import threepanewindows
+        print(f'✅ Successfully installed threepanewindows v{threepanewindows.__version__} from PyPI')
+        "
+        
+        echo "🎉 Production PyPI release completed successfully!"

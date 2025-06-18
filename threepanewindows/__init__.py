@@ -1,0 +1,68 @@
+"""
+ThreePaneWindows - Professional three-pane window layouts for Tkinter applications.
+
+This package provides sophisticated three-pane window layouts with advanced features:
+- Fixed and dockable layouts
+- Professional theming system
+- Drag-and-drop pane management
+- Resizable panes with constraints
+- Status bars, toolbars, and context menus
+- Cross-platform compatibility
+
+Main Components:
+    - FixedThreePaneWindow: Simple fixed three-pane layout
+    - DockableThreePaneWindow: Advanced layout with docking capabilities
+    - EnhancedDockableThreePaneWindow: Full-featured layout with all bells and whistles
+    - ThemeManager: Professional theming system
+
+Quick Start:
+    >>> import tkinter as tk
+    >>> from threepanewindows import FixedThreePaneWindow
+    >>> 
+    >>> root = tk.Tk()
+    >>> window = FixedThreePaneWindow(root)
+    >>> window.pack(fill=tk.BOTH, expand=True)
+    >>> 
+    >>> # Add content to panes
+    >>> tk.Label(window.left_pane, text="Left").pack()
+    >>> tk.Label(window.center_pane, text="Center").pack()
+    >>> tk.Label(window.right_pane, text="Right").pack()
+"""
+
+from ._version import __version__, __version_info__, FULL_VERSION
+from .dockable import DockableThreePaneWindow
+from .fixed import FixedThreePaneLayout, FixedThreePaneWindow
+from .enhanced_dockable import EnhancedDockableThreePaneWindow, PaneConfig
+from .themes import ThemeManager, get_theme_manager, set_global_theme, ThemeType
+
+# Metadata
+__author__ = "Stan Griffiths"
+__email__ = "stantgriffiths@gmail.com"
+__license__ = "MIT"
+__copyright__ = "Copyright 2024 Stan Griffiths"
+
+# Public API
+__all__ = [
+    # Version info
+    "__version__",
+    "__version_info__",
+    "FULL_VERSION",
+    
+    # Main window classes
+    "FixedThreePaneWindow",
+    "FixedThreePaneLayout",  # Legacy alias
+    "DockableThreePaneWindow", 
+    "EnhancedDockableThreePaneWindow",
+    
+    # Configuration classes
+    "PaneConfig",
+    
+    # Theming system
+    "ThemeManager",
+    "get_theme_manager",
+    "set_global_theme",
+    "ThemeType",
+]
+
+# Convenience aliases for backward compatibility
+FixedThreePaneLayout = FixedThreePaneWindow  # Legacy name
