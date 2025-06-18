@@ -16,6 +16,7 @@ on:
 jobs:
   test-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
     - uses: actions/checkout@v4
     
@@ -24,12 +25,23 @@ jobs:
       with:
         python-version: '3.11'
     
+    # Set up virtual display for GUI testing
+    - name: Set up virtual display
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb x11-utils
+        export DISPLAY=:99
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        sleep 3
+    
     - name: Install dependencies
+      timeout-minutes: 5
       run: |
         python -m pip install --upgrade pip
         pip install build twine
     
     - name: Update version for testing
+      timeout-minutes: 2
       run: |
         # Update version in _version.py
         sed -i 's/__version__ = ".*"/__version__ = "${{ inputs.version }}"/' threepanewindows/_version.py
@@ -41,9 +53,11 @@ jobs:
         grep -n "version" threepanewindows/_version.py pyproject.toml
     
     - name: Build package
+      timeout-minutes: 5
       run: python -m build
     
     - name: Check package
+      timeout-minutes: 5
       run: |
         twine check dist/*
         echo "📦 Package contents:"
@@ -61,10 +75,26 @@ jobs:
   test-pypi-upload:
     needs: test-build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: test-release
     permissions:
       id-token: write
+      contents: read
     steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    # Set up virtual display for GUI testing
+    - name: Set up virtual display
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb x11-utils
+        export DISPLAY=:99
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        sleep 3
+    
     - name: Download build artifacts
       uses: actions/download-artifact@v3
       with:
@@ -78,6 +108,9 @@ jobs:
         skip-existing: true
     
     - name: Test installation from Test PyPI
+      timeout-minutes: 15
+      env:
+        DISPLAY: :99
       run: |
         echo "⏳ Waiting for package to be available on Test PyPI..."
         sleep 60
@@ -114,10 +147,17 @@ jobs:
     if: ${{ !inputs.test_pypi_only }}
     needs: test-pypi-upload
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment: production-release
     permissions:
       id-token: write
+      contents: read
     steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
     - name: Download build artifacts
       uses: actions/download-artifact@v3
       with:
@@ -128,6 +168,7 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
     
     - name: Verify PyPI publication
+      timeout-minutes: 10
       run: |
         echo "⏳ Waiting for package to be available on PyPI..."
         sleep 60
