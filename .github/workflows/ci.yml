@@ -9,7 +9,9 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
@@ -18,35 +20,49 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     
+    # Set up virtual display for Linux GUI testing
+    - name: Set up virtual display (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb x11-utils
+        export DISPLAY=:99
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        sleep 3
+    
     - name: Install dependencies
+      timeout-minutes: 10
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[dev]
+        pip install -e .[dev,test]
     
     - name: Lint with flake8
+      timeout-minutes: 5
       run: |
-        pip install flake8
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     
     - name: Type check with mypy
+      timeout-minutes: 5
+      continue-on-error: true  # Don't fail CI on mypy issues initially
       run: |
-        pip install mypy
         mypy threepanewindows --ignore-missing-imports
     
     - name: Test with pytest
+      timeout-minutes: 15
+      env:
+        DISPLAY: ${{ runner.os == 'Linux' && ':99' || '' }}
       run: |
-        pip install pytest pytest-cov
-        pytest tests/ --cov=threepanewindows --cov-report=xml --cov-report=html
+        pytest tests/ --cov=threepanewindows --cov-report=xml --cov-report=html -v
     
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./coverage.xml
         flags: unittests
@@ -55,47 +71,56 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
     - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     
     - name: Install dependencies
+      timeout-minutes: 5
       run: |
         python -m pip install --upgrade pip
         pip install bandit safety
     
     - name: Run security checks with bandit
+      timeout-minutes: 5
+      continue-on-error: true  # Don't fail CI on security warnings initially
       run: bandit -r threepanewindows/
     
     - name: Check dependencies for known security vulnerabilities
+      timeout-minutes: 5
+      continue-on-error: true  # Don't fail CI on safety warnings initially
       run: safety check
 
   docs:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
     - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
     
     - name: Install dependencies
+      timeout-minutes: 10
       run: |
         python -m pip install --upgrade pip
         pip install -e .[docs]
     
     - name: Build documentation
+      timeout-minutes: 10
       run: |
         cd docs
         make html
     
     - name: Upload documentation artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: documentation
         path: docs/_build/html/

@@ -148,10 +148,57 @@ def start_release(version):
     
     print(f"✅ Release branch created: {branch_name}")
     print(f"💡 Next steps:")
-    print(f"   1. Push branch: git push -u origin {branch_name}")
-    print(f"   2. Create PR to main")
-    print(f"   3. After merge, create GitHub release with tag v{version}")
+    print(f"   1. Test thoroughly on this branch")
+    print(f"   2. Push branch: git push -u origin {branch_name}")
+    print(f"   3. Run: python dev_tools.py merge-to-main")
     print(f"   4. GitHub Actions will automatically publish to PyPI")
+
+
+def merge_to_main():
+    """Merge current release branch to main and create tag."""
+    current_branch = get_current_branch()
+    
+    if not current_branch.startswith('release/'):
+        print("❌ Not on a release branch. Please create a release branch first.")
+        print("💡 Use: python dev_tools.py release <version>")
+        return False
+    
+    version = current_branch.replace('release/v', '')
+    print(f"🔄 Merging {current_branch} to main and creating tag v{version}...")
+    
+    # Merge to main
+    print("Switching to main branch...")
+    run_command(["git", "checkout", "main"])
+    run_command(["git", "pull", "origin", "main"])
+    
+    print(f"Merging {current_branch} to main...")
+    run_command(["git", "merge", current_branch])
+    
+    # Create tag
+    print(f"Creating tag v{version}...")
+    run_command(["git", "tag", f"v{version}"])
+    
+    # Push main and tags
+    print("Pushing to main with tags...")
+    run_command(["git", "push", "origin", "main"])
+    run_command(["git", "push", "origin", "--tags"])
+    
+    # Merge back to develop
+    print("Merging back to develop...")
+    run_command(["git", "checkout", "develop"])
+    run_command(["git", "merge", current_branch])
+    run_command(["git", "push", "origin", "develop"])
+    
+    # Clean up release branch (optional)
+    print(f"Cleaning up release branch {current_branch}...")
+    run_command(["git", "branch", "-d", current_branch])
+    run_command(["git", "push", "origin", "--delete", current_branch])
+    
+    print(f"✅ Release v{version} completed!")
+    print(f"🏷️  Tag v{version} created and pushed")
+    print(f"🚀 GitHub Actions will now build and publish to PyPI")
+    
+    return True
 
 
 def test_package_locally():
@@ -470,6 +517,7 @@ def show_status():
     print("  python dev_tools.py setup              - Set up development environment")
     print("  python dev_tools.py feature <name>     - Create feature branch")
     print("  python dev_tools.py release <version>  - Start release process")
+    print("  python dev_tools.py merge-to-main      - Merge release to main and tag")
     print("  python dev_tools.py test               - Test package locally")
     print("  python dev_tools.py pytest             - Run test suite with coverage")
     print("  python dev_tools.py lint               - Run code quality checks")
@@ -686,6 +734,37 @@ def main():
 """
         create_summary(f"Release Started: v{version}", summary_content, "RELEASE")
     
+    elif command == "merge-to-main":
+        success = merge_to_main()
+        
+        if success:
+            current_branch = get_current_branch()
+            version = current_branch.replace('release/v', '') if current_branch.startswith('release/') else "unknown"
+            
+            # Create summary
+            summary_content = f"""Merged release to main and created tag
+    
+    ### Actions Taken:
+    - Switched to main branch and pulled latest
+    - Merged release branch to main
+    - Created and pushed tag v{version}
+    - Merged release back to develop
+    - Cleaned up release branch
+    
+    ### Release Info:
+    - Version: {version}
+    - Tag: v{version}
+    - Main branch updated: ✅
+    - Develop branch updated: ✅
+    
+    ### Next Steps:
+    1. GitHub Actions will automatically build and publish to PyPI
+    2. Monitor the release workflow in GitHub Actions
+    3. Verify package is available on PyPI
+    4. Update any dependent projects
+    """
+            create_summary(f"Release Completed: v{version}", summary_content, "MERGE")
+    
     elif command == "test":
         test_package_locally()
         
@@ -876,7 +955,7 @@ def main():
     
     else:
         print(f"Unknown command: {command}")
-        print("Available commands: setup, feature, release, test, pytest, lint, docs, examples, clean, status, help, summary")
+        print("Available commands: setup, feature, release, merge-to-main, test, pytest, lint, docs, examples, clean, status, help, summary")
         print("Run 'python dev_tools.py help' for detailed information.")
 
 

@@ -1,12 +1,28 @@
 import tkinter as tk
 
 class FixedThreePaneLayout(tk.Frame):
-    def __init__(self, master, side_width=150, sash_width=2, left_fixed_width=None, right_fixed_width=None, menu_bar=None, **kwargs):
+    def __init__(self, master, side_width=150, sash_width=2, left_width=None, right_width=None, 
+                 left_fixed_width=None, right_fixed_width=None, min_pane_size=50, menu_bar=None, **kwargs):
         super().__init__(master, **kwargs)
+        
+        # Validate parameters
+        if left_width is not None and left_width < 0:
+            raise ValueError("left_width must be non-negative")
+        if right_width is not None and right_width < 0:
+            raise ValueError("right_width must be non-negative")
+        if min_pane_size < 0:
+            raise ValueError("min_pane_size must be non-negative")
+        
         self.side_width = side_width
         self.sash_width = sash_width
-        self.left_fixed_width = left_fixed_width
-        self.right_fixed_width = right_fixed_width
+        self.min_pane_size = min_pane_size
+        
+        # Support both parameter names for compatibility
+        self.left_width = left_width or left_fixed_width or side_width
+        self.right_width = right_width or right_fixed_width or side_width
+        self.left_fixed_width = left_width or left_fixed_width
+        self.right_fixed_width = right_width or right_fixed_width
+        
         self.menu_bar = menu_bar
         
         # Add menu bar if provided
@@ -108,11 +124,19 @@ class FixedThreePaneLayout(tk.Frame):
 
     def set_left_width(self, width: int):
         """Set the left pane width."""
+        if width < 0:
+            raise ValueError("Width must be non-negative")
+        width = max(width, self.min_pane_size)
+        self.left_width = width
         self.left_fixed_width = width
         self._resize()
     
     def set_right_width(self, width: int):
         """Set the right pane width."""
+        if width < 0:
+            raise ValueError("Width must be non-negative")
+        width = max(width, self.min_pane_size)
+        self.right_width = width
         self.right_fixed_width = width
         self._resize()
     
@@ -133,6 +157,22 @@ class FixedThreePaneLayout(tk.Frame):
         return self.right_fixed_width is not None
 
     @property
+    def left_pane(self): 
+        """Access to left pane for adding widgets."""
+        return self._frame_left
+
+    @property
+    def center_pane(self): 
+        """Access to center pane for adding widgets."""
+        return self._frame_center
+
+    @property
+    def right_pane(self): 
+        """Access to right pane for adding widgets."""
+        return self._frame_right
+
+    # Legacy property names for backward compatibility
+    @property
     def frame_left(self): return self._frame_left
 
     @property
@@ -140,3 +180,7 @@ class FixedThreePaneLayout(tk.Frame):
 
     @property
     def frame_right(self): return self._frame_right
+
+
+# Modern alias - this is the preferred class name
+FixedThreePaneWindow = FixedThreePaneLayout

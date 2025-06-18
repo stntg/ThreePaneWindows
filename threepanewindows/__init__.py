@@ -31,7 +31,8 @@ Quick Start:
 
 from ._version import __version__, __version_info__, FULL_VERSION
 from .dockable import DockableThreePaneWindow
-from .fixed import FixedThreePaneLayout, FixedThreePaneWindow
+from .fixed import FixedThreePaneLayout
+from .fixed import FixedThreePaneWindow
 from .enhanced_dockable import EnhancedDockableThreePaneWindow, PaneConfig
 from .themes import ThemeManager, get_theme_manager, set_global_theme, ThemeType
 
@@ -64,5 +65,4 @@ __all__ = [
     "ThemeType",
 ]
 
-# Convenience aliases for backward compatibility
-FixedThreePaneLayout = FixedThreePaneWindow  # Legacy name
+# Note: FixedThreePaneWindow is the modern name, FixedThreePaneLayout is legacy
