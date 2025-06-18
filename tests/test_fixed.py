@@ -40,6 +40,11 @@ class TestFixedThreePaneWindow:
         """Test adding widgets to each pane."""
         window = FixedThreePaneWindow(root)
         
+        # Record initial number of children (includes default labels)
+        initial_left = len(window.left_pane.winfo_children())
+        initial_center = len(window.center_pane.winfo_children())
+        initial_right = len(window.right_pane.winfo_children())
+        
         # Add widgets to each pane
         left_label = tk.Label(window.left_pane, text="Left")
         left_label.pack()
@@ -50,10 +55,10 @@ class TestFixedThreePaneWindow:
         right_button = tk.Button(window.right_pane, text="Right")
         right_button.pack()
         
-        # Verify widgets were added
-        assert len(window.left_pane.winfo_children()) == 1
-        assert len(window.center_pane.winfo_children()) == 1
-        assert len(window.right_pane.winfo_children()) == 1
+        # Verify widgets were added (should be initial + 1)
+        assert len(window.left_pane.winfo_children()) == initial_left + 1
+        assert len(window.center_pane.winfo_children()) == initial_center + 1
+        assert len(window.right_pane.winfo_children()) == initial_right + 1
 
     def test_pane_visibility(self, root):
         """Test pane visibility methods."""
