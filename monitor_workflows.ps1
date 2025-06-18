@@ -241,12 +241,24 @@ function Trigger-CI {
 
 # Main script logic
 switch ($Command.ToLower()) {
-    "help" { Show-Help }
-    "status" { Show-Status }
-    "open" { Open-ActionsPage -WorkflowName $Workflow }
-    "git" { Show-GitInfo }
-    "test" { Run-LocalTests }
-    "trigger-ci" { Trigger-CI }
+    "help" { 
+        Show-Help 
+    }
+    "status" { 
+        Show-Status 
+    }
+    "open" { 
+        Open-ActionsPage -WorkflowName $Workflow 
+    }
+    "git" { 
+        Show-GitInfo 
+    }
+    "test" { 
+        Run-LocalTests 
+    }
+    "trigger-ci" { 
+        Trigger-CI 
+    }
     default { 
         Write-Host "❌ Unknown command: $Command" -ForegroundColor Red
         Write-Host ""
