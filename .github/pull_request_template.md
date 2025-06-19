@@ -34,9 +34,9 @@ Please delete options that are not relevant.
 
 ### Test Environment
 
-- Python version: 
-- Operating System: 
-- ThreePaneWindows version: 
+- Python version:
+- Operating System:
+- ThreePaneWindows version:
 
 ## Screenshots (if applicable)
 

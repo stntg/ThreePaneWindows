@@ -13,7 +13,7 @@ ThreePaneWindows provides two main classes for creating three-pane layouts in Tk
 
 A sophisticated three-pane window with detachable left and right panels.
 
-#### Constructor
+#### Constructor: DockableThreePaneWindow
 
 ```python
 DockableThreePaneWindow(master=None, side_width=150, left_builder=None, 
@@ -21,6 +21,7 @@ DockableThreePaneWindow(master=None, side_width=150, left_builder=None,
 ```
 
 **Parameters:**
+
 - `master`: Parent widget (default: None)
 - `side_width`: Width of side panels in pixels (default: 150)
 - `left_builder`: Function to build left panel content (default: None)
@@ -29,6 +30,7 @@ DockableThreePaneWindow(master=None, side_width=150, left_builder=None,
 - `**kwargs`: Additional arguments passed to tk.Frame
 
 **Builder Function Signature:**
+
 ```python
 def builder_function(frame):
     """
@@ -39,24 +41,27 @@ def builder_function(frame):
     tk.Label(frame, text="Content").pack()
 ```
 
-#### Methods
+#### Methods (DockableThreePaneWindow)
 
 ##### `get_left_frame()`
+
 Returns the left panel frame widget.
 
 **Returns:** `ttk.Frame` - The left panel frame
 
 ##### `get_center_frame()`
+
 Returns the center panel frame widget.
 
 **Returns:** `ttk.Frame` - The center panel frame
 
 ##### `get_right_frame()`
+
 Returns the right panel frame widget.
 
 **Returns:** `ttk.Frame` - The right panel frame
 
-#### Properties
+#### DockableThreePaneWindow Properties
 
 - `side_width`: Width of side panels
 - `left_builder`: Left panel builder function
@@ -65,7 +70,7 @@ Returns the right panel frame widget.
 - `left_window`: Reference to detached left window (None if attached)
 - `right_window`: Reference to detached right window (None if attached)
 
-#### Example Usage
+#### Example Usage: DockableThreePaneWindow
 
 ```python
 import tkinter as tk
@@ -108,6 +113,7 @@ FixedThreePaneLayout(master, side_width=150, sash_width=2, **kwargs)
 ```
 
 **Parameters:**
+
 - `master`: Parent widget (required)
 - `side_width`: Width of side panels in pixels (default: 150)
 - `sash_width`: Width of separator bars in pixels (default: 2)
@@ -116,53 +122,67 @@ FixedThreePaneLayout(master, side_width=150, sash_width=2, **kwargs)
 #### Methods
 
 ##### `set_label_texts(left=None, center=None, right=None)`
+
 Set the text labels for the panels.
 
 **Parameters:**
+
 - `left`: Text for left panel label (optional)
 - `center`: Text for center panel label (optional)
 - `right`: Text for right panel label (optional)
 
 ##### `add_to_left(widget)`
+
 Add a widget to the left panel.
 
 **Parameters:**
+
 - `widget`: Tkinter widget to add
 
 ##### `add_to_center(widget)`
+
 Add a widget to the center panel.
 
 **Parameters:**
+
 - `widget`: Tkinter widget to add
 
 ##### `add_to_right(widget)`
+
 Add a widget to the right panel.
 
 **Parameters:**
+
 - `widget`: Tkinter widget to add
 
 ##### `clear_left()`
+
 Remove all widgets from the left panel (except the label).
 
 ##### `clear_center()`
+
 Remove all widgets from the center panel (except the label).
 
 ##### `clear_right()`
+
 Remove all widgets from the right panel (except the label).
 
-#### Properties
+#### FixedThreePaneLayout Properties
 
 ##### `frame_left`
+
 Returns the left panel frame.
 
 **Returns:** `tk.Frame` - The left panel frame
 
 ##### `frame_center`
+
 Returns the center panel frame.
 
 **Returns:** `tk.Frame` - The center panel frame
 
 ##### `frame_right`
+
 Returns the right panel frame.
 
 **Returns:** `tk.Frame` - The right panel frame
@@ -215,6 +235,7 @@ layout.frame_right.config(bg="#0000FF")  # Blue background
 1. **Builder Functions**: Use builder functions with `DockableThreePaneWindow` for dynamic content that needs to be recreated when panels are detached/reattached.
 
 2. **Widget Management**: With `FixedThreePaneLayout`, create widgets with the correct parent frame for better performance:
+
    ```python
    # Good
    widget = tk.Label(layout.frame_left, text="Content")
@@ -226,6 +247,7 @@ layout.frame_right.config(bg="#0000FF")  # Blue background
    ```
 
 3. **Responsive Design**: Use `fill` and `expand` options appropriately:
+
    ```python
    # For center content that should resize
    layout.add_to_center(text_widget)  # Automatically uses fill='both', expand=True

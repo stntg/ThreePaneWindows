@@ -18,30 +18,36 @@ python dev_tools.py setup
 ## Available Commands
 
 ### Environment Setup
+
 - `setup` - Set up development environment with all dependencies
 - `clean` - Clean build artifacts and cache files
 
 ### Development Workflow
+
 - `feature <name>` - Create a new feature branch from develop
 - `release <version>` - Start release process with version updates
 - `status` - Show current development status
 
 ### Testing & Quality
+
 - `test` - Test package locally with build and installation
 - `pytest` - Run test suite with coverage reporting
 - `lint` - Run all code quality checks (black, flake8, mypy, bandit)
 - `examples` - Run example applications
 
 ### Documentation
+
 - `docs` - Build Sphinx documentation
 
 ### Utilities
+
 - `summary <title> <content>` - Create timestamped summary files
 - `help` - Show detailed help information
 
 ## Workflow Examples
 
 ### Starting a New Feature
+
 ```bash
 python dev_tools.py feature my-awesome-feature
 # Creates feature/my-awesome-feature branch from develop
@@ -49,6 +55,7 @@ python dev_tools.py feature my-awesome-feature
 ```
 
 ### Pre-commit Checks
+
 ```bash
 python dev_tools.py lint
 # Runs black, isort, flake8, mypy, and bandit
@@ -56,6 +63,7 @@ python dev_tools.py lint
 ```
 
 ### Testing
+
 ```bash
 python dev_tools.py pytest
 # Runs full test suite with coverage
@@ -63,6 +71,7 @@ python dev_tools.py pytest
 ```
 
 ### Release Process
+
 ```bash
 python dev_tools.py release 1.0.0
 # Creates release/v1.0.0 branch
@@ -73,14 +82,18 @@ python dev_tools.py release 1.0.0
 ## Features
 
 ### Automatic Summary Generation
+
 Every command automatically creates a timestamped summary file in the `dev/` directory with:
+
 - Command details and results
 - Actions performed
 - Next steps
 - Metadata and timestamps
 
 ### Comprehensive Status Display
+
 The status command shows:
+
 - Current branch and version
 - Git working directory status
 - Project structure validation
@@ -88,11 +101,13 @@ The status command shows:
 - Available commands
 
 ### Safe Command Execution
+
 - Uses `shlex.split()` for safe command parsing
 - Proper error handling and reporting
 - Cross-platform compatibility (Windows/Unix)
 
 ### Integration with Project Structure
+
 - Understands ThreePaneWindows project layout
 - Updates multiple version files consistently
 - Works with existing CI/CD workflows
@@ -103,17 +118,21 @@ The status command shows:
 The tool is designed to be easily customizable for your workflow. Key areas for customization:
 
 ### Adding New Commands
+
 Add new functions and integrate them in the `main()` function following the existing pattern.
 
 ### Modifying Workflows
+
 Update the branch creation and release processes to match your preferred Git workflow.
 
 ### Extending Status Checks
+
 Add more project-specific status checks in the `show_status()` function.
 
 ## Summary Files
 
 All commands generate summary files in `dev/SUMMARY_<TYPE>_<timestamp>.md` with:
+
 - Detailed action logs
 - Results and status
 - Next steps
@@ -124,6 +143,7 @@ This provides a complete audit trail of development activities.
 ## Integration with Existing Tools
 
 The dev_tools.py integrates seamlessly with:
+
 - **GitHub Actions** - Workflows use same commands
 - **Pre-commit hooks** - Lint command matches hook configuration  
 - **Tox** - Commands align with tox environments

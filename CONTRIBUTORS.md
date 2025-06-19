@@ -6,9 +6,9 @@ Thank you to all the people who have contributed to ThreePaneWindows!
 
 - **Stan Griffiths** (@stntg) - Project creator and maintainer
 
-## Contributors
+## Project Contributors
 
-This project exists thanks to all the people who contribute. 
+This project exists thanks to all the people who contribute.
 
 <!-- Contributors will be automatically added here when they make their first contribution -->
 

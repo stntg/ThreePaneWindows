@@ -29,12 +29,14 @@ This project adheres to a code of conduct. By participating, you are expected to
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
+
    ```bash
    git clone https://github.com/yourusername/threepanewindows.git
    cd threepanewindows
    ```
 
 3. **Set up the development environment**:
+
    ```bash
    # Create a virtual environment
    python -m venv venv
@@ -49,11 +51,13 @@ This project adheres to a code of conduct. By participating, you are expected to
    ```
 
 4. **Install pre-commit hooks**:
+
    ```bash
    pre-commit install
    ```
 
 5. **Verify the setup**:
+
    ```bash
    pytest
    python -m threepanewindows.examples
@@ -146,6 +150,7 @@ tox -e py38,py39,py310,py311,py312
 - Test edge cases and error conditions
 
 Example test structure:
+
 ```python
 import pytest
 import tkinter as tk
@@ -200,7 +205,7 @@ tox -e docs
 
 ### Documentation Structure
 
-```
+```text
 docs/
 ├── index.rst           # Main documentation page
 ├── installation.rst    # Installation instructions
@@ -216,6 +221,7 @@ docs/
 ### Pull Request Process
 
 1. **Ensure your branch is up to date**:
+
    ```bash
    git checkout develop
    git pull origin develop
@@ -224,6 +230,7 @@ docs/
    ```
 
 2. **Run the full test suite**:
+
    ```bash
    tox
    ```
@@ -268,6 +275,7 @@ Brief description of changes
 ### Version Management
 
 We use semantic versioning (SemVer):
+
 - `MAJOR.MINOR.PATCH`
 - `MAJOR`: Breaking changes
 - `MINOR`: New features (backward compatible)
@@ -276,6 +284,7 @@ We use semantic versioning (SemVer):
 ### Creating a Release
 
 1. **Create a release branch**:
+
    ```bash
    git checkout develop
    git pull origin develop
@@ -292,6 +301,7 @@ We use semantic versioning (SemVer):
    - List all changes since last release
 
 4. **Test the release**:
+
    ```bash
    tox
    python -m build
@@ -301,6 +311,7 @@ We use semantic versioning (SemVer):
 5. **Create pull request** to `main`
 
 6. **After merge, create and push tag**:
+
    ```bash
    git checkout main
    git pull origin main
@@ -319,6 +330,7 @@ We use semantic versioning (SemVer):
 For critical bugs in production:
 
 1. **Create hotfix branch from main**:
+
    ```bash
    git checkout main
    git pull origin main
@@ -340,6 +352,7 @@ For critical bugs in production:
 ## Recognition
 
 Contributors are recognized in:
+
 - `CONTRIBUTORS.md` file
 - GitHub contributors page
 - Release notes for significant contributions
