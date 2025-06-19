@@ -145,6 +145,7 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "visual: marks tests requiring visual inspection",
     "integration: marks tests as integration tests",
+    "gui: marks tests requiring GUI/Tkinter",
 ]
 filterwarnings = [
     "error",
