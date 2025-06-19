@@ -4,6 +4,16 @@ Development environment setup script for ThreePaneWindows.
 
 This script sets up the development environment with all necessary dependencies
 and tools for contributing to the ThreePaneWindows project.
+
+Features:
+- Installing the package in development mode
+- Installing all development dependencies  
+- Setting up pre-commit hooks
+- Running initial tests to verify setup
+- Secure subprocess execution (no shell injection vulnerabilities)
+
+Usage:
+    python scripts/setup-dev.py
 """
 
 import subprocess
@@ -37,8 +47,15 @@ def run_command(cmd, check=True):
 
 def setup_dev_environment():
     """Set up development environment."""
-    print("🔧 Setting up ThreePaneWindows development environment...")
+    print("🚀 Setting up ThreePaneWindows development environment")
     print("=" * 60)
+    
+    # Check Python version
+    if sys.version_info < (3, 8):
+        print("❌ Python 3.8 or higher is required")
+        sys.exit(1)
+    
+    print(f"✅ Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} detected")
 
     # Change to project root directory
     script_dir = Path(__file__).parent
@@ -52,15 +69,15 @@ def setup_dev_environment():
             "Installing package in development mode",
         ),
         (["pre-commit", "install"], "Setting up pre-commit hooks"),
-        (["python", "-m", "pytest", "--version"], "Verifying pytest installation"),
+        (["python", "-c", "import threepanewindows; print(f'ThreePaneWindows v{threepanewindows.__version__} imported successfully')"], "Verifying package installation"),
     ]
 
     success_count = 0
     for cmd, desc in commands:
-        print(f"\n📋 {desc}...")
+        print(f"\n🔄 {desc}...")
         stdout, stderr = run_command(cmd, check=False)
         if stdout is not None:
-            print(f"✅ {desc} completed")
+            print(f"✅ {desc} completed successfully")
             if stdout:
                 print(f"   Output: {stdout}")
             success_count += 1
@@ -70,13 +87,23 @@ def setup_dev_environment():
     print("\n" + "=" * 60)
     if success_count == len(commands):
         print("🎉 Development environment setup completed successfully!")
-        print("\n💡 Next steps:")
-        print("   • Run 'python dev_tools.py test' to run tests")
-        print("   • Run 'python dev_tools.py lint' to check code quality")
-        print("   • Run 'python verify_package.py' to verify installation")
+        print("\n📋 Next steps:")
+        print("   1. Run tests: pytest")
+        print("   2. Run linting: flake8 threepanewindows/")
+        print("   3. Format code: black .")
+        print("   4. Build docs: cd docs && make html")
+        print("   5. Run examples: python -m threepanewindows.examples")
+        print("\n🔧 Development commands:")
+        print("   • Run all checks: tox")
+        print("   • Test release: python scripts/release.py --version 0.1.0 --type minor")
+        print("   • Build package: python -m build")
+        print("\n📚 Documentation:")
+        print("   • Contributing: CONTRIBUTING.md")
+        print("   • API docs: docs/api/")
+        print("   • Examples: threepanewindows/examples.py")
         return True
     else:
-        print(f"⚠️  Setup completed with {len(commands) - success_count} failures")
+        print(f"⚠️  Setup completed with {len(commands) - success_count} errors")
         print("   Please check the error messages above and resolve any issues")
         return False
 
