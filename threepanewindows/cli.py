@@ -5,7 +5,6 @@ Command-line interface for ThreePaneWindows.
 This module provides a simple CLI to run demos and examples.
 """
 
-import sys
 import argparse
 from .examples import run_demo
 
@@ -13,32 +12,27 @@ from .examples import run_demo
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="ThreePaneWindows - Tkinter three-pane layouts",
-        prog="threepane"
+        description="ThreePaneWindows - Tkinter three-pane layouts", prog="threepane"
     )
-    
-    parser.add_argument(
-        "--version", 
-        action="version", 
-        version="%(prog)s 1.0.0"
-    )
-    
+
+    parser.add_argument("--version", action="version", version="%(prog)s 1.0.0")
+
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    
+
     # Demo command
     demo_parser = subparsers.add_parser("demo", help="Run interactive demo")
     demo_parser.add_argument(
-        "--type", 
-        choices=["dockable", "fixed", "both"], 
+        "--type",
+        choices=["dockable", "fixed", "both"],
         default="both",
-        help="Type of demo to run (default: both)"
+        help="Type of demo to run (default: both)",
     )
-    
+
     # Info command
-    info_parser = subparsers.add_parser("info", help="Show package information")
-    
+    subparsers.add_parser("info", help="Show package information")
+
     args = parser.parse_args()
-    
+
     if args.command == "demo":
         print("Starting ThreePaneWindows demo...")
         run_demo()

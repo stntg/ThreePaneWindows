@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """
-Development setup script for ThreePaneWindows.
+Development environment setup script for ThreePaneWindows.
 
-This script helps set up the development environment by:
-1. Installing the package in development mode
-2. Installing all development dependencies
-3. Setting up pre-commit hooks
-4. Running initial tests to verify setup
+This script sets up the development environment with all necessary dependencies
+and tools for contributing to the ThreePaneWindows project.
+
+Features:
+- Installing the package in development mode
+- Installing all development dependencies  
+- Setting up pre-commit hooks
+- Running initial tests to verify setup
+- Secure subprocess execution (no shell injection vulnerabilities)
 
 Usage:
     python scripts/setup-dev.py
@@ -14,33 +18,35 @@ Usage:
 
 import subprocess
 import sys
+import shlex
 from pathlib import Path
 
 
-def run_command(cmd, description):
+def run_command(cmd, check=True):
     """Run a command safely without shell injection vulnerabilities."""
-    import shlex
-    print(f"\n🔄 {description}...")
     try:
-        # SECURE: Parse command safely and use shell=False (default) to prevent shell injection
+        # If cmd is a string, split it safely; if it's already a list, use as-is
         if isinstance(cmd, str):
             cmd_list = shlex.split(cmd)
         else:
             cmd_list = cmd
-        
-        result = subprocess.run(cmd_list, check=True, capture_output=True, text=True)
-        print(f"✅ {description} completed successfully")
-        if result.stdout:
-            print(f"   Output: {result.stdout.strip()}")
-        return True
+
+        # SECURE: Using shell=False (default) to prevent shell injection
+        result = subprocess.run(cmd_list, capture_output=True, text=True, check=check)
+        return result.stdout.strip(), result.stderr.strip()
     except subprocess.CalledProcessError as e:
-        print(f"❌ {description} failed")
-        print(f"   Error: {e.stderr.strip()}")
-        return False
+        cmd_str = ' '.join(cmd_list) if isinstance(cmd_list, list) else cmd
+        print(f"Error running command: {cmd_str}")
+        print(f"Return code: {e.returncode}")
+        print(f"Error output: {e.stderr}")
+        return None, e.stderr
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return None, str(e)
 
 
-def main():
-    """Main setup function."""
+def setup_dev_environment():
+    """Set up development environment."""
     print("🚀 Setting up ThreePaneWindows development environment")
     print("=" * 60)
     
@@ -50,26 +56,35 @@ def main():
         sys.exit(1)
     
     print(f"✅ Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} detected")
-    
-    # Change to project root
-    project_root = Path(__file__).parent.parent
-    print(f"📁 Working in: {project_root}")
-    
-    # Install package in development mode with all dependencies
+
+    # Change to project root directory
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent
+    print(f"📁 Project root: {project_root}")
+
     commands = [
-        ("python -m pip install --upgrade pip", "Upgrading pip"),
-        ("pip install -e .[dev,docs,test]", "Installing package in development mode"),
-        ("pre-commit install", "Setting up pre-commit hooks"),
-        ("python -c \"import threepanewindows; print(f'ThreePaneWindows v{threepanewindows.__version__} imported successfully')\"", "Verifying package installation"),
+        (["python", "-m", "pip", "install", "--upgrade", "pip"], "Upgrading pip"),
+        (
+            ["pip", "install", "-e", ".[dev,docs,test]"],
+            "Installing package in development mode",
+        ),
+        (["pre-commit", "install"], "Setting up pre-commit hooks"),
+        (["python", "-c", "import threepanewindows; print(f'ThreePaneWindows v{threepanewindows.__version__} imported successfully')"], "Verifying package installation"),
     ]
-    
+
     success_count = 0
     for cmd, desc in commands:
-        if run_command(cmd, desc):
+        print(f"\n🔄 {desc}...")
+        stdout, stderr = run_command(cmd, check=False)
+        if stdout is not None:
+            print(f"✅ {desc} completed successfully")
+            if stdout:
+                print(f"   Output: {stdout}")
             success_count += 1
-    
+        else:
+            print(f"❌ {desc} failed: {stderr}")
+
     print("\n" + "=" * 60)
-    
     if success_count == len(commands):
         print("🎉 Development environment setup completed successfully!")
         print("\n📋 Next steps:")
@@ -86,9 +101,23 @@ def main():
         print("   • Contributing: CONTRIBUTING.md")
         print("   • API docs: docs/api/")
         print("   • Examples: threepanewindows/examples.py")
+        return True
     else:
         print(f"⚠️  Setup completed with {len(commands) - success_count} errors")
         print("   Please check the error messages above and resolve any issues")
+        return False
+
+
+def main():
+    """Main entry point."""
+    try:
+        success = setup_dev_environment()
+        sys.exit(0 if success else 1)
+    except KeyboardInterrupt:
+        print("\n⏹️  Setup interrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ Unexpected error during setup: {e}")
         sys.exit(1)
 
 
