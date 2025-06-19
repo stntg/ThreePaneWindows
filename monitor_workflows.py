@@ -194,9 +194,9 @@ class WorkflowMonitor:
         
         tests = [
             ("pytest", ["python", "-m", "pytest", "tests/", "-v"]),
-            ("flake8", ["flake8", "threepanewindows/"]),
-            ("mypy", ["mypy", "threepanewindows/", "--ignore-missing-imports"]),
-            ("bandit", ["bandit", "-r", "threepanewindows/"])
+            ("flake8", ["python", "-m", "flake8", "threepanewindows/"]),
+            ("mypy", ["python", "-m", "mypy", "threepanewindows/", "--ignore-missing-imports"]),
+            ("bandit", ["python", "-m", "bandit", "-r", "threepanewindows/"])
         ]
         
         results = {}

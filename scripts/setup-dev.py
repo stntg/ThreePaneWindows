@@ -18,10 +18,17 @@ from pathlib import Path
 
 
 def run_command(cmd, description):
-    """Run a command and handle errors."""
+    """Run a command safely without shell injection vulnerabilities."""
+    import shlex
     print(f"\n🔄 {description}...")
     try:
-        result = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+        # SECURE: Parse command safely and use shell=False (default) to prevent shell injection
+        if isinstance(cmd, str):
+            cmd_list = shlex.split(cmd)
+        else:
+            cmd_list = cmd
+        
+        result = subprocess.run(cmd_list, check=True, capture_output=True, text=True)
         print(f"✅ {description} completed successfully")
         if result.stdout:
             print(f"   Output: {result.stdout.strip()}")

@@ -45,6 +45,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
+            "threepane=threepanewindows.cli:main",
             "threepane-demo=threepanewindows.examples:run_demo",
         ],
     },
