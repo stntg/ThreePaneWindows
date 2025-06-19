@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version_suffix:
-        description: 'Version suffix for test (e.g., dev1, rc1, alpha1)'
+        description: 'Version suffix for test (e.g., dev1, rc1, alpha1, beta1) - will be made PEP 440 compliant'
         required: false
         type: string
         default: 'dev1'
@@ -72,21 +72,79 @@ jobs:
         print(data['project']['version'])
         ")
         
-        # Generate timestamp-based version for test uploads
+        # Generate PEP 440 compliant version for test uploads
         TIMESTAMP=$(date +%Y%m%d%H%M%S)
+        SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
         
         if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.version_suffix }}" ]; then
-          TEST_VERSION="${CURRENT_VERSION}${{ inputs.version_suffix }}${TIMESTAMP}"
+          # For manual dispatch with version suffix
+          # Convert timestamp to simple integer for PEP 440 compliance
+          DEV_NUMBER=$(date +%s)  # Unix timestamp as dev number
+          
+          # Handle different suffix types for PEP 440 compliance
+          SUFFIX="${{ inputs.version_suffix }}"
+          case "$SUFFIX" in
+            dev*)
+              # Extract number from dev suffix (e.g., dev1 -> 1)
+              DEV_SUFFIX=$(echo "$SUFFIX" | sed 's/dev//')
+              if [ -z "$DEV_SUFFIX" ]; then
+                DEV_SUFFIX="1"
+              fi
+              TEST_VERSION="${CURRENT_VERSION}.dev${DEV_SUFFIX}${DEV_NUMBER}"
+              ;;
+            alpha*|a*)
+              # Extract number from alpha suffix (e.g., alpha1 -> 1, a1 -> 1)
+              ALPHA_NUM=$(echo "$SUFFIX" | sed 's/alpha\|a//')
+              if [ -z "$ALPHA_NUM" ]; then
+                ALPHA_NUM="1"
+              fi
+              TEST_VERSION="${CURRENT_VERSION}a${ALPHA_NUM}.dev${DEV_NUMBER}"
+              ;;
+            beta*|b*)
+              # Extract number from beta suffix (e.g., beta1 -> 1, b1 -> 1)
+              BETA_NUM=$(echo "$SUFFIX" | sed 's/beta\|b//')
+              if [ -z "$BETA_NUM" ]; then
+                BETA_NUM="1"
+              fi
+              TEST_VERSION="${CURRENT_VERSION}b${BETA_NUM}.dev${DEV_NUMBER}"
+              ;;
+            rc*)
+              # Extract number from rc suffix (e.g., rc1 -> 1)
+              RC_NUM=$(echo "$SUFFIX" | sed 's/rc//')
+              if [ -z "$RC_NUM" ]; then
+                RC_NUM="1"
+              fi
+              TEST_VERSION="${CURRENT_VERSION}rc${RC_NUM}.dev${DEV_NUMBER}"
+              ;;
+            *)
+              # For any other suffix, treat as dev version
+              TEST_VERSION="${CURRENT_VERSION}.dev${DEV_NUMBER}"
+              ;;
+          esac
         else
           # For automatic triggers, use PEP 440 compliant dev version
-          # Format: X.Y.Z.devN where N is timestamp + short commit hash
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          TEST_VERSION="${CURRENT_VERSION}.dev${TIMESTAMP}${SHORT_SHA}"
+          # Format: X.Y.Z.devN where N is a simple integer (Unix timestamp)
+          DEV_NUMBER=$(date +%s)  # Unix timestamp as dev number
+          TEST_VERSION="${CURRENT_VERSION}.dev${DEV_NUMBER}"
         fi
         
         echo "test_version=${TEST_VERSION}" >> $GITHUB_OUTPUT
         echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
         echo "📦 Test version: ${TEST_VERSION}"
+        
+        # Validate PEP 440 compliance
+        echo "🔍 Validating PEP 440 compliance..."
+        python -c "
+        import re
+        version = '${TEST_VERSION}'
+        # PEP 440 regex pattern (simplified)
+        pep440_pattern = r'^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$'
+        if re.match(pep440_pattern, version):
+            print(f'✅ Version {version} is PEP 440 compliant')
+        else:
+            print(f'❌ Version {version} is NOT PEP 440 compliant')
+            exit(1)
+        "
     
     - name: Update version for test upload
       run: |
