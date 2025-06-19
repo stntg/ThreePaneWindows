@@ -82,24 +82,51 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: test-release
-    permissions:
-      id-token: write
-      contents: read
     steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: dist
         path: dist/
     
+    - name: Install twine
+      run: |
+        python -m pip install --upgrade pip
+        pip install twine
+    
+    - name: Check Test PyPI token availability
+      id: check-token
+      run: |
+        if [ -z "${{ secrets.TEST_PYPI_API_TOKEN }}" ]; then
+          echo "Test PyPI token not available. Skipping Test PyPI upload."
+          echo "token-available=false" >> $GITHUB_OUTPUT
+        else
+          echo "Test PyPI token available. Proceeding with upload."
+          echo "token-available=true" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Publish to Test PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/
-        skip-existing: true
+      if: steps.check-token.outputs.token-available == 'true'
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      run: |
+        echo "🚀 Publishing package to Test PyPI..."
+        python -m twine upload --repository testpypi dist/* --verbose --skip-existing
+        echo "✅ Package successfully uploaded to Test PyPI!"
+    
+    - name: Test PyPI upload skipped
+      if: steps.check-token.outputs.token-available == 'false'
+      run: |
+        echo "⚠️ Test PyPI upload was skipped because TEST_PYPI_API_TOKEN secret is not configured."
     
     - name: Test installation from Test PyPI
+      if: steps.check-token.outputs.token-available == 'true'
       timeout-minutes: 10
       run: |
         echo "⏳ Waiting for package to be available on Test PyPI..."
@@ -130,21 +157,57 @@ jobs:
     needs: approval
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: production-release
-    permissions:
-      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
-      contents: read
     steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: dist
         path: dist/
     
+    - name: Install twine
+      run: |
+        python -m pip install --upgrade pip
+        pip install twine
+    
+    - name: Check PyPI token availability
+      id: check-token
+      run: |
+        if [ -z "${{ secrets.PYPI_API_TOKEN }}" ]; then
+          echo "PyPI token not available. Skipping PyPI upload."
+          echo "token-available=false" >> $GITHUB_OUTPUT
+        else
+          echo "PyPI token available. Proceeding with upload."
+          echo "token-available=true" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Publish to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      if: steps.check-token.outputs.token-available == 'true'
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        echo "🚀 Publishing package to PyPI..."
+        python -m twine upload dist/* --verbose
+        echo "✅ Package successfully published to PyPI!"
+    
+    - name: PyPI upload skipped
+      if: steps.check-token.outputs.token-available == 'false'
+      run: |
+        echo "⚠️ PyPI upload was skipped because PYPI_API_TOKEN secret is not configured."
+        echo ""
+        echo "To enable PyPI publishing:"
+        echo "1. Go to your repository Settings > Secrets and variables > Actions"
+        echo "2. Add a new repository secret named 'PYPI_API_TOKEN'"
+        echo "3. Set the value to your PyPI API token"
+        echo "4. Re-run this workflow"
     
     - name: Verify PyPI publication
+      if: steps.check-token.outputs.token-available == 'true'
       timeout-minutes: 10
       run: |
         echo "⏳ Waiting for package to be available on PyPI..."

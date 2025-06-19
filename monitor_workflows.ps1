@@ -29,7 +29,7 @@ function Show-Help {
     Write-Host "  test                - Run local tests"
     Write-Host "  trigger-ci          - Make a commit to trigger CI"
     Write-Host ""
-    Write-Host "Workflows: ci, docs, release, test-release" -ForegroundColor Magenta
+    Write-Host "Workflows: ci, docs, release, test-release, test-pypi-upload" -ForegroundColor Magenta
     Write-Host ""
     Write-Host "Examples:" -ForegroundColor Yellow
     Write-Host "  .\monitor_workflows.ps1 open ci"
@@ -69,6 +69,7 @@ function Show-Status {
     Write-Host "  Docs Workflow: $ActionsUrl/workflows/docs.yml"
     Write-Host "  Release Workflow: $ActionsUrl/workflows/release.yml"
     Write-Host "  Test Release: $ActionsUrl/workflows/test-release.yml"
+    Write-Host "  Test PyPI Upload: $ActionsUrl/workflows/test-pypi-upload.yml"
     Write-Host ""
     
     # Check if GitHub CLI is available
@@ -91,6 +92,7 @@ function Open-ActionsPage {
         "docs" = "docs.yml"
         "release" = "release.yml"
         "test-release" = "test-release.yml"
+        "test-pypi-upload" = "test-pypi-upload.yml"
     }
     
     if ($WorkflowName -and $workflows.ContainsKey($WorkflowName)) {

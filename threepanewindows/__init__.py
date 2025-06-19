@@ -18,11 +18,11 @@ Main Components:
 Quick Start:
     >>> import tkinter as tk
     >>> from threepanewindows import FixedThreePaneWindow
-    >>> 
+    >>>
     >>> root = tk.Tk()
     >>> window = FixedThreePaneWindow(root)
     >>> window.pack(fill=tk.BOTH, expand=True)
-    >>> 
+    >>>
     >>> # Add content to panes
     >>> tk.Label(window.left_pane, text="Left").pack()
     >>> tk.Label(window.center_pane, text="Center").pack()
@@ -48,16 +48,13 @@ __all__ = [
     "__version__",
     "__version_info__",
     "FULL_VERSION",
-    
     # Main window classes
     "FixedThreePaneWindow",
     "FixedThreePaneLayout",  # Legacy alias
-    "DockableThreePaneWindow", 
+    "DockableThreePaneWindow",
     "EnhancedDockableThreePaneWindow",
-    
     # Configuration classes
     "PaneConfig",
-    
     # Theming system
     "ThemeManager",
     "get_theme_manager",

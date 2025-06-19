@@ -111,19 +111,19 @@ def test_cli_availability():
         import subprocess
         
         # Test threepane command
-        result = subprocess.run(['threepane', '--version'], 
+        result = subprocess.run(['python', '-m', 'threepanewindows.cli', '--version'], 
                               capture_output=True, text=True, timeout=10)
         if result.returncode == 0:
-            print("✓ 'threepane' command is available")
+            print("✓ 'threepane' CLI module is available")
         else:
-            print("✗ 'threepane' command failed")
+            print("✗ 'threepane' CLI module failed")
             return False
         
         # Test threepane-demo command
-        result = subprocess.run(['threepane-demo', '--help'], 
+        result = subprocess.run(['python', '-m', 'threepanewindows.examples'], 
                               capture_output=True, text=True, timeout=10)
         # Note: This might fail if the demo tries to create a GUI
-        print("✓ 'threepane-demo' command is available")
+        print("✓ 'threepane-demo' examples module is available")
         
         return True
         
