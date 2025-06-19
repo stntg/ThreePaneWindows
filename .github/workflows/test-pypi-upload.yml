@@ -76,12 +76,12 @@ jobs:
         TIMESTAMP=$(date +%Y%m%d%H%M%S)
         
         if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.version_suffix }}" ]; then
-          TEST_VERSION="${CURRENT_VERSION}.${{ inputs.version_suffix }}.${TIMESTAMP}"
+          TEST_VERSION="${CURRENT_VERSION}${{ inputs.version_suffix }}${TIMESTAMP}"
         else
-          # For automatic triggers, use branch name and commit
-          BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
+          # For automatic triggers, use PEP 440 compliant dev version
+          # Format: X.Y.Z.devN where N is timestamp + short commit hash
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          TEST_VERSION="${CURRENT_VERSION}.dev.${BRANCH_NAME}.${SHORT_SHA}.${TIMESTAMP}"
+          TEST_VERSION="${CURRENT_VERSION}.dev${TIMESTAMP}${SHORT_SHA}"
         fi
         
         echo "test_version=${TEST_VERSION}" >> $GITHUB_OUTPUT
