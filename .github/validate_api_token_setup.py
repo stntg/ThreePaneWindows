@@ -28,6 +28,7 @@ def check_for_trusted_publishing(workflow_data, workflow_name):
     for job_name, job_config in jobs.items():
         # Check for environment (indicates trusted publishing)
         if 'environment' in job_config:
+            issues.append("[REDACTED] environment configuration detected")
             sanitized_environment = "[REDACTED]"  # Avoid logging sensitive environment values
             issues.append(f"Job '{job_name}' still uses environment {sanitized_environment} (trusted publishing)")
         
@@ -113,7 +114,7 @@ def validate_workflow(workflow_path):
     if tp_issues:
         print(f"⚠️  {workflow_path.name} - Trusted publishing remnants found:")
         for issue in tp_issues:
-            print(f"   • {issue.replace('[REDACTED]', 'an environment')}")  # Provide a generic message
+            print(f"   • {issue}")  # Ensure sanitized data is logged
     
     if missing_practices:
         print(f"⚠️  {workflow_path.name} - Missing API token best practices:")
