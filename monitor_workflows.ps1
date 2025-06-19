@@ -137,7 +137,7 @@ function Show-GitInfo {
     }
 }
 
-function Run-LocalTests {
+function Invoke-LocalTests {
     Write-Host "🧪 Running Local Tests" -ForegroundColor Cyan
     Write-Host "======================" -ForegroundColor Cyan
     Write-Host ""
@@ -195,7 +195,7 @@ function Run-LocalTests {
     }
 }
 
-function Trigger-CI {
+function Start-CI {
     Write-Host "🚀 Triggering CI Workflow" -ForegroundColor Cyan
     Write-Host "=========================" -ForegroundColor Cyan
     Write-Host ""
@@ -256,10 +256,10 @@ switch ($Command.ToLower()) {
         Show-GitInfo 
     }
     "test" { 
-        Run-LocalTests 
+        Invoke-LocalTests 
     }
     "trigger-ci" { 
-        Trigger-CI 
+        Start-CI 
     }
     default { 
         Write-Host "❌ Unknown command: $Command" -ForegroundColor Red

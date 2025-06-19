@@ -7,24 +7,28 @@ The enhanced dockable module provides a sophisticated, highly customizable three
 ### ✨ Key Improvements
 
 #### 1. **Professional Theming System**
+
 - **Multiple Built-in Themes**: Light, Dark, Blue Professional
 - **Consistent Color Schemes**: Carefully designed color palettes
 - **Typography Control**: Professional font choices and sizing
 - **Visual Consistency**: Unified styling across all components
 
 #### 2. **Advanced Drag & Drop Interface**
+
 - **Intuitive Drag Handles**: Professional grip indicators in panel headers
 - **Visual Feedback**: Real-time visual cues during drag operations
 - **Smart Detaching**: Drag panel headers to detach (no more buttons!)
 - **Professional Detached Windows**: Beautifully styled floating panels
 
 #### 3. **Highly Customizable Panels**
+
 - **Panel Configuration**: Title, icon, size constraints, and behavior
 - **Flexible Sizing**: Min/max width constraints with intelligent defaults
 - **Optional Features**: Detachable, closable, resizable panels
 - **Professional Headers**: Icons, titles, and control buttons
 
 #### 4. **Enhanced User Experience**
+
 - **Smooth Animations**: Optional smooth transitions and effects
 - **Professional Visual Feedback**: Hover effects, active states
 - **Context-Aware UI**: Smart positioning and behavior
