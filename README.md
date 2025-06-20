@@ -3,7 +3,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/threepanewindows.svg)](https://pypi.org/project/threepanewindows/)
 [![Python versions](https://img.shields.io/pypi/pyversions/threepanewindows.svg)](https://pypi.org/project/threepanewindows/)
 [![CI Status](https://github.com/stntg/threepanewindows/workflows/CI/badge.svg)](https://github.com/stntg/threepanewindows/actions)
-[![Coverage](https://codecov.io/gh/stntg/threepanewindows/branch/main/graph/badge.svg)](https://codecov.io/gh/stntg/threepanewindows)
+[![CodeFactor](https://www.codefactor.io/repository/github/stntg/threepanewindows/badge)](https://www.codefactor.io/repository/github/stntg/threepanewindows)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
