@@ -13,9 +13,9 @@ ThreePaneWindows Documentation
     :target: https://github.com/stntg/threepanewindows/actions
     :alt: CI Status
 
-.. image:: https://codecov.io/gh/stntg/threepanewindows/branch/main/graph/badge.svg
-    :target: https://codecov.io/gh/stntg/threepanewindows
-    :alt: Coverage
+.. image:: https://www.codefactor.io/repository/github/stntg/threepanewindows/badge
+    :target: https://www.codefactor.io/repository/github/stntg/threepanewindows
+    :alt: CodeFactor
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
