@@ -58,7 +58,7 @@ Features:
 Usage:
   threepane demo          # Run interactive demo
   threepane info          # Show this information
-  
+
 For more information, visit: https://github.com/your-repo/threepanewindows
 """
     print(info_text)
