@@ -204,3 +204,52 @@ docs/build/
 
 # Release artifacts
 release/
+
+# Development files folder (contains all dev/test files)
+dev_files/
+
+# Individual development and testing files (in case they're not moved)
+debug_ttk_styles.py
+fixed_theming_example.py
+test_dramatic_theming.py
+test_theme_example.py
+test_theming_debug.py
+verify_theming_fix.py
+test_both_examples.py
+test_enhanced.py
+test_fixed_width_features.py
+test_reattach.py
+test_version_parsing.py
+verify_fixed_width.py
+verify_package.py
+verify_positioning.py
+
+# Legacy/deprecated files
+DockableThreePaneWindow.py
+FixedThreePaneWindow.py
+enhanced_example.py
+example_usage.py
+simple_fixed_width_example.py
+window_utils.py
+
+# Development summaries and research
+research.md
+dev/SUMMARY_*.md
+
+# Monitoring scripts
+monitor_workflows.ps1
+monitor_workflows.py
+
+# Development tools
+dev_tools.py
+run_tests.py
+
+# Tox configuration (if not needed)
+tox.ini
+
+# Additional OS specific files (extending existing)
+desktop.ini
+
+# Additional temporary file patterns
+*.tmp
+*.temp
