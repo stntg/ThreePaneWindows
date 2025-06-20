@@ -65,7 +65,7 @@ class DockableThreePaneWindow(tk.Frame):
                 lambda: self._configure_fixed_width("right", self.right_fixed_width)
             )
 
-    def _create_left_frame(self, parent):
+    def _create_left_frame(self, parent, is_detached=False):
         width = self.left_fixed_width or self.side_width
         self.left_content = ttk.Frame(parent, width=width)
         self.left_content.config(width=width)
@@ -73,7 +73,9 @@ class DockableThreePaneWindow(tk.Frame):
         # Always prevent propagation for consistent sizing
         self.left_content.pack_propagate(False)
 
-        self._add_detach_button(self.left_content, side="left")
+        # Only add detach button if not already detached
+        if not is_detached:
+            self._add_detach_button(self.left_content, side="left")
         if self.left_builder:
             self.left_builder(self.left_content)
 
@@ -82,7 +84,7 @@ class DockableThreePaneWindow(tk.Frame):
         if self.center_builder:
             self.center_builder(self.center_frame)
 
-    def _create_right_frame(self, parent):
+    def _create_right_frame(self, parent, is_detached=False):
         width = self.right_fixed_width or self.side_width
         self.right_content = ttk.Frame(parent, width=width)
         self.right_content.config(width=width)
@@ -90,7 +92,9 @@ class DockableThreePaneWindow(tk.Frame):
         # Always prevent propagation for consistent sizing
         self.right_content.pack_propagate(False)
 
-        self._add_detach_button(self.right_content, side="right")
+        # Only add detach button if not already detached
+        if not is_detached:
+            self._add_detach_button(self.right_content, side="right")
         if self.right_builder:
             self.right_builder(self.right_content)
 
@@ -141,7 +145,7 @@ class DockableThreePaneWindow(tk.Frame):
             self.paned.insert(0, self.left_placeholder)
             self.left_window = tk.Toplevel(self)
             self.left_window.title("Left Pane")
-            self._create_left_frame(self.left_window)
+            self._create_left_frame(self.left_window, is_detached=True)
             self.left_content.pack(fill=tk.BOTH, expand=True)
             btn = ttk.Button(
                 self.left_window,
@@ -163,7 +167,7 @@ class DockableThreePaneWindow(tk.Frame):
             self.paned.add(self.right_placeholder)
             self.right_window = tk.Toplevel(self)
             self.right_window.title("Right Pane")
-            self._create_right_frame(self.right_window)
+            self._create_right_frame(self.right_window, is_detached=True)
             self.right_content.pack(fill=tk.BOTH, expand=True)
             btn = ttk.Button(
                 self.right_window,
