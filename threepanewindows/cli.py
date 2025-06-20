@@ -59,7 +59,7 @@ Usage:
   threepane demo          # Run interactive demo
   threepane info          # Show this information
 
-For more information, visit: https://github.com/your-repo/threepanewindows
+For more information, visit: https://github.com/stntg/threepanewindows
 """
     print(info_text)
 
