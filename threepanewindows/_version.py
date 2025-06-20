@@ -1,6 +1,6 @@
 """Version information for ThreePaneWindows."""
 
-__version__ = "0.1.0"
+__version__ = "1.0.1"
 
 def _parse_version(version_string):
     """Parse version string into numeric components, handling pre-release suffixes."""

@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="threepanewindows",
-    version="1.0.0",
+    version="1.0.1",
     author="ThreePaneWindows Team",
     author_email="contact@example.com",
     description="A Python library for creating dockable and fixed three-pane window layouts in Tkinter",
