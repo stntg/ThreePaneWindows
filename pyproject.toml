@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "threepanewindows"
-version = "1.0.1"
+version = "1.0.2"
 description = "Professional three-pane window layouts for Tkinter applications with docking, theming, and advanced UI components"
 readme = "README.md"
 requires-python = ">=3.8"

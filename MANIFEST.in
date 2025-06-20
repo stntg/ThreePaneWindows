@@ -1,6 +1,8 @@
 include README.md
 include LICENSE
 include MANIFEST.in
+include ENHANCED_FEATURES.md
+include FIXED_WIDTH_FEATURES.md
 recursive-include threepanewindows *.py
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]

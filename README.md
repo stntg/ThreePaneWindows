@@ -32,7 +32,7 @@
 - **Smart Positioning**: Intelligent window placement and sizing
 - **Visual Feedback**: Professional hover effects and drag indicators
 
-> 📖 **See [ENHANCED_FEATURES.md](ENHANCED_FEATURES.md) for complete documentation of the new professional features.**
+> 📖 **See [ENHANCED_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/ENHANCED_FEATURES.md) for complete documentation of the new professional features.**
 
 ## Installation
 
@@ -211,7 +211,7 @@ window.clear_right_fixed_width()     # Make right pane resizable
 root.mainloop()
 ```
 
-> 📖 **See [FIXED_WIDTH_FEATURES.md](FIXED_WIDTH_FEATURES.md) for complete documentation of the fixed width and menu bar features.**
+> 📖 **See [FIXED_WIDTH_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/FIXED_WIDTH_FEATURES.md) for complete documentation of the fixed width and menu bar features.**
 
 ## Demo Application
 
