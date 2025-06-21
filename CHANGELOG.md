@@ -14,6 +14,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [1.0.4] - 2025-01-20
+
+### Fixed
+- **Critical Fix**: Center panel now properly expands when side panels are detached
+- Removed placeholder frames that were preventing center panel expansion in DockableThreePaneWindow
+- Fixed layout issue where detached panels left empty spaces instead of allowing center panel to fill available area
+
+### Added
+- Comprehensive test suite for DockableThreePaneWindow functionality
+- New test cases covering detach/reattach behavior and center panel expansion
+
+### Changed
+- Improved DockableThreePaneWindow detach mechanism for better space utilization
+- Enhanced layout behavior when panels are detached/reattached
+
 ## [1.0.3] - 2025-01-20
 
 ### Added

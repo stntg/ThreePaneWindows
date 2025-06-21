@@ -1,6 +1,6 @@
 """Version information for ThreePaneWindows."""
 
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 
 
 def _parse_version(version_string):

@@ -13,6 +13,12 @@ ThreePaneWindows provides two main classes for creating three-pane layouts in Tk
 
 A sophisticated three-pane window with detachable left and right panels.
 
+**Key Features:**
+- **Detachable Panels**: Left and right panels can be detached into separate windows
+- **Center Panel Expansion**: When side panels are detached, the center panel automatically expands to fill the available space
+- **Automatic Reattachment**: Detached panels can be reattached by closing their windows or using reattach buttons
+- **Flexible Layout**: Supports both resizable and fixed-width panel configurations
+
 #### Constructor: DockableThreePaneWindow
 
 ```python

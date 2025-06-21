@@ -140,9 +140,8 @@ class DockableThreePaneWindow(tk.Frame):
         if side == "left" and self.left_window is None:
             self.paned.forget(self.left_content)
             self.left_content.destroy()
-            self.left_placeholder = ttk.Frame(self.paned, width=self.side_width)
-            self.left_placeholder.config(width=self.side_width)
-            self.paned.insert(0, self.left_placeholder)
+            # Don't create a placeholder - let center panel expand
+            self.left_placeholder = None
             self.left_window = tk.Toplevel(self)
             self.left_window.title("Left Pane")
             self._create_left_frame(self.left_window, is_detached=True)
@@ -162,9 +161,8 @@ class DockableThreePaneWindow(tk.Frame):
         elif side == "right" and self.right_window is None:
             self.paned.forget(self.right_content)
             self.right_content.destroy()
-            self.right_placeholder = ttk.Frame(self.paned, width=self.side_width)
-            self.right_placeholder.config(width=self.side_width)
-            self.paned.add(self.right_placeholder)
+            # Don't create a placeholder - let center panel expand
+            self.right_placeholder = None
             self.right_window = tk.Toplevel(self)
             self.right_window.title("Right Pane")
             self._create_right_frame(self.right_window, is_detached=True)
@@ -187,10 +185,8 @@ class DockableThreePaneWindow(tk.Frame):
             self.left_content.pack_forget()
             self.left_content.destroy()
             self.left_content = None
-            if self.left_placeholder is not None:
-                self.paned.forget(self.left_placeholder)
-                self.left_placeholder.destroy()
-                self.left_placeholder = None
+            # No placeholder to remove since we don't create one anymore
+            self.left_placeholder = None
             self._create_left_frame(self)
             left_weight = 0 if self.left_fixed_width is not None else 1
             self.paned.insert(0, self.left_content, weight=left_weight)
@@ -207,10 +203,8 @@ class DockableThreePaneWindow(tk.Frame):
             self.right_content.pack_forget()
             self.right_content.destroy()
             self.right_content = None
-            if self.right_placeholder is not None:
-                self.paned.forget(self.right_placeholder)
-                self.right_placeholder.destroy()
-                self.right_placeholder = None
+            # No placeholder to remove since we don't create one anymore
+            self.right_placeholder = None
             self._create_right_frame(self)
             right_weight = 0 if self.right_fixed_width is not None else 1
             self.paned.add(self.right_content, weight=right_weight)

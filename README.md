@@ -11,7 +11,7 @@
 
 ## Features
 
-- **DockableThreePaneWindow**: A sophisticated three-pane layout with detachable side panels
+- **DockableThreePaneWindow**: A sophisticated three-pane layout with detachable side panels and automatic center panel expansion
 - **FixedThreePaneLayout**: A simple fixed three-pane layout with customizable panels
 - **✨ NEW: EnhancedDockableThreePaneWindow**: Professional-grade interface with advanced features
 - **🔒 NEW: Fixed Width Panes**: Optional fixed-width panes that don't resize with the window
