@@ -54,34 +54,34 @@ Organize your application with clear separation of concerns:
             self.root = tk.Tk()
             self.settings = AppSettings()
             self.main_window = None
-        
+
         def initialize(self):
             """Initialize the application."""
             self.setup_root_window()
             self.create_main_window()
             self.load_user_preferences()
-        
+
         def setup_root_window(self):
             """Configure the root window."""
             self.root.title(self.settings.APP_NAME)
             self.root.geometry(self.settings.DEFAULT_GEOMETRY)
             self.root.minsize(800, 600)
-        
+
         def create_main_window(self):
             """Create the main application window."""
             self.main_window = MainWindow(self.root, self.settings)
-        
+
         def load_user_preferences(self):
             """Load and apply user preferences."""
             prefs = self.settings.load_preferences()
             if prefs:
                 self.main_window.apply_preferences(prefs)
-        
+
         def run(self):
             """Start the application."""
             self.initialize()
             self.root.mainloop()
-        
+
         def shutdown(self):
             """Clean shutdown of the application."""
             if self.main_window:
@@ -108,18 +108,18 @@ Create reusable, self-contained panel modules:
 
     class BasePanel(ABC):
         """Base class for all panels."""
-        
+
         def __init__(self, parent, config=None):
             self.parent = parent
             self.config = config or {}
             self.widgets = {}
             self.is_initialized = False
-        
+
         @abstractmethod
         def build_ui(self):
             """Build the panel UI. Must be implemented by subclasses."""
             pass
-        
+
         def initialize(self):
             """Initialize the panel."""
             if not self.is_initialized:
@@ -127,15 +127,15 @@ Create reusable, self-contained panel modules:
                 self.setup_bindings()
                 self.load_data()
                 self.is_initialized = True
-        
+
         def setup_bindings(self):
             """Setup event bindings. Override in subclasses."""
             pass
-        
+
         def load_data(self):
             """Load initial data. Override in subclasses."""
             pass
-        
+
         def cleanup(self):
             """Cleanup resources. Override in subclasses."""
             pass
@@ -145,52 +145,52 @@ Create reusable, self-contained panel modules:
 
     class FilePanel(BasePanel):
         """File explorer panel."""
-        
+
         def build_ui(self):
             """Build the file panel UI."""
             # Header
             header_frame = tk.Frame(self.parent)
             header_frame.pack(fill=tk.X, padx=5, pady=5)
-            
-            tk.Label(header_frame, text="📁 Files", 
+
+            tk.Label(header_frame, text="📁 Files",
                     font=("Arial", 12, "bold")).pack(side=tk.LEFT)
-            
-            refresh_btn = tk.Button(header_frame, text="🔄", 
+
+            refresh_btn = tk.Button(header_frame, text="🔄",
                                   command=self.refresh_files)
             refresh_btn.pack(side=tk.RIGHT)
-            
+
             # File list
             list_frame = tk.Frame(self.parent)
             list_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
+
             self.widgets['file_list'] = tk.Listbox(list_frame)
             self.widgets['file_list'].pack(fill=tk.BOTH, expand=True)
-            
+
             # Scrollbar
-            scrollbar = tk.Scrollbar(list_frame, 
+            scrollbar = tk.Scrollbar(list_frame,
                                    command=self.widgets['file_list'].yview)
             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
             self.widgets['file_list'].config(yscrollcommand=scrollbar.set)
-        
+
         def setup_bindings(self):
             """Setup file panel bindings."""
             self.widgets['file_list'].bind('<Double-Button-1>', self.on_file_double_click)
             self.widgets['file_list'].bind('<Button-3>', self.show_context_menu)
-        
+
         def load_data(self):
             """Load file list."""
             self.refresh_files()
-        
+
         def refresh_files(self):
             """Refresh the file list."""
             # Implementation here
             pass
-        
+
         def on_file_double_click(self, event):
             """Handle file double-click."""
             # Implementation here
             pass
-        
+
         def show_context_menu(self, event):
             """Show context menu for files."""
             # Implementation here
@@ -210,21 +210,21 @@ Implement robust configuration management:
 
     class AppSettings:
         """Application settings manager."""
-        
+
         # Default settings
         APP_NAME = "My ThreePaneWindows App"
         DEFAULT_GEOMETRY = "1200x800"
         DEFAULT_THEME = "light"
-        
+
         def __init__(self):
             self.config_dir = Path.home() / ".my_app"
             self.config_file = self.config_dir / "config.json"
             self.ensure_config_dir()
-        
+
         def ensure_config_dir(self):
             """Ensure configuration directory exists."""
             self.config_dir.mkdir(exist_ok=True)
-        
+
         def load_preferences(self):
             """Load user preferences."""
             try:
@@ -233,9 +233,9 @@ Implement robust configuration management:
                         return json.load(f)
             except Exception as e:
                 print(f"Error loading preferences: {e}")
-            
+
             return self.get_default_preferences()
-        
+
         def save_preferences(self, preferences):
             """Save user preferences."""
             try:
@@ -243,7 +243,7 @@ Implement robust configuration management:
                     json.dump(preferences, f, indent=2)
             except Exception as e:
                 print(f"Error saving preferences: {e}")
-        
+
         def get_default_preferences(self):
             """Get default preferences."""
             return {
@@ -277,29 +277,29 @@ Maintain visual consistency throughout your application:
     # ui/styles.py
     class UIStyles:
         """Centralized UI styling constants."""
-        
+
         # Fonts
         HEADER_FONT = ("Arial", 12, "bold")
         CONTENT_FONT = ("Arial", 10)
         CODE_FONT = ("Consolas", 10)
-        
+
         # Colors (will be overridden by themes)
         PRIMARY_COLOR = "#007bff"
         SECONDARY_COLOR = "#6c757d"
         SUCCESS_COLOR = "#28a745"
         WARNING_COLOR = "#ffc107"
         ERROR_COLOR = "#dc3545"
-        
+
         # Spacing
         PADDING_SMALL = 5
         PADDING_MEDIUM = 10
         PADDING_LARGE = 20
-        
+
         # Widget sizes
         BUTTON_WIDTH = 100
         ENTRY_WIDTH = 200
         LISTBOX_HEIGHT = 10
-        
+
         @classmethod
         def apply_button_style(cls, button, style="primary"):
             """Apply consistent button styling."""
@@ -310,7 +310,7 @@ Maintain visual consistency throughout your application:
                 "warning": {"bg": cls.WARNING_COLOR, "fg": "black"},
                 "danger": {"bg": cls.ERROR_COLOR, "fg": "white"}
             }
-            
+
             if style in styles:
                 button.configure(**styles[style])
                 button.configure(relief=tk.FLAT, padx=cls.PADDING_MEDIUM)
@@ -324,28 +324,28 @@ Design layouts that work well at different sizes:
 
     def create_responsive_panel(parent):
         """Create panel that adapts to different sizes."""
-        
+
         def build_responsive_content(frame):
             """Build content that adapts to frame size."""
-            
+
             # Use frames that expand/contract appropriately
             header_frame = tk.Frame(frame, height=40)
             header_frame.pack(fill=tk.X)
             header_frame.pack_propagate(False)
-            
+
             content_frame = tk.Frame(frame)
             content_frame.pack(fill=tk.BOTH, expand=True)
-            
+
             footer_frame = tk.Frame(frame, height=30)
             footer_frame.pack(fill=tk.X)
             footer_frame.pack_propagate(False)
-            
+
             # Responsive content in main area
             def update_layout(event=None):
                 """Update layout based on available space."""
                 width = content_frame.winfo_width()
                 height = content_frame.winfo_height()
-                
+
                 # Adjust layout based on size
                 if width < 300:
                     # Narrow layout - stack vertically
@@ -353,12 +353,12 @@ Design layouts that work well at different sizes:
                 else:
                     # Wide layout - use columns
                     configure_wide_layout(content_frame)
-            
+
             # Bind to size changes
             content_frame.bind('<Configure>', update_layout)
-            
+
             return content_frame
-        
+
         return build_responsive_content
 
 Error Handling and Validation
@@ -378,10 +378,10 @@ Implement comprehensive error handling:
 
     class ErrorHandler:
         """Centralized error handling."""
-        
+
         def __init__(self):
             self.setup_logging()
-        
+
         def setup_logging(self):
             """Setup application logging."""
             logging.basicConfig(
@@ -393,18 +393,18 @@ Implement comprehensive error handling:
                 ]
             )
             self.logger = logging.getLogger(__name__)
-        
+
         def handle_exception(self, exc_type, exc_value, exc_traceback):
             """Handle uncaught exceptions."""
             if issubclass(exc_type, KeyboardInterrupt):
                 return  # Allow Ctrl+C to work
-            
+
             error_msg = ''.join(traceback.format_exception(exc_type, exc_value, exc_traceback))
             self.logger.error(f"Uncaught exception: {error_msg}")
-            
+
             # Show user-friendly error dialog
             self.show_error_dialog("An unexpected error occurred", str(exc_value))
-        
+
         def show_error_dialog(self, title, message):
             """Show error dialog to user."""
             import tkinter.messagebox as messagebox
@@ -440,40 +440,40 @@ Validate user input consistently:
 
     class Validator:
         """Input validation utilities."""
-        
+
         @staticmethod
         def validate_file_path(path: str) -> Tuple[bool, str]:
             """Validate file path."""
             if not path:
                 return False, "Path cannot be empty"
-            
+
             if not os.path.exists(path):
                 return False, f"Path does not exist: {path}"
-            
+
             if not os.path.isfile(path):
                 return False, f"Path is not a file: {path}"
-            
+
             return True, "Valid file path"
-        
+
         @staticmethod
         def validate_icon_path(path: str) -> Tuple[bool, str]:
             """Validate icon file path."""
             if not path:
                 return True, "No icon specified"
-            
+
             is_valid, message = Validator.validate_file_path(path)
             if not is_valid:
                 return False, message
-            
+
             # Check file extension
             valid_extensions = ['.ico', '.png', '.gif', '.bmp', '.xbm']
             ext = os.path.splitext(path)[1].lower()
-            
+
             if ext not in valid_extensions:
                 return False, f"Unsupported icon format: {ext}"
-            
+
             return True, "Valid icon file"
-        
+
         @staticmethod
         def validate_number_range(value: Any, min_val: float, max_val: float) -> Tuple[bool, str]:
             """Validate number is within range."""
@@ -503,62 +503,62 @@ Implement lazy loading and caching:
 
     class ContentManager:
         """Manage content loading and caching."""
-        
+
         def __init__(self):
             self.cache: Dict[str, Any] = {}
             self.loading_tasks: Dict[str, threading.Thread] = {}
             self.max_cache_size = 100
-        
-        def load_content_async(self, key: str, loader_func: Callable, 
+
+        def load_content_async(self, key: str, loader_func: Callable,
                              callback: Callable = None):
             """Load content asynchronously."""
-            
+
             # Check cache first
             if key in self.cache:
                 if callback:
                     callback(self.cache[key])
                 return self.cache[key]
-            
+
             # Check if already loading
             if key in self.loading_tasks and self.loading_tasks[key].is_alive():
                 return None
-            
+
             # Start loading task
             def load_task():
                 try:
                     content = loader_func()
                     self.cache[key] = content
-                    
+
                     # Manage cache size
                     if len(self.cache) > self.max_cache_size:
                         # Remove oldest entry (simple FIFO)
                         oldest_key = next(iter(self.cache))
                         del self.cache[oldest_key]
-                    
+
                     if callback:
                         # Schedule callback on main thread
                         root.after(0, lambda: callback(content))
-                
+
                 except Exception as e:
                     print(f"Error loading content for {key}: {e}")
                     if callback:
                         root.after(0, lambda: callback(None))
-                
+
                 finally:
                     # Clean up task reference
                     if key in self.loading_tasks:
                         del self.loading_tasks[key]
-            
+
             task = threading.Thread(target=load_task, daemon=True)
             self.loading_tasks[key] = task
             task.start()
-            
+
             return None
-        
+
         def clear_cache(self):
             """Clear the content cache."""
             self.cache.clear()
-        
+
         def preload_content(self, keys_and_loaders: Dict[str, Callable]):
             """Preload multiple content items."""
             for key, loader in keys_and_loaders.items():
@@ -578,17 +578,17 @@ Implement proper memory management:
 
     class MemoryManager:
         """Monitor and manage memory usage."""
-        
+
         def __init__(self, warning_threshold=80, critical_threshold=90):
             self.warning_threshold = warning_threshold
             self.critical_threshold = critical_threshold
             self.process = psutil.Process(os.getpid())
-        
+
         def get_memory_usage(self):
             """Get current memory usage percentage."""
             memory_info = self.process.memory_info()
             system_memory = psutil.virtual_memory()
-            
+
             usage_percent = (memory_info.rss / system_memory.total) * 100
             return {
                 'usage_percent': usage_percent,
@@ -597,27 +597,27 @@ Implement proper memory management:
                 'system_total': system_memory.total,
                 'system_available': system_memory.available
             }
-        
+
         def check_memory_status(self):
             """Check memory status and take action if needed."""
             usage = self.get_memory_usage()
             usage_percent = usage['usage_percent']
-            
+
             if usage_percent > self.critical_threshold:
                 self.handle_critical_memory()
                 return "critical"
             elif usage_percent > self.warning_threshold:
                 self.handle_warning_memory()
                 return "warning"
-            
+
             return "normal"
-        
+
         def handle_warning_memory(self):
             """Handle warning memory level."""
             print(f"Memory usage warning: {self.get_memory_usage()['usage_percent']:.1f}%")
             # Trigger garbage collection
             gc.collect()
-        
+
         def handle_critical_memory(self):
             """Handle critical memory level."""
             print(f"Critical memory usage: {self.get_memory_usage()['usage_percent']:.1f}%")
@@ -625,13 +625,13 @@ Implement proper memory management:
             gc.collect()
             # Clear caches
             # Notify user
-        
+
         def start_monitoring(self, interval=30000):  # 30 seconds
             """Start periodic memory monitoring."""
             def monitor():
                 self.check_memory_status()
                 root.after(interval, monitor)
-            
+
             monitor()
 
 Cross-Platform Compatibility
@@ -650,46 +650,46 @@ Handle platform differences gracefully:
 
     class PlatformUtils:
         """Platform-specific utilities."""
-        
+
         @staticmethod
         def get_platform():
             """Get current platform."""
             return platform.system()
-        
+
         @staticmethod
         def get_config_dir():
             """Get platform-appropriate config directory."""
             system = platform.system()
-            
+
             if system == "Windows":
                 return os.path.join(os.environ['APPDATA'], 'MyApp')
             elif system == "Darwin":  # macOS
                 return os.path.expanduser('~/Library/Application Support/MyApp')
             else:  # Linux and others
                 return os.path.expanduser('~/.config/myapp')
-        
+
         @staticmethod
         def get_default_font():
             """Get platform-appropriate default font."""
             system = platform.system()
-            
+
             if system == "Windows":
                 return ("Segoe UI", 10)
             elif system == "Darwin":  # macOS
                 return ("SF Pro Text", 10)
             else:  # Linux
                 return ("Ubuntu", 10)
-        
+
         @staticmethod
         def setup_platform_specific_ui(root):
             """Setup platform-specific UI elements."""
             system = platform.system()
-            
+
             if system == "Darwin":  # macOS
                 # macOS-specific menu setup
                 root.createcommand('tk::mac::ShowPreferences', lambda: show_preferences())
                 root.createcommand('tk::mac::Quit', lambda: root.quit())
-            
+
             elif system == "Windows":
                 # Windows-specific setup
                 try:
@@ -710,15 +710,15 @@ Implement robust icon handling:
 
     class IconManager:
         """Manage application icons across platforms."""
-        
+
         def __init__(self, icon_dir="resources/icons"):
             self.icon_dir = icon_dir
             self.icon_cache = {}
             self.recommended_formats = get_recommended_icon_formats()
-        
+
         def get_icon_path(self, icon_name):
             """Get best icon path for current platform."""
-            
+
             # Try recommended formats first
             for ext in self.recommended_formats:
                 icon_path = os.path.join(self.icon_dir, f"{icon_name}{ext}")
@@ -726,7 +726,7 @@ Implement robust icon handling:
                     is_valid, _ = validate_icon_path(icon_path)
                     if is_valid:
                         return icon_path
-            
+
             # Try all supported formats
             all_formats = ['.ico', '.png', '.gif', '.bmp', '.xbm']
             for ext in all_formats:
@@ -736,15 +736,15 @@ Implement robust icon handling:
                         is_valid, _ = validate_icon_path(icon_path)
                         if is_valid:
                             return icon_path
-            
+
             return ""  # No suitable icon found
-        
+
         def create_pane_config_with_icon(self, title, icon_name, **kwargs):
             """Create PaneConfig with appropriate icon."""
             from threepanewindows import PaneConfig
-            
+
             icon_path = self.get_icon_path(icon_name)
-            
+
             return PaneConfig(
                 title=title,
                 window_icon=icon_path,
@@ -768,30 +768,30 @@ Implement comprehensive unit tests:
 
     class TestFilePanel(unittest.TestCase):
         """Test cases for FilePanel."""
-        
+
         def setUp(self):
             """Set up test fixtures."""
             self.root = tk.Tk()
             self.root.withdraw()  # Hide test window
             self.test_frame = tk.Frame(self.root)
             self.panel = FilePanel(self.test_frame)
-        
+
         def tearDown(self):
             """Clean up after tests."""
             self.root.destroy()
-        
+
         def test_panel_initialization(self):
             """Test panel initializes correctly."""
             self.assertFalse(self.panel.is_initialized)
             self.panel.initialize()
             self.assertTrue(self.panel.is_initialized)
-        
+
         def test_ui_creation(self):
             """Test UI elements are created."""
             self.panel.initialize()
             self.assertIn('file_list', self.panel.widgets)
             self.assertIsInstance(self.panel.widgets['file_list'], tk.Listbox)
-        
+
         def test_error_handling(self):
             """Test error handling in panel operations."""
             # Test with invalid configuration
@@ -812,22 +812,22 @@ Test component integration:
 
     class TestIntegration(unittest.TestCase):
         """Integration tests for ThreePaneWindows."""
-        
+
         def setUp(self):
             """Set up integration test environment."""
             self.root = tk.Tk()
             self.root.withdraw()
-        
+
         def tearDown(self):
             """Clean up integration tests."""
             self.root.destroy()
-        
+
         def test_complete_window_creation(self):
             """Test complete window creation and configuration."""
-            
+
             def build_test_panel(frame):
                 tk.Label(frame, text="Test Panel").pack()
-            
+
             # Create window with all features
             window = EnhancedDockableThreePaneWindow(
                 self.root,
@@ -839,9 +839,9 @@ Test component integration:
                 right_builder=build_test_panel,
                 theme_name="light"
             )
-            
+
             window.pack(fill=tk.BOTH, expand=True)
-            
+
             # Test window is created and functional
             self.assertIsNotNone(window)
             self.assertEqual(window.get_current_theme(), "light")
@@ -859,22 +859,22 @@ Document your code thoroughly:
     def create_professional_application():
         """
         Create a professional three-pane application.
-        
+
         This function demonstrates best practices for creating a robust,
         maintainable three-pane application with ThreePaneWindows.
-        
+
         Returns:
             EnhancedDockableThreePaneWindow: Configured main window
-            
+
         Example:
             >>> app = create_professional_application()
             >>> app.pack(fill=tk.BOTH, expand=True)
-            
+
         Note:
             This function requires proper icon files in the resources/icons
             directory for optimal cross-platform compatibility.
         """
-        
+
         # Implementation with detailed comments
         pass
 
@@ -892,10 +892,10 @@ Implement proper version management:
     def check_compatibility():
         """Check ThreePaneWindows version compatibility."""
         import threepanewindows
-        
+
         required_version = (1, 0, 4)
         current_version = threepanewindows.__version_info__
-        
+
         if current_version < required_version:
             raise RuntimeError(
                 f"ThreePaneWindows {'.'.join(map(str, required_version))} "

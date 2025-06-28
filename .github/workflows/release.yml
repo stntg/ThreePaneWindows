@@ -15,12 +15,12 @@ jobs:
     timeout-minutes: 30
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     # Set up virtual display for GUI testing
     - name: Set up virtual display
       run: |
@@ -29,13 +29,13 @@ jobs:
         export DISPLAY=:99
         Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         sleep 3
-    
+
     - name: Install dependencies
       timeout-minutes: 10
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev,test]
-    
+
     - name: Run full test suite
       timeout-minutes: 20
       env:
@@ -52,22 +52,22 @@ jobs:
     timeout-minutes: 15
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     - name: Install build dependencies
       timeout-minutes: 5
       run: |
         python -m pip install --upgrade pip
         pip install build twine
-    
+
     - name: Build package
       timeout-minutes: 5
       run: python -m build
-    
+
     - name: Check package
       timeout-minutes: 5
       run: |
@@ -75,7 +75,7 @@ jobs:
         # Verify package contents
         python -m tarfile -l dist/*.tar.gz
         python -c "import zipfile; [print(f) for f in zipfile.ZipFile('dist/' + [f for f in __import__('os').listdir('dist/') if f.endswith('.whl')][0]).namelist()]"
-    
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -91,18 +91,18 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: dist
         path: dist/
-    
+
     - name: Install twine
       run: |
         python -m pip install --upgrade pip
         pip install twine
-    
+
     - name: Check Test PyPI token availability
       id: check-token
       run: |
@@ -113,7 +113,7 @@ jobs:
           echo "Test PyPI token available. Proceeding with upload."
           echo "token-available=true" >> $GITHUB_OUTPUT
         fi
-    
+
     - name: Publish to Test PyPI
       if: steps.check-token.outputs.token-available == 'true'
       env:
@@ -123,12 +123,12 @@ jobs:
         echo "🚀 Publishing package to Test PyPI..."
         python -m twine upload --repository testpypi dist/* --verbose --skip-existing
         echo "✅ Package successfully uploaded to Test PyPI!"
-    
+
     - name: Test PyPI upload skipped
       if: steps.check-token.outputs.token-available == 'false'
       run: |
         echo "⚠️ Test PyPI upload was skipped because TEST_PYPI_API_TOKEN secret is not configured."
-    
+
     - name: Test installation from Test PyPI
       if: steps.check-token.outputs.token-available == 'true'
       timeout-minutes: 10
@@ -165,18 +165,18 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: dist
         path: dist/
-    
+
     - name: Install twine
       run: |
         python -m pip install --upgrade pip
         pip install twine
-    
+
     - name: Check PyPI token availability
       id: check-token
       run: |
@@ -187,7 +187,7 @@ jobs:
           echo "PyPI token available. Proceeding with upload."
           echo "token-available=true" >> $GITHUB_OUTPUT
         fi
-    
+
     - name: Publish to PyPI
       if: steps.check-token.outputs.token-available == 'true'
       env:
@@ -197,7 +197,7 @@ jobs:
         echo "🚀 Publishing package to PyPI..."
         python -m twine upload dist/* --verbose
         echo "✅ Package successfully published to PyPI!"
-    
+
     - name: PyPI upload skipped
       if: steps.check-token.outputs.token-available == 'false'
       run: |
@@ -208,7 +208,7 @@ jobs:
         echo "2. Add a new repository secret named 'PYPI_API_TOKEN'"
         echo "3. Set the value to your PyPI API token"
         echo "4. Re-run this workflow"
-    
+
     - name: Verify PyPI publication
       if: steps.check-token.outputs.token-available == 'true'
       timeout-minutes: 10
@@ -228,13 +228,13 @@ jobs:
       contents: write  # Required for creating releases
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: dist
         path: dist/
-    
+
     - name: Extract release notes
       id: extract-notes
       timeout-minutes: 5
@@ -242,7 +242,7 @@ jobs:
         # Extract release notes from CHANGELOG.md for this version
         VERSION=${GITHUB_REF#refs/tags/v}
         echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-        
+
         # Try to extract changelog section for this version
         if grep -q "## \[$VERSION\]" CHANGELOG.md; then
           sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
@@ -251,7 +251,7 @@ jobs:
           echo "" >> release_notes.md
           echo "See [CHANGELOG.md](CHANGELOG.md) for details." >> release_notes.md
         fi
-    
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:

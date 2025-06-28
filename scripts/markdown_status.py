@@ -12,7 +12,8 @@ Usage:
 import os
 import sys
 from pathlib import Path
-from quick_md_check import find_md_files, check_md_file
+
+from quick_md_check import check_md_file, find_md_files
 
 
 def generate_status_report():

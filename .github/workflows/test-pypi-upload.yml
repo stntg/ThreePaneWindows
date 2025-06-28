@@ -28,18 +28,18 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: read
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0  # Full history for version calculation
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     - name: Set up virtual display
       run: |
         sudo apt-get update
@@ -47,18 +47,18 @@ jobs:
         export DISPLAY=:99
         Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         sleep 3
-    
+
     - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build twine setuptools wheel
-    
+
     - name: Generate test version
       id: version
       run: |
         # Install toml parsing library for older Python versions
         pip install tomli-w tomli 2>/dev/null || true
-        
+
         # Get current version from pyproject.toml
         CURRENT_VERSION=$(python -c "
         try:
@@ -71,16 +71,16 @@ jobs:
                 data = tomli.load(f)
         print(data['project']['version'])
         ")
-        
+
         # Generate PEP 440 compliant version for test uploads
         TIMESTAMP=$(date +%Y%m%d%H%M%S)
         SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-        
+
         if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.version_suffix }}" ]; then
           # For manual dispatch with version suffix
           # Convert timestamp to simple integer for PEP 440 compliance
           DEV_NUMBER=$(date +%s)  # Unix timestamp as dev number
-          
+
           # Handle different suffix types for PEP 440 compliance
           SUFFIX="${{ inputs.version_suffix }}"
           case "$SUFFIX" in
@@ -127,11 +127,11 @@ jobs:
           DEV_NUMBER=$(date +%s)  # Unix timestamp as dev number
           TEST_VERSION="${CURRENT_VERSION}.dev${DEV_NUMBER}"
         fi
-        
+
         echo "test_version=${TEST_VERSION}" >> $GITHUB_OUTPUT
         echo "current_version=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
         echo "📦 Test version: ${TEST_VERSION}"
-        
+
         # Validate PEP 440 compliance
         echo "🔍 Validating PEP 440 compliance..."
         python -c "
@@ -145,19 +145,19 @@ jobs:
             print(f'❌ Version {version} is NOT PEP 440 compliant')
             exit(1)
         "
-    
+
     - name: Update version for test upload
       run: |
         # Update version in _version.py
         sed -i 's/__version__ = ".*"/__version__ = "${{ steps.version.outputs.test_version }}"/' threepanewindows/_version.py
-        
+
         # Update version in pyproject.toml
         sed -i 's/version = ".*"/version = "${{ steps.version.outputs.test_version }}"/' pyproject.toml
-        
+
         echo "✅ Updated version to ${{ steps.version.outputs.test_version }}"
         echo "📄 Version files updated:"
         grep -n "version" threepanewindows/_version.py pyproject.toml
-    
+
     - name: Run quick tests
       if: ${{ !inputs.skip_tests }}
       timeout-minutes: 10
@@ -166,30 +166,30 @@ jobs:
       run: |
         echo "🧪 Installing test dependencies..."
         pip install pytest pytest-cov pytest-xvfb
-        
+
         echo "🧪 Running quick test suite..."
         python -m pytest tests/ -v --tb=short --maxfail=3 -x
-        
+
         echo "✅ Quick tests passed"
-    
+
     - name: Build package
       timeout-minutes: 5
       run: |
         echo "🔨 Building package..."
         python -m build
-        
+
         echo "📦 Build artifacts:"
         ls -la dist/
-    
+
     - name: Check package integrity
       timeout-minutes: 3
       run: |
         echo "🔍 Checking package with twine..."
         twine check dist/*
-        
+
         echo "📋 Package contents (source):"
         python -m tarfile -l dist/*.tar.gz | head -20
-        
+
         echo "📋 Package contents (wheel):"
         python -c "
         import zipfile
@@ -203,12 +203,12 @@ jobs:
                 if len(zf.namelist()) > 20:
                     print(f'... and {len(zf.namelist()) - 20} more files')
         "
-    
+
     - name: Install twine
       run: |
         python -m pip install --upgrade pip
         pip install twine
-    
+
     - name: Check Test PyPI token availability
       id: check-token
       run: |
@@ -219,7 +219,7 @@ jobs:
           echo "Test PyPI token available. Proceeding with upload."
           echo "token-available=true" >> $GITHUB_OUTPUT
         fi
-    
+
     - name: Upload to Test PyPI
       if: steps.check-token.outputs.token-available == 'true'
       env:
@@ -229,7 +229,7 @@ jobs:
         echo "🚀 Publishing package to Test PyPI..."
         python -m twine upload --repository testpypi dist/* --verbose --skip-existing
         echo "✅ Package successfully uploaded to Test PyPI!"
-    
+
     - name: Test PyPI upload skipped
       if: steps.check-token.outputs.token-available == 'false'
       run: |
@@ -242,7 +242,7 @@ jobs:
         echo "4. Add a new repository secret named 'TEST_PYPI_API_TOKEN'"
         echo "5. Set the value to your Test PyPI API token"
         echo "6. Re-run this workflow"
-    
+
     - name: Test installation from Test PyPI
       if: steps.check-token.outputs.token-available == 'true'
       timeout-minutes: 10
@@ -251,12 +251,12 @@ jobs:
       run: |
         echo "⏳ Waiting for package to be available on Test PyPI..."
         sleep 30
-        
+
         echo "📥 Installing from Test PyPI..."
         # Create a fresh environment for testing
         python -m venv test_env
         source test_env/bin/activate
-        
+
         # Install from Test PyPI with retries
         for i in {1..3}; do
           echo "📥 Installation attempt $i..."
@@ -272,33 +272,33 @@ jobs:
             sleep 30
           fi
         done
-        
+
         echo "🧪 Testing basic functionality..."
         python -c "
         import sys
         print(f'Python version: {sys.version}')
-        
+
         import threepanewindows
         print(f'✅ Successfully imported threepanewindows v{threepanewindows.__version__}')
         print(f'📦 Available classes: {threepanewindows.__all__}')
-        
+
         # Test basic functionality without creating actual windows
         print('🧪 Testing imports...')
         from threepanewindows import FixedThreePaneWindow, DockableThreePaneWindow
         print('✅ Core classes imported successfully')
-        
+
         # Test CLI availability
         try:
             from threepanewindows.cli import main
             print('✅ CLI module available')
         except ImportError as e:
             print(f'⚠️  CLI module import issue: {e}')
-        
+
         print('🎉 Basic functionality test completed!')
         "
-        
+
         deactivate
-    
+
     - name: Create summary
       if: always()
       run: |
@@ -316,7 +316,7 @@ jobs:
         echo '```bash' >> $GITHUB_STEP_SUMMARY
         echo "pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ threepanewindows==${{ steps.version.outputs.test_version }}" >> $GITHUB_STEP_SUMMARY
         echo '```' >> $GITHUB_STEP_SUMMARY
-    
+
     - name: Upload build artifacts
       if: always()
       uses: actions/upload-artifact@v4

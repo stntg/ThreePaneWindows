@@ -30,17 +30,16 @@ Quick Start:
     >>> tk.Label(window.right_pane, text="Right").pack()
 """
 
-from ._version import __version__, __version_info__, FULL_VERSION
+from ._version import FULL_VERSION, __version__, __version_info__
 from .dockable import DockableThreePaneWindow
-from .fixed import FixedThreePaneLayout
-from .fixed import FixedThreePaneWindow
 from .enhanced_dockable import (
     EnhancedDockableThreePaneWindow,
     PaneConfig,
     get_recommended_icon_formats,
     validate_icon_path,
 )
-from .themes import ThemeManager, get_theme_manager, set_global_theme, ThemeType
+from .fixed import FixedThreePaneLayout, FixedThreePaneWindow
+from .themes import ThemeManager, ThemeType, get_theme_manager, set_global_theme
 
 # Metadata
 __author__ = "Stan Griffiths"

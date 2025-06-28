@@ -26,7 +26,7 @@ Let's create a simple three-pane window application:
     # Left pane - Navigation
     nav_frame = tk.Frame(three_pane.left_pane, bg="lightblue")
     nav_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-    
+
     tk.Label(nav_frame, text="Navigation", font=("Arial", 12, "bold"), bg="lightblue").pack(pady=10)
     for i in range(5):
         tk.Button(nav_frame, text=f"Item {i+1}").pack(fill=tk.X, padx=10, pady=2)
@@ -34,7 +34,7 @@ Let's create a simple three-pane window application:
     # Center pane - Main content
     content_frame = tk.Frame(three_pane.center_pane, bg="white")
     content_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-    
+
     tk.Label(content_frame, text="Main Content Area", font=("Arial", 14, "bold")).pack(pady=20)
     text_widget = tk.Text(content_frame, wrap=tk.WORD)
     text_widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -43,7 +43,7 @@ Let's create a simple three-pane window application:
     # Right pane - Properties/Tools
     tools_frame = tk.Frame(three_pane.right_pane, bg="lightgray")
     tools_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-    
+
     tk.Label(tools_frame, text="Properties", font=("Arial", 12, "bold"), bg="lightgray").pack(pady=10)
     tk.Label(tools_frame, text="Width:", bg="lightgray").pack(anchor="w", padx=10)
     tk.Entry(tools_frame).pack(fill=tk.X, padx=10, pady=2)
@@ -237,10 +237,10 @@ Here are some common patterns you'll use:
     # Use PanedWindow for user-resizable sections
     paned = tk.PanedWindow(three_pane.center_pane, orient=tk.VERTICAL)
     paned.pack(fill=tk.BOTH, expand=True)
-    
+
     top_frame = tk.Frame(paned)
     bottom_frame = tk.Frame(paned)
-    
+
     paned.add(top_frame)
     paned.add(bottom_frame)
 
@@ -250,7 +250,7 @@ Here are some common patterns you'll use:
 
     menubar = tk.Menu(root)
     root.config(menu=menubar)
-    
+
     file_menu = tk.Menu(menubar, tearoff=0)
     menubar.add_cascade(label="File", menu=file_menu)
     file_menu.add_command(label="New")

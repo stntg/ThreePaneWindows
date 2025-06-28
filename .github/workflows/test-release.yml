@@ -22,12 +22,12 @@ jobs:
     timeout-minutes: 20
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     # Set up virtual display for GUI testing
     - name: Set up virtual display
       run: |
@@ -36,29 +36,29 @@ jobs:
         export DISPLAY=:99
         Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         sleep 3
-    
+
     - name: Install dependencies
       timeout-minutes: 5
       run: |
         python -m pip install --upgrade pip
         pip install build twine
-    
+
     - name: Update version for testing
       timeout-minutes: 2
       run: |
         # Update version in _version.py
         sed -i 's/__version__ = ".*"/__version__ = "${{ inputs.version }}"/' threepanewindows/_version.py
-        
+
         # Update version in pyproject.toml
         sed -i 's/version = ".*"/version = "${{ inputs.version }}"/' pyproject.toml
-        
+
         echo "Updated version to ${{ inputs.version }}"
         grep -n "version" threepanewindows/_version.py pyproject.toml
-    
+
     - name: Build package
       timeout-minutes: 5
       run: python -m build
-    
+
     - name: Check package
       timeout-minutes: 5
       run: |
@@ -68,7 +68,7 @@ jobs:
         echo ""
         echo "🎯 Wheel contents:"
         python -c "import zipfile; [print(f) for f in zipfile.ZipFile('dist/' + [f for f in __import__('os').listdir('dist/') if f.endswith('.whl')][0]).namelist()]"
-    
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -84,7 +84,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     # Set up virtual display for GUI testing
     - name: Set up virtual display
       run: |
@@ -93,18 +93,18 @@ jobs:
         export DISPLAY=:99
         Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         sleep 3
-    
+
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: test-dist
         path: dist/
-    
+
     - name: Install twine
       run: |
         python -m pip install --upgrade pip
         pip install twine
-    
+
     - name: Check Test PyPI token availability
       id: check-token
       run: |
@@ -115,7 +115,7 @@ jobs:
           echo "Test PyPI token available. Proceeding with upload."
           echo "token-available=true" >> $GITHUB_OUTPUT
         fi
-    
+
     - name: Publish to Test PyPI
       if: steps.check-token.outputs.token-available == 'true'
       env:
@@ -125,7 +125,7 @@ jobs:
         echo "🚀 Publishing package to Test PyPI..."
         python -m twine upload --repository testpypi dist/* --verbose --skip-existing
         echo "✅ Package successfully uploaded to Test PyPI!"
-    
+
     - name: Test PyPI upload skipped
       if: steps.check-token.outputs.token-available == 'false'
       run: |
@@ -138,7 +138,7 @@ jobs:
         echo "4. Add a new repository secret named 'TEST_PYPI_API_TOKEN'"
         echo "5. Set the value to your Test PyPI API token"
         echo "6. Re-run this workflow"
-    
+
     - name: Test installation from Test PyPI
       timeout-minutes: 15
       env:
@@ -146,21 +146,21 @@ jobs:
       run: |
         echo "⏳ Waiting for package to be available on Test PyPI..."
         sleep 60
-        
+
         echo "📥 Installing from Test PyPI..."
         python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ threepanewindows==${{ inputs.version }}
-        
+
         echo "✅ Testing import..."
         python -c "
         import threepanewindows
         print(f'Successfully imported threepanewindows v{threepanewindows.__version__}')
         print(f'Available classes: {threepanewindows.__all__}')
-        
+
         # Test basic functionality
         import tkinter as tk
         root = tk.Tk()
         root.withdraw()  # Hide window
-        
+
         try:
             from threepanewindows import FixedThreePaneWindow
             window = FixedThreePaneWindow(root)
@@ -172,7 +172,7 @@ jobs:
         finally:
             root.destroy()
         "
-        
+
         echo "🎉 Test PyPI installation and basic functionality test completed!"
 
   production-release:
@@ -185,18 +185,18 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    
+
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: test-dist
         path: dist/
-    
+
     - name: Install twine
       run: |
         python -m pip install --upgrade pip
         pip install twine
-    
+
     - name: Check PyPI token availability
       id: check-token
       run: |
@@ -207,7 +207,7 @@ jobs:
           echo "PyPI token available. Proceeding with upload."
           echo "token-available=true" >> $GITHUB_OUTPUT
         fi
-    
+
     - name: Publish to PyPI
       if: steps.check-token.outputs.token-available == 'true'
       env:
@@ -217,7 +217,7 @@ jobs:
         echo "🚀 Publishing package to PyPI..."
         python -m twine upload dist/* --verbose
         echo "✅ Package successfully published to PyPI!"
-    
+
     - name: PyPI upload skipped
       if: steps.check-token.outputs.token-available == 'false'
       run: |
@@ -228,20 +228,20 @@ jobs:
         echo "2. Add a new repository secret named 'PYPI_API_TOKEN'"
         echo "3. Set the value to your PyPI API token"
         echo "4. Re-run this workflow"
-    
+
     - name: Verify PyPI publication
       timeout-minutes: 10
       run: |
         echo "⏳ Waiting for package to be available on PyPI..."
         sleep 60
-        
+
         echo "📥 Installing from PyPI..."
         python -m pip install threepanewindows==${{ inputs.version }}
-        
+
         echo "✅ Verifying installation..."
         python -c "
         import threepanewindows
         print(f'✅ Successfully installed threepanewindows v{threepanewindows.__version__} from PyPI')
         "
-        
+
         echo "🎉 Production PyPI release completed successfully!"

@@ -7,9 +7,10 @@ detaching/attaching functionality.
 """
 
 import tkinter as tk
-from tkinter import ttk
-from typing import Callable, Optional, Dict, List
 from dataclasses import dataclass
+from tkinter import ttk
+from typing import Callable, Dict, List, Optional
+
 from .themes import ThemeManager, get_theme_manager
 
 
@@ -329,7 +330,7 @@ class PaneHeader(tk.Frame):
         # Clear existing widgets
         for child in self.winfo_children():
             child.destroy()
-        
+
         # Recreate UI with new theme
         self._setup_ui()
 
@@ -812,7 +813,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self.pane_frames: Dict[str, tk.Frame] = {}
         self.pane_headers: Dict[str, PaneHeader] = {}
         self.pane_positions: Dict[str, int] = {}  # Track original positions
-        self.pane_visibility: Dict[str, bool] = {}  # Track visibility (winfo_children() doesn't update immediately)
+        self.pane_visibility: Dict[str, bool] = (
+            {}
+        )  # Track visibility (winfo_children() doesn't update immediately)
 
         # Setup
         self._setup_styles()
@@ -1030,23 +1033,28 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             try:
                 # Force update the layout first
                 self.paned.update_idletasks()
-                
+
                 # Set the initial width but allow resizing
                 self.paned.paneconfig(pane_index, width=width)
-                
+
                 # Set reasonable minimum size
                 config = getattr(self, f"{pane_side}_config", None)
                 if config:
                     self.paned.paneconfig(pane_index, minsize=config.min_width)
-                
+
                 # Force the paned window to respect the width multiple times
                 for delay in [10, 50, 100, 200, 500]:
-                    self.paned.after(delay, lambda w=width, idx=pane_index: self.paned.paneconfig(idx, width=w))
-                
+                    self.paned.after(
+                        delay,
+                        lambda w=width, idx=pane_index: self.paned.paneconfig(
+                            idx, width=w
+                        ),
+                    )
+
                 # Also try to force the container width
                 container.configure(width=width)
                 self.paned.after(10, lambda: container.configure(width=width))
-                
+
             except tk.TclError:
                 # Fallback: just set the container width
                 container.configure(width=width)
@@ -1174,12 +1182,12 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         y = max(0, min(y, screen_height - 400))
 
         window.geometry(f"{window.config.default_width}x400+{x}+{y}")
-        
+
         # Ensure detached window appears in front
         window.lift()
         window.focus_force()
-        window.attributes('-topmost', True)
-        window.after(100, lambda: window.attributes('-topmost', False))
+        window.attributes("-topmost", True)
+        window.after(100, lambda: window.attributes("-topmost", False))
 
     def _reattach_left_pane(self, position: int):
         """Reattach the left pane at the correct position."""
@@ -1235,7 +1243,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         else:
             # Configure default width for non-fixed panes
             self.paned.after_idle(
-                lambda: self._configure_pane_width("left", self.left_config.default_width)
+                lambda: self._configure_pane_width(
+                    "left", self.left_config.default_width
+                )
             )
 
     def _reattach_right_pane(self, position: int):
@@ -1292,7 +1302,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         else:
             # Configure default width for non-fixed panes
             self.paned.after_idle(
-                lambda: self._configure_pane_width("right", self.right_config.default_width)
+                lambda: self._configure_pane_width(
+                    "right", self.right_config.default_width
+                )
             )
 
     def _reattach_center_pane(self, position: int):
@@ -1353,19 +1365,19 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
     def _refresh_theme(self):
         """Refresh the theme for all components."""
         self._setup_styles()
-        
+
         # Get current theme
         theme = self.theme_manager.get_current_theme()
-        
+
         # Update main container background
         self.configure(bg=theme.colors.secondary_bg)
-        
+
         # Update paned window style
-        if hasattr(self, 'paned'):
+        if hasattr(self, "paned"):
             self.paned.configure(style="Themed.TPanedwindow")
-        
+
         # Update toolbar if it exists
-        if hasattr(self, 'toolbar_frame') and self.toolbar_frame:
+        if hasattr(self, "toolbar_frame") and self.toolbar_frame:
             self.toolbar_frame.configure(bg=theme.colors.primary_bg)
             # Update toolbar buttons
             for child in self.toolbar_frame.winfo_children():
@@ -1373,37 +1385,38 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                     child.configure(
                         bg=theme.colors.button_bg,
                         fg=theme.colors.button_fg,
-                        activebackground=theme.colors.button_hover
+                        activebackground=theme.colors.button_hover,
                     )
-        
+
         # Update status bar if it exists
-        if hasattr(self, 'status_bar') and self.status_bar:
+        if hasattr(self, "status_bar") and self.status_bar:
             self.status_bar.configure(bg=theme.colors.primary_bg)
-            if hasattr(self, 'status_label') and self.status_label:
+            if hasattr(self, "status_label") and self.status_label:
                 self.status_label.configure(
-                    bg=theme.colors.primary_bg,
-                    fg=theme.colors.primary_text
+                    bg=theme.colors.primary_bg, fg=theme.colors.primary_text
                 )
-        
+
         # Update pane headers
         for pane_side, header in self.pane_headers.items():
             if header:
                 header.refresh_theme()
-        
+
         # Update pane content frames
         for pane_side, frame in self.pane_frames.items():
             if frame:
                 # Find content frames and update them
                 for child in frame.winfo_children():
-                    if isinstance(child, tk.Frame) and not isinstance(child, PaneHeader):
+                    if isinstance(child, tk.Frame) and not isinstance(
+                        child, PaneHeader
+                    ):
                         child.configure(bg=theme.colors.panel_content_bg)
 
         # Refresh detached windows
         for window in self.detached_windows.values():
             window.theme_manager = self.theme_manager
-            if hasattr(window, 'refresh_theme'):
+            if hasattr(window, "refresh_theme"):
                 window.refresh_theme()
-        
+
         # Force update
         self.update_idletasks()
 
@@ -1540,9 +1553,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
 
     def update_status(self, message: str):
         """Update the status bar message."""
-        if hasattr(self, 'status_label') and self.status_label:
+        if hasattr(self, "status_label") and self.status_label:
             self.status_label.configure(text=message)
-        elif hasattr(self, 'status_bar') and self.status_bar:
+        elif hasattr(self, "status_bar") and self.status_bar:
             # Fallback: Find the status label and update it
             for child in self.status_bar.winfo_children():
                 if isinstance(child, tk.Label):
@@ -1566,7 +1579,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                 self.pane_visibility["left"] = True
                 # Restore proper width
                 self.paned.after_idle(
-                    lambda: self._configure_pane_width("left", self.left_config.default_width)
+                    lambda: self._configure_pane_width(
+                        "left", self.left_config.default_width
+                    )
                 )
         elif "left" in self.detached_windows:
             # If detached, bring window to front
@@ -1595,7 +1610,7 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         elif "left" in self.detached_windows:
             # If detached, toggle window visibility
             detached_window = self.detached_windows["left"]
-            if detached_window.state() == 'normal':
+            if detached_window.state() == "normal":
                 detached_window.withdraw()
             else:
                 detached_window.deiconify()
@@ -1611,7 +1626,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                 self.pane_visibility["right"] = True
                 # Restore proper width
                 self.paned.after_idle(
-                    lambda: self._configure_pane_width("right", self.right_config.default_width)
+                    lambda: self._configure_pane_width(
+                        "right", self.right_config.default_width
+                    )
                 )
         elif "right" in self.detached_windows:
             # If detached, bring window to front
@@ -1640,7 +1657,7 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         elif "right" in self.detached_windows:
             # If detached, toggle window visibility
             detached_window = self.detached_windows["right"]
-            if detached_window.state() == 'normal':
+            if detached_window.state() == "normal":
                 detached_window.withdraw()
             else:
                 detached_window.deiconify()
@@ -1681,7 +1698,7 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         if pane_side in self.pane_frames:
             if pane_side in self.detached_windows:
                 # If detached, check window state
-                return self.detached_windows[pane_side].state() == 'normal'
+                return self.detached_windows[pane_side].state() == "normal"
             else:
                 # If attached, use our visibility tracking
                 return self.pane_visibility.get(pane_side, False)
@@ -1689,12 +1706,12 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
 
     def get_status_text(self) -> str:
         """Get the current status bar text."""
-        if hasattr(self, 'status_label') and self.status_label:
-            return self.status_label.cget('text')
-        elif hasattr(self, 'status_bar') and self.status_bar:
+        if hasattr(self, "status_label") and self.status_label:
+            return self.status_label.cget("text")
+        elif hasattr(self, "status_bar") and self.status_bar:
             for child in self.status_bar.winfo_children():
                 if isinstance(child, tk.Label):
-                    return child.cget('text')
+                    return child.cget("text")
         return ""
 
     def set_status_text(self, text: str):
@@ -1703,9 +1720,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
 
     def add_toolbar_button(self, text: str, command, tooltip: str = ""):
         """Add a button to the toolbar."""
-        if hasattr(self, 'toolbar') and self.toolbar:
+        if hasattr(self, "toolbar") and self.toolbar:
             theme = self.theme_manager.get_current_theme()
-            
+
             btn = tk.Button(
                 self.toolbar,
                 text=text,
@@ -1717,35 +1734,41 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                 font=(theme.typography.font_family, theme.typography.font_size_small),
             )
             btn.pack(side=tk.LEFT, padx=2, pady=2)
-            
+
             # Add hover effects
             def on_enter(e):
                 btn.configure(bg=theme.colors.accent_bg, fg=theme.colors.accent_text)
-            
+
             def on_leave(e):
-                btn.configure(bg=theme.colors.secondary_bg, fg=theme.colors.primary_text)
-            
+                btn.configure(
+                    bg=theme.colors.secondary_bg, fg=theme.colors.primary_text
+                )
+
             btn.bind("<Enter>", on_enter)
             btn.bind("<Leave>", on_leave)
-            
+
             return btn
         return None
 
     def clear_toolbar(self):
         """Clear all buttons from the toolbar."""
-        if hasattr(self, 'toolbar') and self.toolbar:
+        if hasattr(self, "toolbar") and self.toolbar:
             for child in list(self.toolbar.winfo_children()):
                 if isinstance(child, tk.Button):
                     child.destroy()
 
     def add_status_widget(self, widget):
         """Add a widget to the status bar."""
-        if hasattr(self, 'status_bar') and self.status_bar:
+        if hasattr(self, "status_bar") and self.status_bar:
             widget.pack(side=tk.RIGHT, padx=4, pady=2)
 
     def get_theme_name(self) -> str:
         """Get the current theme name."""
-        return self.theme_manager.current_theme.name if self.theme_manager.current_theme else "unknown"
+        return (
+            self.theme_manager.current_theme.name
+            if self.theme_manager.current_theme
+            else "unknown"
+        )
 
     def get_available_themes(self) -> list:
         """Get list of available theme names."""

@@ -44,7 +44,7 @@ Installation and Import Issues
        source venv/bin/activate  # Linux/macOS
        # or
        venv\Scripts\activate     # Windows
-       
+
        pip install threepanewindows
 
 **Problem: Tkinter not available**
@@ -76,7 +76,7 @@ Installation and Import Issues
        brew install python-tk
 
 4. **Windows:**
-   
+
    Tkinter should be included with Python. If missing, reinstall Python from python.org.
 
 Window Creation Issues
@@ -95,11 +95,11 @@ Window Creation Issues
     root = tk.Tk()
     root.title("Test Window")
     root.geometry("400x300")
-    
+
     # Test basic label
     test_label = tk.Label(root, text="If you see this, Tkinter works")
     test_label.pack(pady=20)
-    
+
     root.mainloop()
 
 **Solutions:**
@@ -129,16 +129,16 @@ Window Creation Issues
 
        root = tk.Tk()
        root.geometry("800x600")
-       
+
        # Use simplest layout first
        layout = FixedThreePaneWindow(root)
        layout.pack(fill=tk.BOTH, expand=True)
-       
+
        # Add simple content
        tk.Label(layout.left_pane, text="Left").pack()
        tk.Label(layout.center_pane, text="Center").pack()
        tk.Label(layout.right_pane, text="Right").pack()
-       
+
        root.mainloop()
 
 Icon-Related Issues
@@ -187,18 +187,18 @@ Icon-Related Issues
        def get_best_icon():
            system = platform.system()
            candidates = []
-           
+
            if system == "Windows":
                candidates = ["app.ico", "app.png", "app.bmp"]
            elif system == "Darwin":  # macOS
                candidates = ["app.png", "app.gif"]
            else:  # Linux
                candidates = ["app.png", "app.xbm"]
-           
+
            for icon in candidates:
                if os.path.exists(f"icons/{icon}"):
                    return f"icons/{icon}"
-           
+
            return ""  # No icon found
 
        config = PaneConfig(window_icon=get_best_icon())
@@ -217,7 +217,7 @@ Icon-Related Issues
        import tkinter as tk
 
        root = tk.Tk()
-       
+
        try:
            # Test PNG loading
            photo = tk.PhotoImage(file="icons/test.png")
@@ -225,7 +225,7 @@ Icon-Related Issues
            print("PNG icon loaded successfully")
        except Exception as e:
            print(f"PNG icon failed: {e}")
-       
+
        try:
            # Test ICO loading (Windows)
            root.iconbitmap("icons/test.ico")
@@ -247,7 +247,7 @@ Theme-Related Issues
     # Check theme manager
     theme_manager = get_theme_manager()
     print(f"Available themes: {theme_manager.get_available_themes()}")
-    
+
     # Test theme application
     try:
         theme_manager.apply_theme(window, ThemeType.DARK)
@@ -264,7 +264,7 @@ Theme-Related Issues
        # Use exact theme names
        valid_themes = ["light", "dark", "blue"]
        theme_name = "light"  # Make sure this matches exactly
-       
+
        window = EnhancedDockableThreePaneWindow(
            root,
            # ... other parameters ...
@@ -278,7 +278,7 @@ Theme-Related Issues
        # Create window first
        window = EnhancedDockableThreePaneWindow(root, ...)
        window.pack(fill=tk.BOTH, expand=True)
-       
+
        # Apply theme after packing
        theme_manager = get_theme_manager()
        theme_manager.apply_theme(window, "dark")
@@ -309,14 +309,14 @@ Performance Issues
 
     def measure_performance():
         """Measure window creation performance."""
-        
+
         # Measure memory before
         process = psutil.Process(os.getpid())
         memory_before = process.memory_info().rss
-        
+
         # Measure time
         start_time = time.time()
-        
+
         # Create window
         root = tk.Tk()
         window = EnhancedDockableThreePaneWindow(
@@ -324,14 +324,14 @@ Performance Issues
             # ... configuration ...
         )
         window.pack(fill=tk.BOTH, expand=True)
-        
+
         creation_time = time.time() - start_time
         memory_after = process.memory_info().rss
         memory_used = memory_after - memory_before
-        
+
         print(f"Window creation time: {creation_time:.3f} seconds")
         print(f"Memory used: {memory_used / 1024 / 1024:.2f} MB")
-        
+
         return root
 
 **Solutions:**
@@ -342,18 +342,18 @@ Performance Issues
 
        def build_lazy_panel(frame):
            """Build panel with lazy content loading."""
-           
+
            # Create placeholder
            placeholder = tk.Label(frame, text="Loading...")
            placeholder.pack(expand=True)
-           
+
            def load_content():
                # Remove placeholder
                placeholder.destroy()
-               
+
                # Load actual content
                # ... expensive operations ...
-           
+
            # Load content after a delay
            frame.after(100, load_content)
 
@@ -363,11 +363,11 @@ Performance Issues
 
        def build_optimized_panel(frame):
            """Build panel with optimized content."""
-           
+
            # Use efficient widgets
            # Avoid creating too many widgets at once
            # Use virtual scrolling for large lists
-           
+
            # Example: Virtual listbox for large datasets
            class VirtualListbox:
                def __init__(self, parent, data):
@@ -375,7 +375,7 @@ Performance Issues
                    self.visible_items = 20
                    self.listbox = tk.Listbox(parent, height=self.visible_items)
                    self.update_display()
-               
+
                def update_display(self, start_index=0):
                    self.listbox.delete(0, tk.END)
                    end_index = min(start_index + self.visible_items, len(self.data))
@@ -403,12 +403,12 @@ Pane Detachment Issues
 
     def test_detachment():
         """Test pane detachment functionality."""
-        
+
         def build_test_panel(frame):
             label = tk.Label(frame, text="Test Panel")
             label.pack(expand=True)
             return label
-        
+
         window = EnhancedDockableThreePaneWindow(
             root,
             left_config=PaneConfig(title="Left", detachable=True),
@@ -418,7 +418,7 @@ Pane Detachment Issues
             center_builder=build_test_panel,
             right_builder=build_test_panel
         )
-        
+
         # Test detachment programmatically
         def test_detach():
             try:
@@ -426,7 +426,7 @@ Pane Detachment Issues
                 print("Left pane detached successfully")
             except Exception as e:
                 print(f"Detachment failed: {e}")
-        
+
         # Test after window is displayed
         root.after(1000, test_detach)
 
@@ -459,11 +459,11 @@ Pane Detachment Issues
        def on_detach(pane_side, detached_window):
            """Handle detachment events."""
            print(f"Pane {pane_side} detached")
-           
+
            # Ensure detached window is properly configured
            detached_window.title(f"Detached {pane_side.title()}")
            detached_window.geometry("400x500")
-       
+
        window = EnhancedDockableThreePaneWindow(
            root,
            # ... other parameters ...
@@ -480,14 +480,14 @@ Platform-Specific Issues
    .. code-block:: python
 
        import tkinter as tk
-       
+
        # Enable DPI awareness
        try:
            from ctypes import windll
            windll.shcore.SetProcessDpiAwareness(1)
        except:
            pass
-       
+
        root = tk.Tk()
        # Continue with window creation...
 
@@ -508,7 +508,7 @@ Platform-Specific Issues
    .. code-block:: python
 
        import platform
-       
+
        if platform.system() == "Darwin":
            # macOS-specific menu setup
            root.createcommand('tk::mac::ShowPreferences', show_preferences)
@@ -532,7 +532,7 @@ Platform-Specific Issues
 
        # Test with different window managers
        echo $XDG_CURRENT_DESKTOP
-       
+
        # Some window managers may have issues with detached windows
 
 2. **Icon Theme Integration:**
@@ -541,7 +541,7 @@ Platform-Specific Issues
 
        # Use system icon theme when possible
        import os
-       
+
        def get_system_icon(icon_name):
            """Get icon from system theme."""
            icon_dirs = [
@@ -549,12 +549,12 @@ Platform-Specific Issues
                "/usr/share/pixmaps",
                os.path.expanduser("~/.local/share/icons")
            ]
-           
+
            for icon_dir in icon_dirs:
                icon_path = os.path.join(icon_dir, f"{icon_name}.png")
                if os.path.exists(icon_path):
                    return icon_path
-           
+
            return ""
 
 Debugging Tools and Techniques
@@ -586,19 +586,19 @@ Widget Inspection
         """Inspect widget hierarchy for debugging."""
         indent = "  " * level
         widget_info = f"{indent}{widget.__class__.__name__}"
-        
+
         if hasattr(widget, 'winfo_name'):
             widget_info += f" (name: {widget.winfo_name()})"
-        
+
         if hasattr(widget, 'cget'):
             try:
                 bg = widget.cget('bg')
                 widget_info += f" (bg: {bg})"
             except:
                 pass
-        
+
         print(widget_info)
-        
+
         # Recursively inspect children
         try:
             for child in widget.winfo_children():
@@ -616,7 +616,7 @@ Event Monitoring
 
     def monitor_events(widget):
         """Monitor events for debugging."""
-        
+
         events_to_monitor = [
             '<Button-1>', '<Button-3>', '<Double-Button-1>',
             '<KeyPress>', '<KeyRelease>',
@@ -624,14 +624,14 @@ Event Monitoring
             '<Configure>', '<Map>', '<Unmap>',
             '<Visibility>', '<Destroy>'
         ]
-        
+
         def event_handler(event):
             print(f"Event: {event.type} on {event.widget.__class__.__name__}")
             if hasattr(event, 'keysym'):
                 print(f"  Key: {event.keysym}")
             if hasattr(event, 'x') and hasattr(event, 'y'):
                 print(f"  Position: ({event.x}, {event.y})")
-        
+
         for event in events_to_monitor:
             widget.bind(event, event_handler, add=True)
 
@@ -646,26 +646,26 @@ Memory Debugging
     def start_memory_debugging():
         """Start memory debugging."""
         tracemalloc.start()
-        
+
         def print_memory_stats():
             """Print current memory statistics."""
             current, peak = tracemalloc.get_traced_memory()
             print(f"Current memory usage: {current / 1024 / 1024:.2f} MB")
             print(f"Peak memory usage: {peak / 1024 / 1024:.2f} MB")
-            
+
             # Print top memory consumers
             snapshot = tracemalloc.take_snapshot()
             top_stats = snapshot.statistics('lineno')
-            
+
             print("Top 5 memory consumers:")
             for stat in top_stats[:5]:
                 print(f"  {stat}")
-        
+
         return print_memory_stats
 
     # Use in your application
     memory_debug = start_memory_debugging()
-    
+
     # Call periodically
     root.after(5000, memory_debug)  # Every 5 seconds
 
@@ -694,7 +694,7 @@ When reporting issues, include:
        import platform
        import sys
        import threepanewindows
-       
+
        print(f"Python: {sys.version}")
        print(f"Platform: {platform.platform()}")
        print(f"ThreePaneWindows: {threepanewindows.__version__}")
@@ -708,10 +708,10 @@ When reporting issues, include:
 
        # Minimal example that demonstrates the issue
        root = tk.Tk()
-       
+
        def build_panel(frame):
            tk.Label(frame, text="Test").pack()
-       
+
        window = EnhancedDockableThreePaneWindow(
            root,
            left_config=PaneConfig(title="Test"),
@@ -722,7 +722,7 @@ When reporting issues, include:
            right_builder=build_panel
        )
        window.pack(fill=tk.BOTH, expand=True)
-       
+
        root.mainloop()
 
 3. **Error Messages:** Include complete error messages and stack traces

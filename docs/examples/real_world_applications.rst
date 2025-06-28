@@ -17,22 +17,22 @@ A complete text editor with file management:
 
     class TextEditorApp:
         """A complete text editor application."""
-        
+
         def __init__(self):
             self.root = tk.Tk()
             self.root.title("Professional Text Editor")
             self.root.geometry("1200x800")
-            
+
             self.current_file = None
             self.file_modified = False
-            
+
             self.setup_ui()
-            
+
         def setup_ui(self):
             """Set up the user interface."""
             # Create menu
             self.create_menu()
-            
+
             # Configure panes
             file_config = PaneConfig(
                 title="File Explorer",
@@ -41,13 +41,13 @@ A complete text editor with file management:
                 min_width=200,
                 detachable=True
             )
-            
+
             editor_config = PaneConfig(
                 title="Editor",
                 icon="📝",
                 detachable=False
             )
-            
+
             outline_config = PaneConfig(
                 title="Document Outline",
                 icon="📋",
@@ -55,7 +55,7 @@ A complete text editor with file management:
                 min_width=150,
                 detachable=True
             )
-            
+
             # Create enhanced window
             self.window = EnhancedDockableThreePaneWindow(
                 self.root,
@@ -68,16 +68,16 @@ A complete text editor with file management:
                 theme_name="blue"
             )
             self.window.pack(fill=tk.BOTH, expand=True)
-            
+
             # Status bar
-            self.status_bar = tk.Label(self.root, text="Ready", 
+            self.status_bar = tk.Label(self.root, text="Ready",
                                      relief=tk.SUNKEN, anchor=tk.W)
             self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
-            
+
         def create_menu(self):
             """Create the application menu."""
             menubar = tk.Menu(self.root)
-            
+
             # File menu
             file_menu = tk.Menu(menubar, tearoff=0)
             file_menu.add_command(label="New", accelerator="Ctrl+N", command=self.new_file)
@@ -87,7 +87,7 @@ A complete text editor with file management:
             file_menu.add_separator()
             file_menu.add_command(label="Exit", command=self.exit_app)
             menubar.add_cascade(label="File", menu=file_menu)
-            
+
             # Edit menu
             edit_menu = tk.Menu(menubar, tearoff=0)
             edit_menu.add_command(label="Undo", accelerator="Ctrl+Z", command=self.undo)
@@ -97,115 +97,115 @@ A complete text editor with file management:
             edit_menu.add_command(label="Copy", accelerator="Ctrl+C", command=self.copy)
             edit_menu.add_command(label="Paste", accelerator="Ctrl+V", command=self.paste)
             menubar.add_cascade(label="Edit", menu=edit_menu)
-            
+
             # View menu
             view_menu = tk.Menu(menubar, tearoff=0)
             view_menu.add_command(label="Word Wrap", command=self.toggle_word_wrap)
             view_menu.add_command(label="Line Numbers", command=self.toggle_line_numbers)
             menubar.add_cascade(label="View", menu=view_menu)
-            
+
             self.root.config(menu=menubar)
-            
+
             # Keyboard bindings
             self.root.bind('<Control-n>', lambda e: self.new_file())
             self.root.bind('<Control-o>', lambda e: self.open_file())
             self.root.bind('<Control-s>', lambda e: self.save_file())
-            
+
         def build_file_explorer(self, frame):
             """Build the file explorer panel."""
             # Toolbar
             toolbar = tk.Frame(frame, bg="#f0f0f0", height=30)
             toolbar.pack(fill=tk.X)
             toolbar.pack_propagate(False)
-            
+
             tk.Button(toolbar, text="📁", command=self.browse_folder).pack(side=tk.LEFT, padx=5, pady=2)
             tk.Button(toolbar, text="🔄", command=self.refresh_files).pack(side=tk.LEFT, padx=2, pady=2)
-            
+
             # File tree
             self.file_tree = ttk.Treeview(frame)
             file_scroll = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=self.file_tree.yview)
             self.file_tree.configure(yscrollcommand=file_scroll.set)
-            
+
             self.file_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
             file_scroll.pack(side=tk.RIGHT, fill=tk.Y, pady=5)
-            
+
             # Bind double-click to open file
             self.file_tree.bind('<Double-1>', self.on_file_double_click)
-            
+
             # Load initial directory
             self.load_directory(os.getcwd())
-            
+
         def build_editor(self, frame):
             """Build the main editor panel."""
             # Editor toolbar
             editor_toolbar = tk.Frame(frame, bg="#e0e0e0", height=35)
             editor_toolbar.pack(fill=tk.X)
             editor_toolbar.pack_propagate(False)
-            
+
             # File info
-            self.file_label = tk.Label(editor_toolbar, text="Untitled", 
+            self.file_label = tk.Label(editor_toolbar, text="Untitled",
                                      font=("Arial", 10, "bold"), bg="#e0e0e0")
             self.file_label.pack(side=tk.LEFT, padx=10, pady=5)
-            
+
             # Editor frame
             editor_frame = tk.Frame(frame)
             editor_frame.pack(fill=tk.BOTH, expand=True)
-            
+
             # Line numbers (optional)
             self.line_frame = tk.Frame(editor_frame, bg="#f8f8f8", width=40)
             self.line_numbers = tk.Text(self.line_frame, width=4, bg="#f8f8f8", fg="#666",
                                       font=("Consolas", 11), state=tk.DISABLED, wrap=tk.NONE)
-            
+
             # Main text editor
             self.text_editor = tk.Text(editor_frame, wrap=tk.WORD, font=("Consolas", 12),
                                      undo=True, maxundo=50)
-            
+
             # Scrollbars
             v_scroll = tk.Scrollbar(editor_frame, orient=tk.VERTICAL, command=self.text_editor.yview)
             h_scroll = tk.Scrollbar(editor_frame, orient=tk.HORIZONTAL, command=self.text_editor.xview)
             self.text_editor.configure(yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
-            
+
             # Pack editor components
             self.text_editor.grid(row=0, column=1, sticky="nsew")
             v_scroll.grid(row=0, column=2, sticky="ns")
             h_scroll.grid(row=1, column=1, sticky="ew")
-            
+
             editor_frame.grid_rowconfigure(0, weight=1)
             editor_frame.grid_columnconfigure(1, weight=1)
-            
+
             # Bind text changes
             self.text_editor.bind('<KeyPress>', self.on_text_change)
             self.text_editor.bind('<Button-1>', self.update_cursor_position)
             self.text_editor.bind('<KeyRelease>', self.update_cursor_position)
-            
+
         def build_outline(self, frame):
             """Build the document outline panel."""
             tk.Label(frame, text="Document Outline", font=("Arial", 11, "bold")).pack(pady=5)
-            
+
             # Outline tree
             self.outline_tree = ttk.Treeview(frame)
             outline_scroll = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=self.outline_tree.yview)
             self.outline_tree.configure(yscrollcommand=outline_scroll.set)
-            
+
             self.outline_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
             outline_scroll.pack(side=tk.RIGHT, fill=tk.Y, pady=5)
-            
+
             # Document stats
             stats_frame = tk.LabelFrame(frame, text="Statistics", font=("Arial", 10, "bold"))
             stats_frame.pack(fill=tk.X, padx=5, pady=5)
-            
+
             self.stats_labels = {}
             stats = ["Lines", "Words", "Characters"]
             for stat in stats:
                 stat_frame = tk.Frame(stats_frame)
                 stat_frame.pack(fill=tk.X, padx=5, pady=2)
-                
+
                 tk.Label(stat_frame, text=f"{stat}:", font=("Arial", 9)).pack(side=tk.LEFT)
                 self.stats_labels[stat] = tk.Label(stat_frame, text="0", font=("Arial", 9, "bold"))
                 self.stats_labels[stat].pack(side=tk.RIGHT)
-            
+
             self.update_stats()
-            
+
         # File operations
         def new_file(self):
             """Create a new file."""
@@ -215,7 +215,7 @@ A complete text editor with file management:
                 self.file_modified = False
                 self.file_label.config(text="Untitled")
                 self.update_title()
-                
+
         def open_file(self):
             """Open a file."""
             if self.check_save_changes():
@@ -236,7 +236,7 @@ A complete text editor with file management:
                             self.update_outline()
                     except Exception as e:
                         messagebox.showerror("Error", f"Could not open file: {str(e)}")
-                        
+
         def save_file(self):
             """Save the current file."""
             if self.current_file:
@@ -251,7 +251,7 @@ A complete text editor with file management:
                     messagebox.showerror("Error", f"Could not save file: {str(e)}")
             else:
                 self.save_as_file()
-                
+
         def save_as_file(self):
             """Save the file with a new name."""
             filename = filedialog.asksaveasfilename(
@@ -263,43 +263,43 @@ A complete text editor with file management:
                 self.current_file = filename
                 self.save_file()
                 self.file_label.config(text=os.path.basename(filename))
-                
+
         # Edit operations
         def undo(self):
             try:
                 self.text_editor.edit_undo()
             except tk.TclError:
                 pass
-                
+
         def redo(self):
             try:
                 self.text_editor.edit_redo()
             except tk.TclError:
                 pass
-                
+
         def cut(self):
             try:
                 self.text_editor.event_generate("<<Cut>>")
             except tk.TclError:
                 pass
-                
+
         def copy(self):
             try:
                 self.text_editor.event_generate("<<Copy>>")
             except tk.TclError:
                 pass
-                
+
         def paste(self):
             try:
                 self.text_editor.event_generate("<<Paste>>")
             except tk.TclError:
                 pass
-                
+
         # Utility methods
         def check_save_changes(self):
             """Check if changes need to be saved."""
             if self.file_modified:
-                result = messagebox.askyesnocancel("Save Changes", 
+                result = messagebox.askyesnocancel("Save Changes",
                                                  "Do you want to save changes to the current document?")
                 if result is True:
                     self.save_file()
@@ -309,14 +309,14 @@ A complete text editor with file management:
                 else:
                     return False
             return True
-            
+
         def on_text_change(self, event=None):
             """Handle text changes."""
             self.file_modified = True
             self.update_title()
             self.root.after_idle(self.update_stats)
             self.root.after_idle(self.update_outline)
-            
+
         def update_title(self):
             """Update the window title."""
             title = "Professional Text Editor"
@@ -327,28 +327,28 @@ A complete text editor with file management:
             if self.file_modified:
                 title += " *"
             self.root.title(title)
-            
+
         def update_stats(self):
             """Update document statistics."""
             content = self.text_editor.get(1.0, tk.END + '-1c')
             lines = content.count('\n') + 1 if content else 0
             words = len(content.split()) if content else 0
             chars = len(content)
-            
+
             self.stats_labels["Lines"].config(text=str(lines))
             self.stats_labels["Words"].config(text=str(words))
             self.stats_labels["Characters"].config(text=str(chars))
-            
+
         def update_outline(self):
             """Update document outline."""
             # Clear existing outline
             for item in self.outline_tree.get_children():
                 self.outline_tree.delete(item)
-                
+
             # Parse content for headings (simple example)
             content = self.text_editor.get(1.0, tk.END)
             lines = content.split('\n')
-            
+
             for i, line in enumerate(lines, 1):
                 line = line.strip()
                 if line.startswith('#'):
@@ -356,20 +356,20 @@ A complete text editor with file management:
                     heading = line.lstrip('# ').strip()
                     if heading:
                         self.outline_tree.insert("", "end", text=f"Line {i}: {heading}")
-                        
+
         def update_cursor_position(self, event=None):
             """Update cursor position in status bar."""
             cursor_pos = self.text_editor.index(tk.INSERT)
             line, col = cursor_pos.split('.')
             self.status_bar.config(text=f"Line {line}, Column {int(col)+1}")
-            
+
         # File explorer methods
         def load_directory(self, path):
             """Load directory contents into file tree."""
             # Clear existing items
             for item in self.file_tree.get_children():
                 self.file_tree.delete(item)
-                
+
             try:
                 for item in sorted(os.listdir(path)):
                     item_path = os.path.join(path, item)
@@ -379,7 +379,7 @@ A complete text editor with file management:
                         self.file_tree.insert("", "end", text=f"📄 {item}", values=[item_path])
             except PermissionError:
                 messagebox.showerror("Error", "Permission denied accessing directory")
-                
+
         def on_file_double_click(self, event):
             """Handle double-click on file tree."""
             selection = self.file_tree.selection()
@@ -400,34 +400,34 @@ A complete text editor with file management:
                                 self.update_outline()
                         except Exception as e:
                             messagebox.showerror("Error", f"Could not open file: {str(e)}")
-                            
+
         def browse_folder(self):
             """Browse for a folder."""
             folder = filedialog.askdirectory()
             if folder:
                 self.load_directory(folder)
-                
+
         def refresh_files(self):
             """Refresh file list."""
             # Implementation would refresh current directory
             pass
-            
+
         def toggle_word_wrap(self):
             """Toggle word wrap in editor."""
             current_wrap = self.text_editor.cget("wrap")
             new_wrap = tk.NONE if current_wrap == tk.WORD else tk.WORD
             self.text_editor.config(wrap=new_wrap)
-            
+
         def toggle_line_numbers(self):
             """Toggle line numbers display."""
             # Implementation would show/hide line numbers
             pass
-            
+
         def exit_app(self):
             """Exit the application."""
             if self.check_save_changes():
                 self.root.quit()
-                
+
         def run(self):
             """Run the application."""
             self.root.protocol("WM_DELETE_WINDOW", self.exit_app)
@@ -452,22 +452,22 @@ A complete image viewer with thumbnail browser:
 
     class ImageViewerApp:
         """A complete image viewer application."""
-        
+
         def __init__(self):
             self.root = tk.Tk()
             self.root.title("Professional Image Viewer")
             self.root.geometry("1200x800")
-            
+
             self.current_image = None
             self.image_list = []
             self.current_index = 0
-            
+
             self.setup_ui()
-            
+
         def setup_ui(self):
             """Set up the user interface."""
             self.create_menu()
-            
+
             # Create dockable layout
             self.window = DockableThreePaneWindow(
                 self.root,
@@ -477,16 +477,16 @@ A complete image viewer with thumbnail browser:
                 right_builder=self.build_info_panel
             )
             self.window.pack(fill=tk.BOTH, expand=True)
-            
+
             # Status bar
-            self.status_bar = tk.Label(self.root, text="Ready", 
+            self.status_bar = tk.Label(self.root, text="Ready",
                                      relief=tk.SUNKEN, anchor=tk.W)
             self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
-            
+
         def create_menu(self):
             """Create the application menu."""
             menubar = tk.Menu(self.root)
-            
+
             # File menu
             file_menu = tk.Menu(menubar, tearoff=0)
             file_menu.add_command(label="Open Image", command=self.open_image)
@@ -494,7 +494,7 @@ A complete image viewer with thumbnail browser:
             file_menu.add_separator()
             file_menu.add_command(label="Exit", command=self.root.quit)
             menubar.add_cascade(label="File", menu=file_menu)
-            
+
             # View menu
             view_menu = tk.Menu(menubar, tearoff=0)
             view_menu.add_command(label="Zoom In", command=self.zoom_in)
@@ -502,78 +502,78 @@ A complete image viewer with thumbnail browser:
             view_menu.add_command(label="Fit to Window", command=self.fit_to_window)
             view_menu.add_command(label="Actual Size", command=self.actual_size)
             menubar.add_cascade(label="View", menu=view_menu)
-            
+
             self.root.config(menu=menubar)
-            
+
         def build_thumbnail_panel(self, frame):
             """Build the thumbnail browser panel."""
             tk.Label(frame, text="🖼️ Thumbnails", font=("Arial", 11, "bold")).pack(pady=5)
-            
+
             # Thumbnail listbox
             self.thumbnail_listbox = tk.Listbox(frame, font=("Arial", 9))
             thumb_scroll = tk.Scrollbar(frame, orient=tk.VERTICAL, command=self.thumbnail_listbox.yview)
             self.thumbnail_listbox.configure(yscrollcommand=thumb_scroll.set)
-            
+
             self.thumbnail_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
             thumb_scroll.pack(side=tk.RIGHT, fill=tk.Y, pady=5)
-            
+
             # Bind selection
             self.thumbnail_listbox.bind('<<ListboxSelect>>', self.on_thumbnail_select)
-            
+
         def build_image_viewer(self, frame):
             """Build the main image viewer panel."""
             # Viewer toolbar
             toolbar = tk.Frame(frame, bg="#f0f0f0", height=40)
             toolbar.pack(fill=tk.X)
             toolbar.pack_propagate(False)
-            
+
             # Navigation buttons
             tk.Button(toolbar, text="⬅️ Previous", command=self.previous_image).pack(side=tk.LEFT, padx=5, pady=5)
             tk.Button(toolbar, text="➡️ Next", command=self.next_image).pack(side=tk.LEFT, padx=5, pady=5)
-            
+
             # Zoom controls
             tk.Button(toolbar, text="🔍+ Zoom In", command=self.zoom_in).pack(side=tk.LEFT, padx=5, pady=5)
             tk.Button(toolbar, text="🔍- Zoom Out", command=self.zoom_out).pack(side=tk.LEFT, padx=5, pady=5)
             tk.Button(toolbar, text="📐 Fit", command=self.fit_to_window).pack(side=tk.LEFT, padx=5, pady=5)
-            
+
             # Image display area
             self.image_frame = tk.Frame(frame, bg="gray")
             self.image_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
+
             # Canvas for image display
             self.image_canvas = tk.Canvas(self.image_frame, bg="white")
-            
+
             # Scrollbars for large images
             v_scroll = tk.Scrollbar(self.image_frame, orient=tk.VERTICAL, command=self.image_canvas.yview)
             h_scroll = tk.Scrollbar(self.image_frame, orient=tk.HORIZONTAL, command=self.image_canvas.xview)
             self.image_canvas.configure(yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
-            
+
             self.image_canvas.grid(row=0, column=0, sticky="nsew")
             v_scroll.grid(row=0, column=1, sticky="ns")
             h_scroll.grid(row=1, column=0, sticky="ew")
-            
+
             self.image_frame.grid_rowconfigure(0, weight=1)
             self.image_frame.grid_columnconfigure(0, weight=1)
-            
+
         def build_info_panel(self, frame):
             """Build the image information panel."""
             tk.Label(frame, text="ℹ️ Image Info", font=("Arial", 11, "bold")).pack(pady=5)
-            
+
             # Image info display
             info_frame = tk.LabelFrame(frame, text="Properties", font=("Arial", 10, "bold"))
             info_frame.pack(fill=tk.X, padx=5, pady=5)
-            
+
             self.info_labels = {}
             properties = ["Filename", "Size", "Dimensions", "Format", "Mode"]
-            
+
             for prop in properties:
                 prop_frame = tk.Frame(info_frame)
                 prop_frame.pack(fill=tk.X, padx=5, pady=2)
-                
+
                 tk.Label(prop_frame, text=f"{prop}:", font=("Arial", 9), width=10, anchor="w").pack(side=tk.LEFT)
                 self.info_labels[prop] = tk.Label(prop_frame, text="-", font=("Arial", 9), anchor="w")
                 self.info_labels[prop].pack(side=tk.LEFT, fill=tk.X, expand=True)
-                
+
         # Image operations
         def open_image(self):
             """Open a single image file."""
@@ -588,36 +588,36 @@ A complete image viewer with thumbnail browser:
             )
             if filename:
                 self.load_image(filename)
-                
+
         def open_folder(self):
             """Open a folder and load all images."""
             folder = filedialog.askdirectory(title="Select Image Folder")
             if folder:
                 self.load_folder(folder)
-                
+
         def load_folder(self, folder_path):
             """Load all images from a folder."""
             image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff')
             self.image_list = []
-            
+
             try:
                 for filename in os.listdir(folder_path):
                     if filename.lower().endswith(image_extensions):
                         self.image_list.append(os.path.join(folder_path, filename))
-                        
+
                 # Update thumbnail list
                 self.thumbnail_listbox.delete(0, tk.END)
                 for image_path in self.image_list:
                     self.thumbnail_listbox.insert(tk.END, os.path.basename(image_path))
-                    
+
                 if self.image_list:
                     self.current_index = 0
                     self.load_image(self.image_list[0])
                     self.thumbnail_listbox.selection_set(0)
-                    
+
             except Exception as e:
                 messagebox.showerror("Error", f"Could not load folder: {str(e)}")
-                
+
         def load_image(self, image_path):
             """Load and display an image."""
             try:
@@ -626,39 +626,39 @@ A complete image viewer with thumbnail browser:
                 self.display_image()
                 self.update_image_info(image_path)
                 self.status_bar.config(text=f"Loaded: {os.path.basename(image_path)}")
-                
+
             except Exception as e:
                 messagebox.showerror("Error", f"Could not load image: {str(e)}")
-                
+
         def display_image(self):
             """Display the current image on canvas."""
             if self.current_image:
                 # Convert to PhotoImage
                 photo = ImageTk.PhotoImage(self.current_image)
-                
+
                 # Clear canvas
                 self.image_canvas.delete("all")
-                
+
                 # Display image
                 self.image_canvas.create_image(0, 0, anchor=tk.NW, image=photo)
                 self.image_canvas.image = photo  # Keep a reference
-                
+
                 # Update scroll region
                 self.image_canvas.configure(scrollregion=self.image_canvas.bbox("all"))
-                
+
         def update_image_info(self, image_path):
             """Update image information display."""
             if self.current_image:
                 filename = os.path.basename(image_path)
                 file_size = os.path.getsize(image_path)
                 size_str = f"{file_size:,} bytes"
-                
+
                 self.info_labels["Filename"].config(text=filename)
                 self.info_labels["Size"].config(text=size_str)
                 self.info_labels["Dimensions"].config(text=f"{self.current_image.width} x {self.current_image.height}")
                 self.info_labels["Format"].config(text=self.current_image.format or "Unknown")
                 self.info_labels["Mode"].config(text=self.current_image.mode)
-                
+
         # Navigation
         def previous_image(self):
             """Show previous image."""
@@ -667,7 +667,7 @@ A complete image viewer with thumbnail browser:
                 self.load_image(self.image_list[self.current_index])
                 self.thumbnail_listbox.selection_clear(0, tk.END)
                 self.thumbnail_listbox.selection_set(self.current_index)
-                
+
         def next_image(self):
             """Show next image."""
             if self.image_list and self.current_index < len(self.image_list) - 1:
@@ -675,7 +675,7 @@ A complete image viewer with thumbnail browser:
                 self.load_image(self.image_list[self.current_index])
                 self.thumbnail_listbox.selection_clear(0, tk.END)
                 self.thumbnail_listbox.selection_set(self.current_index)
-                
+
         def on_thumbnail_select(self, event):
             """Handle thumbnail selection."""
             selection = self.thumbnail_listbox.curselection()
@@ -683,7 +683,7 @@ A complete image viewer with thumbnail browser:
                 index = selection[0]
                 self.current_index = index
                 self.load_image(self.image_list[index])
-                
+
         # Zoom operations
         def zoom_in(self):
             """Zoom in on the image."""
@@ -693,7 +693,7 @@ A complete image viewer with thumbnail browser:
                 new_height = int(height * 1.2)
                 self.current_image = self.current_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
                 self.display_image()
-                
+
         def zoom_out(self):
             """Zoom out on the image."""
             if self.current_image:
@@ -703,17 +703,17 @@ A complete image viewer with thumbnail browser:
                 if new_width > 10 and new_height > 10:  # Minimum size
                     self.current_image = self.current_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
                     self.display_image()
-                    
+
         def fit_to_window(self):
             """Fit image to window size."""
             # Implementation would resize image to fit canvas
             pass
-            
+
         def actual_size(self):
             """Show image at actual size."""
             if self.image_list and self.current_index < len(self.image_list):
                 self.load_image(self.image_list[self.current_index])
-                
+
         def run(self):
             """Run the application."""
             self.root.mainloop()

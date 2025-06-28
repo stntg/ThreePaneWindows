@@ -20,21 +20,21 @@ Simple example showing how to add icons to detached windows:
 
         def build_file_panel(frame):
             tk.Label(frame, text="📁 File Manager", font=("Arial", 12, "bold")).pack(pady=10)
-            
+
             files = ["📄 document.txt", "🖼️ image.png", "🎵 music.mp3"]
             for file in files:
                 tk.Button(frame, text=file, anchor="w").pack(fill=tk.X, padx=5, pady=2)
 
         def build_editor_panel(frame):
             tk.Label(frame, text="📝 Text Editor", font=("Arial", 12, "bold")).pack(pady=10)
-            
+
             text = tk.Text(frame, wrap=tk.WORD, font=("Consolas", 10))
             text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
             text.insert("1.0", "# Welcome to the Text Editor\n\nThis is a sample document.")
 
         def build_tools_panel(frame):
             tk.Label(frame, text="🔧 Tools", font=("Arial", 12, "bold")).pack(pady=10)
-            
+
             tools = ["🔍 Find", "🔄 Replace", "📊 Statistics", "⚙️ Settings"]
             for tool in tools:
                 tk.Button(frame, text=tool, anchor="w").pack(fill=tk.X, padx=5, pady=2)
@@ -93,7 +93,7 @@ Advanced example showing how to select the best icon for each platform:
     import platform
     import os
     from threepanewindows import (
-        EnhancedDockableThreePaneWindow, 
+        EnhancedDockableThreePaneWindow,
         PaneConfig,
         get_recommended_icon_formats,
         validate_icon_path
@@ -107,10 +107,10 @@ Advanced example showing how to select the best icon for each platform:
         def get_best_icon(base_name):
             """Get the best icon for the current platform."""
             system = platform.system()
-            
+
             # Define icon paths for different platforms
             icon_candidates = []
-            
+
             if system == "Windows":
                 icon_candidates = [
                     f"icons/{base_name}.ico",
@@ -129,35 +129,35 @@ Advanced example showing how to select the best icon for each platform:
                     f"icons/{base_name}.xbm",
                     f"icons/{base_name}.gif"
                 ]
-            
+
             # Find the first existing icon
             for icon_path in icon_candidates:
                 if os.path.exists(icon_path):
                     is_valid, message = validate_icon_path(icon_path)
                     if is_valid:
                         return icon_path
-            
+
             return ""  # No icon found
 
         def build_project_panel(frame):
             tk.Label(frame, text="📁 Project Explorer", font=("Arial", 12, "bold")).pack(pady=10)
-            
+
             # Show current platform info
             system_info = f"Platform: {platform.system()}"
             formats = get_recommended_icon_formats()
             formats_info = f"Recommended: {', '.join(formats)}"
-            
+
             info_frame = tk.LabelFrame(frame, text="Platform Info")
             info_frame.pack(fill=tk.X, padx=5, pady=5)
-            
+
             tk.Label(info_frame, text=system_info, font=("Arial", 9)).pack(anchor="w", padx=5)
-            tk.Label(info_frame, text=formats_info, font=("Arial", 9), 
+            tk.Label(info_frame, text=formats_info, font=("Arial", 9),
                     wraplength=180).pack(anchor="w", padx=5, pady=(0,5))
-            
+
             # Project tree
             tree_frame = tk.Frame(frame)
             tree_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
+
             project_items = [
                 "📁 src/",
                 "  🐍 main.py",
@@ -167,33 +167,33 @@ Advanced example showing how to select the best icon for each platform:
                 "  🖼️ logo.ico",
                 "📄 README.md"
             ]
-            
+
             listbox = tk.Listbox(tree_frame, font=("Consolas", 9))
             listbox.pack(fill=tk.BOTH, expand=True)
-            
+
             for item in project_items:
                 listbox.insert(tk.END, item)
 
         def build_code_panel(frame):
             tk.Label(frame, text="📝 Code Editor", font=("Arial", 12, "bold")).pack(pady=10)
-            
+
             # Code editor with syntax highlighting simulation
             code_frame = tk.Frame(frame)
             code_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-            
+
             # Line numbers
             line_frame = tk.Frame(code_frame, width=40, bg="lightgray")
             line_frame.pack(side=tk.LEFT, fill=tk.Y)
             line_frame.pack_propagate(False)
-            
-            line_text = tk.Text(line_frame, width=4, bg="lightgray", fg="gray", 
+
+            line_text = tk.Text(line_frame, width=4, bg="lightgray", fg="gray",
                               font=("Consolas", 10), state=tk.DISABLED)
             line_text.pack(fill=tk.BOTH, expand=True)
-            
+
             # Code area
             code_text = tk.Text(code_frame, font=("Consolas", 10), wrap=tk.NONE)
             code_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-            
+
             # Sample code
             sample_code = '''# Cross-Platform Icon Example
 import platform
@@ -203,19 +203,19 @@ def setup_icons():
     """Setup icons with platform detection."""
     system = platform.system()
     formats = get_recommended_icon_formats()
-    
+
     if system == "Windows":
         icon = "app.ico"  # Best on Windows
     else:
         icon = "app.png"  # Universal fallback
-    
+
     return PaneConfig(window_icon=icon)
 
 config = setup_icons()
 print(f"Using icon: {config.window_icon}")
 '''
             code_text.insert("1.0", sample_code)
-            
+
             # Add line numbers
             lines = sample_code.count('\n') + 1
             line_numbers = '\n'.join(str(i) for i in range(1, lines + 1))
@@ -225,34 +225,34 @@ print(f"Using icon: {config.window_icon}")
 
         def build_output_panel(frame):
             tk.Label(frame, text="📊 Output", font=("Arial", 12, "bold")).pack(pady=10)
-            
+
             # Platform detection results
             results_frame = tk.LabelFrame(frame, text="Icon Detection Results")
             results_frame.pack(fill=tk.X, padx=5, pady=5)
-            
+
             system = platform.system()
             formats = get_recommended_icon_formats()
-            
+
             results = [
                 f"Current Platform: {system}",
                 f"Recommended Formats: {', '.join(formats)}",
                 "",
                 "Icon Validation Results:"
             ]
-            
+
             # Test some common icon paths
             test_icons = ["app.ico", "app.png", "icon.gif"]
             for icon in test_icons:
                 is_valid, message = validate_icon_path(icon)
                 status = "✓" if is_valid else "✗"
                 results.append(f"  {status} {icon}: {message}")
-            
+
             output_text = tk.Text(results_frame, height=8, font=("Consolas", 9))
             output_text.pack(fill=tk.X, padx=5, pady=5)
-            
+
             for result in results:
                 output_text.insert(tk.END, result + "\n")
-            
+
             output_text.config(state=tk.DISABLED)
 
         # Configure panels with platform-specific icons
@@ -308,7 +308,7 @@ Example showing how to validate icons before using them:
     import tkinter as tk
     from tkinter import filedialog, messagebox
     from threepanewindows import (
-        EnhancedDockableThreePaneWindow, 
+        EnhancedDockableThreePaneWindow,
         PaneConfig,
         get_recommended_icon_formats,
         validate_icon_path
@@ -328,20 +328,20 @@ Example showing how to validate icons before using them:
 
         def build_icon_selector(frame):
             tk.Label(frame, text="🖼️ Icon Selector", font=("Arial", 12, "bold")).pack(pady=10)
-            
+
             # Recommended formats info
             formats_frame = tk.LabelFrame(frame, text="Recommended Formats")
             formats_frame.pack(fill=tk.X, padx=5, pady=5)
-            
+
             formats = get_recommended_icon_formats()
             formats_text = ", ".join(formats)
-            tk.Label(formats_frame, text=formats_text, font=("Arial", 9), 
+            tk.Label(formats_frame, text=formats_text, font=("Arial", 9),
                     wraplength=200).pack(padx=5, pady=5)
-            
+
             # Icon selection buttons
             selection_frame = tk.LabelFrame(frame, text="Select Icons")
             selection_frame.pack(fill=tk.X, padx=5, pady=5)
-            
+
             def select_icon(pane_name):
                 filetypes = [
                     ("Icon files", "*.ico *.png *.gif *.bmp *.xbm"),
@@ -349,12 +349,12 @@ Example showing how to validate icons before using them:
                     ("ICO files", "*.ico"),
                     ("All files", "*.*")
                 ]
-                
+
                 filename = filedialog.askopenfilename(
                     title=f"Select icon for {pane_name} pane",
                     filetypes=filetypes
                 )
-                
+
                 if filename:
                     is_valid, message = validate_icon_path(filename)
                     if is_valid:
@@ -363,50 +363,50 @@ Example showing how to validate icons before using them:
                         messagebox.showinfo("Success", f"Icon selected: {message}")
                     else:
                         messagebox.showwarning("Validation Failed", message)
-            
+
             for pane in ["left", "center", "right"]:
                 btn = tk.Button(selection_frame, text=f"Select {pane.title()} Icon",
                               command=lambda p=pane: select_icon(p))
                 btn.pack(fill=tk.X, padx=5, pady=2)
-            
+
             # Current icons display
             global icons_display_frame
             icons_display_frame = tk.LabelFrame(frame, text="Current Icons")
             icons_display_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
+
             update_icon_display()
 
         def update_icon_display():
             # Clear existing widgets
             for widget in icons_display_frame.winfo_children():
                 widget.destroy()
-            
+
             for pane, icon_path in current_icons.items():
                 pane_frame = tk.Frame(icons_display_frame)
                 pane_frame.pack(fill=tk.X, padx=5, pady=2)
-                
-                tk.Label(pane_frame, text=f"{pane.title()}:", width=8, 
+
+                tk.Label(pane_frame, text=f"{pane.title()}:", width=8,
                         anchor="w").pack(side=tk.LEFT)
-                
+
                 if icon_path:
                     # Show filename and validation status
                     filename = icon_path.split('/')[-1]
                     is_valid, message = validate_icon_path(icon_path)
                     status = "✓" if is_valid else "✗"
-                    
-                    tk.Label(pane_frame, text=f"{status} {filename}", 
+
+                    tk.Label(pane_frame, text=f"{status} {filename}",
                             fg="green" if is_valid else "red",
                             font=("Arial", 9)).pack(side=tk.LEFT)
                 else:
-                    tk.Label(pane_frame, text="No icon selected", 
+                    tk.Label(pane_frame, text="No icon selected",
                             fg="gray", font=("Arial", 9)).pack(side=tk.LEFT)
 
         def build_preview_panel(frame):
             tk.Label(frame, text="👁️ Preview", font=("Arial", 12, "bold")).pack(pady=10)
-            
+
             preview_text = tk.Text(frame, wrap=tk.WORD, font=("Arial", 10))
             preview_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-            
+
             preview_content = """Icon Preview Panel
 
 This panel shows how your selected icons will appear in detached windows.
@@ -429,20 +429,20 @@ Cross-platform compatibility ensures your application looks professional on all 
 
         def build_validation_panel(frame):
             tk.Label(frame, text="✅ Validation", font=("Arial", 12, "bold")).pack(pady=10)
-            
+
             # Validation results
             validation_frame = tk.LabelFrame(frame, text="Validation Results")
             validation_frame.pack(fill=tk.X, padx=5, pady=5)
-            
+
             global validation_text
             validation_text = tk.Text(validation_frame, height=10, font=("Consolas", 9))
             validation_text.pack(fill=tk.X, padx=5, pady=5)
-            
+
             # Test button
-            test_btn = tk.Button(frame, text="🔍 Test Current Icons", 
+            test_btn = tk.Button(frame, text="🔍 Test Current Icons",
                                command=run_validation_test)
             test_btn.pack(pady=10)
-            
+
             # Initial validation
             run_validation_test()
 
@@ -450,10 +450,10 @@ Cross-platform compatibility ensures your application looks professional on all 
             validation_text.delete("1.0", tk.END)
             validation_text.insert(tk.END, "Icon Validation Test Results\n")
             validation_text.insert(tk.END, "=" * 35 + "\n\n")
-            
+
             for pane, icon_path in current_icons.items():
                 validation_text.insert(tk.END, f"{pane.title()} Pane:\n")
-                
+
                 if icon_path:
                     is_valid, message = validate_icon_path(icon_path)
                     status = "VALID" if is_valid else "INVALID"
@@ -463,9 +463,9 @@ Cross-platform compatibility ensures your application looks professional on all 
                 else:
                     validation_text.insert(tk.END, "  Status: NO ICON\n")
                     validation_text.insert(tk.END, "  Message: No icon selected\n")
-                
+
                 validation_text.insert(tk.END, "\n")
-            
+
             # Platform info
             formats = get_recommended_icon_formats()
             validation_text.insert(tk.END, f"Platform Recommendations:\n")

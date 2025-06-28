@@ -51,7 +51,7 @@ Example Usage
 .. code-block:: python
 
     from threepanewindows.enhanced_dockable import (
-        PaneConfig, 
+        PaneConfig,
         get_recommended_icon_formats,
         validate_icon_path
     )

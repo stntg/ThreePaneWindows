@@ -2,12 +2,13 @@
 Example applications demonstrating the use of ThreePaneWindows.
 """
 
-import tkinter as tk
 import threading
 import time
+import tkinter as tk
+
 from .dockable import DockableThreePaneWindow
-from .fixed import FixedThreePaneLayout
 from .enhanced_dockable import EnhancedDockableThreePaneWindow, PaneConfig
+from .fixed import FixedThreePaneLayout
 
 
 def run_demo_with_timeout(timeout_seconds=5, interactive=False):
@@ -352,10 +353,12 @@ This demonstrates the bug fix for detached panel buttons.""",
         """Demo showing enhanced dockable window with all advanced features."""
 
         # Store reference to window for callbacks - use a container so it can be updated
-        window_container = {'window': None}
-        
+        window_container = {"window": None}
+
         # Create theme variable at higher scope so it can be synchronized
-        theme_var = tk.StringVar(value="light")  # Start with light theme to match default
+        theme_var = tk.StringVar(
+            value="light"
+        )  # Start with light theme to match default
 
         def build_file_explorer(frame):
             # Header is handled by the pane configuration, no need for duplicate
@@ -375,82 +378,100 @@ This demonstrates the bug fix for detached panel buttons.""",
                 "  📄 test_examples.py",
                 "  📄 test_enhanced.py",
             ]
-            
+
             # Create frame for file list and controls
             list_frame = tk.Frame(frame)
             list_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-            
+
             # Add some controls
             controls_frame = tk.Frame(list_frame)
             controls_frame.pack(fill="x", pady=(0, 5))
-            
-            tk.Button(controls_frame, text="📁 New Folder", font=("Arial", 8)).pack(side="left", padx=2)
-            tk.Button(controls_frame, text="📄 New File", font=("Arial", 8)).pack(side="left", padx=2)
-            
+
+            tk.Button(controls_frame, text="📁 New Folder", font=("Arial", 8)).pack(
+                side="left", padx=2
+            )
+            tk.Button(controls_frame, text="📄 New File", font=("Arial", 8)).pack(
+                side="left", padx=2
+            )
+
             listbox = tk.Listbox(list_frame, font=("Consolas", 9))
-            scrollbar = tk.Scrollbar(list_frame, orient="vertical", command=listbox.yview)
+            scrollbar = tk.Scrollbar(
+                list_frame, orient="vertical", command=listbox.yview
+            )
             listbox.configure(yscrollcommand=scrollbar.set)
-            
+
             listbox.pack(side="left", fill=tk.BOTH, expand=True)
             scrollbar.pack(side="right", fill="y")
 
             for file in files:
                 listbox.insert(tk.END, file)
-                
+
             # Add selection handler
             def on_file_select(event):
-                window_ref = window_container['window']
-                if window_ref and hasattr(window_ref, 'update_status'):
+                window_ref = window_container["window"]
+                if window_ref and hasattr(window_ref, "update_status"):
                     selection = listbox.curselection()
                     if selection:
                         file_name = listbox.get(selection[0]).strip()
                         window_ref.update_status(f"Selected: {file_name}")
-            
-            listbox.bind('<<ListboxSelect>>', on_file_select)
+
+            listbox.bind("<<ListboxSelect>>", on_file_select)
 
         def build_code_editor(frame):
             # Create toolbar frame
             toolbar_frame = tk.Frame(frame)
             toolbar_frame.pack(fill="x", padx=5, pady=5)
-            
+
             # Add toolbar buttons
             toolbar_buttons = tk.Frame(toolbar_frame)
             toolbar_buttons.pack(side="right")
-            
+
             def save_file():
-                window_ref = window_container['window']
-                if window_ref and hasattr(window_ref, 'update_status'):
+                window_ref = window_container["window"]
+                if window_ref and hasattr(window_ref, "update_status"):
                     window_ref.update_status("File saved successfully!")
-                    
+
             def run_code():
-                window_ref = window_container['window']
-                if window_ref and hasattr(window_ref, 'update_status'):
+                window_ref = window_container["window"]
+                if window_ref and hasattr(window_ref, "update_status"):
                     window_ref.update_status("Running code...")
-                    
-            tk.Button(toolbar_buttons, text="💾 Save", command=save_file, font=("Arial", 8)).pack(side="left", padx=2)
-            tk.Button(toolbar_buttons, text="▶️ Run", command=run_code, font=("Arial", 8)).pack(side="left", padx=2)
-            tk.Button(toolbar_buttons, text="🔍 Find", font=("Arial", 8)).pack(side="left", padx=2)
+
+            tk.Button(
+                toolbar_buttons, text="💾 Save", command=save_file, font=("Arial", 8)
+            ).pack(side="left", padx=2)
+            tk.Button(
+                toolbar_buttons, text="▶️ Run", command=run_code, font=("Arial", 8)
+            ).pack(side="left", padx=2)
+            tk.Button(toolbar_buttons, text="🔍 Find", font=("Arial", 8)).pack(
+                side="left", padx=2
+            )
 
             # Create text editor with scrollbars
             editor_frame = tk.Frame(frame)
             editor_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-            
+
             text = tk.Text(editor_frame, font=("Consolas", 10), wrap=tk.NONE)
-            v_scrollbar = tk.Scrollbar(editor_frame, orient="vertical", command=text.yview)
-            h_scrollbar = tk.Scrollbar(editor_frame, orient="horizontal", command=text.xview)
-            text.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
-            
+            v_scrollbar = tk.Scrollbar(
+                editor_frame, orient="vertical", command=text.yview
+            )
+            h_scrollbar = tk.Scrollbar(
+                editor_frame, orient="horizontal", command=text.xview
+            )
+            text.configure(
+                yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set
+            )
+
             text.grid(row=0, column=0, sticky="nsew")
             v_scrollbar.grid(row=0, column=1, sticky="ns")
             h_scrollbar.grid(row=1, column=0, sticky="ew")
-            
+
             editor_frame.grid_rowconfigure(0, weight=1)
             editor_frame.grid_columnconfigure(0, weight=1)
 
             # Add comprehensive sample code demonstrating features
             sample_code = """# Enhanced Three-Pane Window Demo - Advanced Features
 from threepanewindows.enhanced_dockable import (
-    EnhancedDockableThreePaneWindow, 
+    EnhancedDockableThreePaneWindow,
     PaneConfig,
     get_recommended_icon_formats
 )
@@ -471,7 +492,7 @@ left_config = PaneConfig(
 )
 
 center_config = PaneConfig(
-    title="Editor", 
+    title="Editor",
     icon="📝",
     detachable=False,  # Center typically stays docked
     resizable=True
@@ -479,7 +500,7 @@ center_config = PaneConfig(
 
 right_config = PaneConfig(
     title="Properties",
-    icon="🔧", 
+    icon="🔧",
     default_width=200,
     min_width=150,
     max_width=300,
@@ -491,7 +512,7 @@ right_config = PaneConfig(
 window = EnhancedDockableThreePaneWindow(
     root,
     left_config=left_config,
-    center_config=center_config, 
+    center_config=center_config,
     right_config=right_config,
     left_builder=build_left_panel,
     center_builder=build_center_panel,
@@ -516,16 +537,16 @@ window.toggle_left_pane()
 # Advanced features demonstrated in this demo!
 """
             text.insert(tk.END, sample_code)
-            
+
             # Add text change handler
             def on_text_change(event):
-                window_ref = window_container['window']
-                if window_ref and hasattr(window_ref, 'update_status'):
-                    lines = text.get("1.0", "end-1c").count('\n') + 1
+                window_ref = window_container["window"]
+                if window_ref and hasattr(window_ref, "update_status"):
+                    lines = text.get("1.0", "end-1c").count("\n") + 1
                     chars = len(text.get("1.0", "end-1c"))
                     window_ref.update_status(f"Lines: {lines}, Characters: {chars}")
-            
-            text.bind('<KeyRelease>', on_text_change)
+
+            text.bind("<KeyRelease>", on_text_change)
 
         def build_properties(frame):
             # Header is handled by the pane configuration, no need for duplicate
@@ -533,52 +554,54 @@ window.toggle_left_pane()
             # Create notebook for organized controls
             try:
                 from tkinter import ttk
+
                 notebook = ttk.Notebook(frame)
                 notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-                
+
                 # Theme tab
                 theme_frame = ttk.Frame(notebook)
                 notebook.add(theme_frame, text="Themes")
-                
-                # Features tab  
+
+                # Features tab
                 features_frame = ttk.Frame(notebook)
                 notebook.add(features_frame, text="Features")
-                
+
                 # Info tab
                 info_frame = ttk.Frame(notebook)
                 notebook.add(info_frame, text="Info")
-                
+
             except ImportError:
                 # Fallback if ttk not available
                 notebook = frame
                 theme_frame = tk.Frame(notebook)
                 theme_frame.pack(fill="x", padx=10, pady=5)
-                features_frame = tk.Frame(notebook) 
+                features_frame = tk.Frame(notebook)
                 features_frame.pack(fill="x", padx=10, pady=5)
                 info_frame = tk.Frame(notebook)
                 info_frame.pack(fill="x", padx=10, pady=5)
 
             # Theme Controls
-            tk.Label(theme_frame, text="Theme Selection:", font=("Arial", 10, "bold")).pack(
-                anchor="w", pady=(10, 5)
-            )
+            tk.Label(
+                theme_frame, text="Theme Selection:", font=("Arial", 10, "bold")
+            ).pack(anchor="w", pady=(10, 5))
 
             themes = ["light", "dark", "blue"]
 
             def change_theme():
-                window_ref = window_container['window']
-                if window_ref and hasattr(window_ref, 'switch_theme'):
+                window_ref = window_container["window"]
+                if window_ref and hasattr(window_ref, "switch_theme"):
                     new_theme = theme_var.get()
                     try:
                         window_ref.switch_theme(new_theme)
                         # Force UI refresh after theme change
                         window_ref.update_idletasks()
-                        if hasattr(window_ref, 'update_status'):
-                            window_ref.update_status(f"Theme changed to: {new_theme.upper()}")
+                        if hasattr(window_ref, "update_status"):
+                            window_ref.update_status(
+                                f"Theme changed to: {new_theme.upper()}"
+                            )
                     except Exception as e:
-                        if hasattr(window_ref, 'update_status'):
+                        if hasattr(window_ref, "update_status"):
                             window_ref.update_status(f"Theme change failed: {str(e)}")
-
 
             for theme in themes:
                 rb = tk.Radiobutton(
@@ -592,49 +615,54 @@ window.toggle_left_pane()
                 rb.pack(anchor="w", padx=20)
 
             # Feature Controls (Panel toggles moved to toolbar for accessibility)
-            tk.Label(features_frame, text="Panel Controls:", font=("Arial", 10, "bold")).pack(
-                anchor="w", pady=(10, 5)
-            )
-            
-            tk.Label(features_frame, text="Panel toggle buttons are in the toolbar\nfor better accessibility!", 
-                    font=("Arial", 8), fg="gray").pack(anchor="w", padx=20, pady=2)
-            
+            tk.Label(
+                features_frame, text="Panel Controls:", font=("Arial", 10, "bold")
+            ).pack(anchor="w", pady=(10, 5))
+
+            tk.Label(
+                features_frame,
+                text="Panel toggle buttons are in the toolbar\nfor better accessibility!",
+                font=("Arial", 8),
+                fg="gray",
+            ).pack(anchor="w", padx=20, pady=2)
+
             # Animation controls
-            tk.Label(features_frame, text="Animation Controls:", font=("Arial", 10, "bold")).pack(
-                anchor="w", pady=(10, 5)
-            )
-            
+            tk.Label(
+                features_frame, text="Animation Controls:", font=("Arial", 10, "bold")
+            ).pack(anchor="w", pady=(10, 5))
+
             animation_var = tk.BooleanVar(value=True)
-            
+
             def toggle_animations():
-                window_ref = window_container['window']
-                if window_ref and hasattr(window_ref, 'enable_animations'):
+                window_ref = window_container["window"]
+                if window_ref and hasattr(window_ref, "enable_animations"):
                     enabled = animation_var.get()
                     window_ref.enable_animations = enabled
-                    if hasattr(window_ref, 'update_status'):
+                    if hasattr(window_ref, "update_status"):
                         status = "enabled" if enabled else "disabled"
                         window_ref.update_status(f"Animations {status}")
-            
+
             tk.Checkbutton(
-                features_frame, 
-                text="Enable Animations", 
+                features_frame,
+                text="Enable Animations",
                 variable=animation_var,
-                command=toggle_animations
+                command=toggle_animations,
             ).pack(anchor="w", padx=20)
 
             # Platform and Icon Information
-            tk.Label(info_frame, text="Platform Information:", font=("Arial", 10, "bold")).pack(
-                anchor="w", pady=(10, 5)
-            )
+            tk.Label(
+                info_frame, text="Platform Information:", font=("Arial", 10, "bold")
+            ).pack(anchor="w", pady=(10, 5))
 
-            from .enhanced_dockable import get_recommended_icon_formats
             import platform
 
+            from .enhanced_dockable import get_recommended_icon_formats
+
             formats = get_recommended_icon_formats()
-            
+
             info_text = tk.Text(info_frame, height=8, font=("Arial", 9))
             info_text.pack(fill="both", expand=True, padx=20, pady=5)
-            
+
             info_content = f"""Platform: {platform.system()} {platform.release()}
 Python: {platform.python_version()}
 
@@ -643,7 +671,7 @@ Recommended Icon Formats:
 
 Enhanced Features Demonstrated:
 • Dynamic theme switching
-• Panel visibility controls  
+• Panel visibility controls
 • Status bar integration
 • Toolbar integration
 • Animation controls
@@ -666,7 +694,7 @@ Enhanced Features Demonstrated:
             # Note: In a real app, you'd have actual icon files
             # window_icon="icons/explorer.png",  # Uncomment if you have icon files
             default_width=320,  # Increased to ensure detach button is visible
-            min_width=250,      # Increased minimum width
+            min_width=250,  # Increased minimum width
             max_width=450,
             detachable=True,
             resizable=True,
@@ -687,7 +715,7 @@ Enhanced Features Demonstrated:
             icon="🔧",
             # window_icon="icons/properties.ico",  # Uncomment if you have icon files
             default_width=280,  # Increased width
-            min_width=220,      # Increased minimum width
+            min_width=220,  # Increased minimum width
             max_width=400,
             detachable=True,
             resizable=True,
@@ -710,38 +738,44 @@ Enhanced Features Demonstrated:
                 show_status_bar=True,
                 show_toolbar=True,
             )
-            
+
             # Store reference for callbacks
-            window_container['window'] = window
-            
+            window_container["window"] = window
+
             # Update theme variable to match current theme
             current_theme = window.get_theme_name().lower()
             theme_var.set(current_theme)
-            
+
             # Add panel toggle controls to toolbar for accessibility
             def toggle_left():
-                window_ref = window_container['window']
-                if window_ref and hasattr(window_ref, 'toggle_left_pane'):
+                window_ref = window_container["window"]
+                if window_ref and hasattr(window_ref, "toggle_left_pane"):
                     window_ref.toggle_left_pane()
-                    is_visible = window_ref.is_pane_visible('left')
+                    is_visible = window_ref.is_pane_visible("left")
                     status = "shown" if is_visible else "hidden"
                     window_ref.update_status(f"Left panel {status}")
-                        
+
             def toggle_right():
-                window_ref = window_container['window']
-                if window_ref and hasattr(window_ref, 'toggle_right_pane'):
+                window_ref = window_container["window"]
+                if window_ref and hasattr(window_ref, "toggle_right_pane"):
                     window_ref.toggle_right_pane()
-                    is_visible = window_ref.is_pane_visible('right')
+                    is_visible = window_ref.is_pane_visible("right")
                     status = "shown" if is_visible else "hidden"
                     window_ref.update_status(f"Right panel {status}")
-            
+
             # Add toggle buttons to toolbar
-            window.add_toolbar_button("👁️ Left", toggle_left, "Toggle left panel visibility")
-            window.add_toolbar_button("👁️ Right", toggle_right, "Toggle right panel visibility")
-            
+            window.add_toolbar_button(
+                "👁️ Left", toggle_left, "Toggle left panel visibility"
+            )
+            window.add_toolbar_button(
+                "👁️ Right", toggle_right, "Toggle right panel visibility"
+            )
+
             # Demonstrate status bar
-            window.update_status("Enhanced demo loaded - Try the theme switcher and panel controls!")
-            
+            window.update_status(
+                "Enhanced demo loaded - Try the theme switcher and panel controls!"
+            )
+
         except (RuntimeError, tk.TclError) as e:
             # If theme fails (e.g., in threading context), try with default theme
             if "main thread" in str(e) or "theme" in str(e).lower():
@@ -758,14 +792,14 @@ Enhanced Features Demonstrated:
                     show_status_bar=True,
                     show_toolbar=False,  # Disable toolbar for safety
                 )
-                window_container['window'] = window
+                window_container["window"] = window
                 # Update theme variable for fallback case
                 theme_var.set(window.get_theme_name().lower())
-                if hasattr(window, 'update_status'):
+                if hasattr(window, "update_status"):
                     window.update_status("Demo loaded with fallback theme")
             else:
                 raise
-                
+
         window.pack(fill=tk.BOTH, expand=True)
 
         if auto_close_delay:

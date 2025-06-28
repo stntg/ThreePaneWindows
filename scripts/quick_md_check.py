@@ -10,10 +10,10 @@ Usage:
     python scripts/quick_md_check.py --fix
 """
 
+import argparse
 import os
 import re
 import sys
-import argparse
 from pathlib import Path
 
 

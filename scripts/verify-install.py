@@ -28,9 +28,9 @@ def test_classes():
     """Test importing main classes."""
     try:
         from threepanewindows import (
-            FixedThreePaneWindow,
             DockableThreePaneWindow,
             EnhancedDockableThreePaneWindow,
+            FixedThreePaneWindow,
             ThemeManager,
         )
 

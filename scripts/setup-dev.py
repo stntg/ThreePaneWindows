@@ -16,9 +16,9 @@ Usage:
     python scripts/setup-dev.py
 """
 
+import shlex
 import subprocess
 import sys
-import shlex
 from pathlib import Path
 
 

@@ -22,45 +22,45 @@ Create a professional file manager with theming:
         def build_sidebar(frame):
             """Build a professional sidebar with navigation."""
             # Quick access section
-            quick_frame = tk.LabelFrame(frame, text="Quick Access", 
+            quick_frame = tk.LabelFrame(frame, text="Quick Access",
                                       font=("Segoe UI", 10, "bold"))
             quick_frame.pack(fill=tk.X, padx=8, pady=8)
-            
+
             quick_items = [
                 ("🏠 Home", "#4CAF50"),
-                ("📄 Documents", "#2196F3"), 
+                ("📄 Documents", "#2196F3"),
                 ("🖼️ Pictures", "#FF9800"),
                 ("🎵 Music", "#9C27B0"),
                 ("📹 Videos", "#F44336")
             ]
-            
+
             for item, color in quick_items:
-                btn = tk.Button(quick_frame, text=item, anchor="w", 
+                btn = tk.Button(quick_frame, text=item, anchor="w",
                               bg=color, fg="white", font=("Segoe UI", 9),
                               relief="flat", pady=5)
                 btn.pack(fill=tk.X, padx=5, pady=2)
-            
+
             # Folder tree section
-            tree_frame = tk.LabelFrame(frame, text="Folders", 
+            tree_frame = tk.LabelFrame(frame, text="Folders",
                                      font=("Segoe UI", 10, "bold"))
             tree_frame.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
-            
+
             # Professional treeview
             tree = ttk.Treeview(tree_frame, style="Professional.Treeview")
             tree_scroll = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=tree.yview)
             tree.configure(yscrollcommand=tree_scroll.set)
-            
+
             tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
             tree_scroll.pack(side=tk.RIGHT, fill=tk.Y, pady=5)
-            
+
             # Sample folder structure
             computer = tree.insert("", "end", text="💻 This PC", open=True)
-            
+
             c_drive = tree.insert(computer, "end", text="💾 Local Disk (C:)", open=True)
             tree.insert(c_drive, "end", text="📁 Program Files")
             tree.insert(c_drive, "end", text="📁 Users")
             tree.insert(c_drive, "end", text="📁 Windows")
-            
+
             documents = tree.insert(computer, "end", text="📄 Documents", open=True)
             tree.insert(documents, "end", text="📁 Projects")
             tree.insert(documents, "end", text="📁 Reports")
@@ -71,54 +71,54 @@ Create a professional file manager with theming:
             toolbar = tk.Frame(frame, bg="#f0f0f0", height=40)
             toolbar.pack(fill=tk.X)
             toolbar.pack_propagate(False)
-            
+
             # Navigation buttons
             nav_frame = tk.Frame(toolbar, bg="#f0f0f0")
             nav_frame.pack(side=tk.LEFT, padx=10, pady=5)
-            
+
             nav_buttons = ["⬅️ Back", "➡️ Forward", "⬆️ Up", "🔄 Refresh"]
             for btn_text in nav_buttons:
                 btn = tk.Button(nav_frame, text=btn_text, font=("Segoe UI", 9),
                               relief="flat", bg="#e0e0e0", padx=10)
                 btn.pack(side=tk.LEFT, padx=2)
-            
+
             # Address bar
             address_frame = tk.Frame(toolbar, bg="#f0f0f0")
             address_frame.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=10, pady=5)
-            
+
             tk.Label(address_frame, text="📍", bg="#f0f0f0").pack(side=tk.LEFT)
             address_entry = tk.Entry(address_frame, font=("Segoe UI", 10))
             address_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
             address_entry.insert(0, "C:\\Users\\Documents")
-            
+
             # Search
             search_frame = tk.Frame(toolbar, bg="#f0f0f0")
             search_frame.pack(side=tk.RIGHT, padx=10, pady=5)
-            
+
             tk.Label(search_frame, text="🔍", bg="#f0f0f0").pack(side=tk.LEFT)
             search_entry = tk.Entry(search_frame, width=20, font=("Segoe UI", 10))
             search_entry.pack(side=tk.LEFT, padx=5)
-            
+
             # File list view
             list_frame = tk.Frame(frame)
             list_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-            
+
             # Professional file list
             columns = ("Name", "Size", "Type", "Modified")
             file_tree = ttk.Treeview(list_frame, columns=columns, show="tree headings",
                                    style="Professional.Treeview")
-            
+
             # Configure columns
             file_tree.column("#0", width=300, minwidth=200)
             file_tree.column("Size", width=100, minwidth=80)
             file_tree.column("Type", width=150, minwidth=100)
             file_tree.column("Modified", width=150, minwidth=120)
-            
+
             file_tree.heading("#0", text="Name", anchor=tk.W)
             file_tree.heading("Size", text="Size", anchor=tk.W)
             file_tree.heading("Type", text="Type", anchor=tk.W)
             file_tree.heading("Modified", text="Date Modified", anchor=tk.W)
-            
+
             # Sample files
             files = [
                 ("📁 Projects", "", "Folder", "Today"),
@@ -129,43 +129,43 @@ Create a professional file manager with theming:
                 ("📝 notes.txt", "12 KB", "Text Document", "1 week ago"),
                 ("🐍 script.py", "4.2 KB", "Python File", "2 weeks ago")
             ]
-            
+
             for name, size, file_type, modified in files:
                 file_tree.insert("", "end", text=name, values=(size, file_type, modified))
-            
+
             # Scrollbars
             v_scroll = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=file_tree.yview)
             h_scroll = ttk.Scrollbar(list_frame, orient=tk.HORIZONTAL, command=file_tree.xview)
             file_tree.configure(yscrollcommand=v_scroll.set, xscrollcommand=h_scroll.set)
-            
+
             file_tree.grid(row=0, column=0, sticky="nsew")
             v_scroll.grid(row=0, column=1, sticky="ns")
             h_scroll.grid(row=1, column=0, sticky="ew")
-            
+
             list_frame.grid_rowconfigure(0, weight=1)
             list_frame.grid_columnconfigure(0, weight=1)
 
         def build_properties_panel(frame):
             """Build a detailed properties panel."""
             # File preview section
-            preview_frame = tk.LabelFrame(frame, text="Preview", 
+            preview_frame = tk.LabelFrame(frame, text="Preview",
                                         font=("Segoe UI", 10, "bold"))
             preview_frame.pack(fill=tk.X, padx=8, pady=8)
-            
+
             # Placeholder for file preview
             preview_canvas = tk.Canvas(preview_frame, height=120, bg="white")
             preview_canvas.pack(fill=tk.X, padx=5, pady=5)
-            
+
             # Add sample preview
             preview_canvas.create_rectangle(10, 10, 110, 110, fill="lightblue", outline="blue")
-            preview_canvas.create_text(60, 60, text="📄\nDocument\nPreview", 
+            preview_canvas.create_text(60, 60, text="📄\nDocument\nPreview",
                                      font=("Segoe UI", 9), justify=tk.CENTER)
-            
+
             # Properties section
-            props_frame = tk.LabelFrame(frame, text="Properties", 
+            props_frame = tk.LabelFrame(frame, text="Properties",
                                       font=("Segoe UI", 10, "bold"))
             props_frame.pack(fill=tk.X, padx=8, pady=8)
-            
+
             properties = [
                 ("Name:", "document.docx"),
                 ("Type:", "Microsoft Word Document"),
@@ -175,28 +175,28 @@ Create a professional file manager with theming:
                 ("Modified:", "January 20, 2024 4:45 PM"),
                 ("Accessed:", "Today 10:15 AM")
             ]
-            
+
             for prop, value in properties:
                 prop_frame = tk.Frame(props_frame)
                 prop_frame.pack(fill=tk.X, padx=5, pady=3)
-                
-                tk.Label(prop_frame, text=prop, font=("Segoe UI", 9, "bold"), 
+
+                tk.Label(prop_frame, text=prop, font=("Segoe UI", 9, "bold"),
                         width=12, anchor="w").pack(side=tk.LEFT)
-                tk.Label(prop_frame, text=value, font=("Segoe UI", 9), 
+                tk.Label(prop_frame, text=value, font=("Segoe UI", 9),
                         anchor="w", wraplength=150).pack(side=tk.LEFT, fill=tk.X, expand=True)
-            
+
             # Actions section
-            actions_frame = tk.LabelFrame(frame, text="Actions", 
+            actions_frame = tk.LabelFrame(frame, text="Actions",
                                         font=("Segoe UI", 10, "bold"))
             actions_frame.pack(fill=tk.X, padx=8, pady=8)
-            
+
             actions = [
                 ("📂 Open", "#4CAF50"),
                 ("✏️ Edit", "#2196F3"),
                 ("📋 Copy", "#FF9800"),
                 ("🗑️ Delete", "#F44336")
             ]
-            
+
             for action, color in actions:
                 btn = tk.Button(actions_frame, text=action, bg=color, fg="white",
                               font=("Segoe UI", 9), relief="flat", pady=3)
@@ -212,14 +212,14 @@ Create a professional file manager with theming:
             max_width=400,
             detachable=True
         )
-        
+
         main_config = PaneConfig(
             title="Files",
             icon="📄",
             window_icon="icons/files.png",       # Cross-platform PNG icon
             detachable=False
         )
-        
+
         properties_config = PaneConfig(
             title="Properties",
             icon="ℹ️",
@@ -270,39 +270,39 @@ Create a professional code editor with syntax highlighting simulation:
             # Project selector
             project_frame = tk.Frame(frame, bg="#2d2d2d")
             project_frame.pack(fill=tk.X, padx=5, pady=5)
-            
-            tk.Label(project_frame, text="📁 Current Project", 
+
+            tk.Label(project_frame, text="📁 Current Project",
                     font=("Segoe UI", 10, "bold"), bg="#2d2d2d", fg="white").pack(anchor="w")
-            
+
             project_combo = ttk.Combobox(project_frame, values=["ThreePaneWindows", "WebApp", "DataAnalysis"])
             project_combo.pack(fill=tk.X, pady=5)
             project_combo.set("ThreePaneWindows")
-            
+
             # File tree
             tree_frame = tk.Frame(frame)
             tree_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
+
             file_tree = ttk.Treeview(tree_frame, style="Dark.Treeview")
             tree_scroll = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=file_tree.yview)
             file_tree.configure(yscrollcommand=tree_scroll.set)
-            
+
             file_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             tree_scroll.pack(side=tk.RIGHT, fill=tk.Y)
-            
+
             # Project structure
             root_node = file_tree.insert("", "end", text="📁 ThreePaneWindows", open=True)
-            
+
             src = file_tree.insert(root_node, "end", text="📁 threepanewindows", open=True)
             file_tree.insert(src, "end", text="🐍 __init__.py")
             file_tree.insert(src, "end", text="🐍 dockable.py")
             file_tree.insert(src, "end", text="🐍 enhanced_dockable.py")
             file_tree.insert(src, "end", text="🐍 fixed.py")
             file_tree.insert(src, "end", text="🐍 themes.py")
-            
+
             docs = file_tree.insert(root_node, "end", text="📁 docs")
             file_tree.insert(docs, "end", text="📄 README.md")
             file_tree.insert(docs, "end", text="📄 API.md")
-            
+
             tests = file_tree.insert(root_node, "end", text="📁 tests")
             file_tree.insert(tests, "end", text="🐍 test_dockable.py")
             file_tree.insert(tests, "end", text="🐍 test_fixed.py")
@@ -313,7 +313,7 @@ Create a professional code editor with syntax highlighting simulation:
             tab_frame = tk.Frame(frame, bg="#3c3c3c", height=35)
             tab_frame.pack(fill=tk.X)
             tab_frame.pack_propagate(False)
-            
+
             # Editor tabs
             tabs = ["dockable.py", "enhanced_dockable.py", "themes.py"]
             for i, tab in enumerate(tabs):
@@ -321,29 +321,29 @@ Create a professional code editor with syntax highlighting simulation:
                 tab_btn = tk.Button(tab_frame, text=f"🐍 {tab}", bg=tab_color, fg="white",
                                   font=("Segoe UI", 9), relief="flat", padx=15, pady=5)
                 tab_btn.pack(side=tk.LEFT, padx=1)
-            
+
             # Editor area
             editor_frame = tk.Frame(frame)
             editor_frame.pack(fill=tk.BOTH, expand=True)
-            
+
             # Line numbers
             line_frame = tk.Frame(editor_frame, bg="#2d2d2d", width=50)
             line_frame.pack(side=tk.LEFT, fill=tk.Y)
             line_frame.pack_propagate(False)
-            
+
             line_font = font.Font(family="Consolas", size=10)
             line_numbers = tk.Text(line_frame, width=4, bg="#2d2d2d", fg="#858585",
                                  font=line_font, state=tk.DISABLED, wrap=tk.NONE,
                                  relief=tk.FLAT, selectbackground="#2d2d2d")
             line_numbers.pack(fill=tk.BOTH, expand=True, padx=5)
-            
+
             # Main editor
             editor_font = font.Font(family="Consolas", size=11)
             editor = tk.Text(editor_frame, bg="#1e1e1e", fg="#d4d4d4", font=editor_font,
                            insertbackground="white", selectbackground="#264f78",
                            wrap=tk.NONE, relief=tk.FLAT)
             editor.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-            
+
             # Sample code with syntax highlighting simulation
             sample_code = '''"""
 Enhanced Dockable Three-Pane Window Module
@@ -357,35 +357,35 @@ from typing import Optional, Callable, Dict, Any
 
 class EnhancedDockableThreePaneWindow(tk.Frame):
     """Professional dockable three-pane window with theming support."""
-    
+
     def __init__(self, parent: tk.Widget, **kwargs):
         """Initialize the enhanced dockable window.
-        
+
         Args:
             parent: Parent widget
             **kwargs: Additional configuration options
         """
         super().__init__(parent)
-        
+
         self.theme_name = kwargs.get('theme_name', 'blue')
         self.left_config = kwargs.get('left_config')
         self.center_config = kwargs.get('center_config')
         self.right_config = kwargs.get('right_config')
-        
+
         self._setup_ui()
         self._apply_theme()
-    
+
     def _setup_ui(self):
         """Set up the user interface."""
         # Create the main paned window
         self.paned_window = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
         self.paned_window.pack(fill=tk.BOTH, expand=True)
-        
+
         # Create panes
         self._create_left_pane()
         self._create_center_pane()
         self._create_right_pane()
-    
+
     def _apply_theme(self):
         """Apply the selected theme."""
         if self.theme_name == 'blue':
@@ -394,20 +394,20 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             self._apply_dark_theme()
         else:
             self._apply_default_theme()'''
-            
+
             editor.insert("1.0", sample_code)
-            
+
             # Update line numbers
             lines = sample_code.count('\n') + 1
             line_numbers.config(state=tk.NORMAL)
             line_numbers.insert("1.0", '\n'.join(str(i) for i in range(1, lines + 1)))
             line_numbers.config(state=tk.DISABLED)
-            
+
             # Status bar
             status_frame = tk.Frame(frame, bg="#007acc", height=25)
             status_frame.pack(fill=tk.X, side=tk.BOTTOM)
             status_frame.pack_propagate(False)
-            
+
             tk.Label(status_frame, text="Line 1, Column 1", bg="#007acc", fg="white",
                     font=("Segoe UI", 9)).pack(side=tk.LEFT, padx=10, pady=2)
             tk.Label(status_frame, text="Python", bg="#007acc", fg="white",
@@ -418,53 +418,53 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             # Tools notebook
             notebook = ttk.Notebook(frame, style="Dark.TNotebook")
             notebook.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
+
             # Output tab
             output_frame = tk.Frame(notebook, bg="#1e1e1e")
             notebook.add(output_frame, text="🖥️ Output")
-            
+
             output_text = tk.Text(output_frame, bg="#1e1e1e", fg="#d4d4d4",
                                 font=("Consolas", 10), height=10)
             output_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
+
             output_content = '''Building ThreePaneWindows...
 ✓ Compiling dockable.py
-✓ Compiling enhanced_dockable.py  
+✓ Compiling enhanced_dockable.py
 ✓ Compiling themes.py
 ✓ Running tests...
 ✓ All tests passed!
 
 Build completed successfully in 2.3 seconds.'''
-            
+
             output_text.insert("1.0", output_content)
-            
+
             # Problems tab
             problems_frame = tk.Frame(notebook, bg="#1e1e1e")
             notebook.add(problems_frame, text="⚠️ Problems")
-            
+
             problems_tree = ttk.Treeview(problems_frame, columns=("File", "Line", "Message"),
                                        show="tree headings", style="Dark.Treeview")
             problems_tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
+
             problems_tree.heading("#0", text="Type")
             problems_tree.heading("File", text="File")
             problems_tree.heading("Line", text="Line")
             problems_tree.heading("Message", text="Message")
-            
+
             # Sample problems
-            problems_tree.insert("", "end", text="⚠️ Warning", 
+            problems_tree.insert("", "end", text="⚠️ Warning",
                                 values=("dockable.py", "45", "Unused import 'sys'"))
-            problems_tree.insert("", "end", text="💡 Info", 
+            problems_tree.insert("", "end", text="💡 Info",
                                 values=("themes.py", "12", "Consider using f-strings"))
-            
+
             # Terminal tab
             terminal_frame = tk.Frame(notebook, bg="#000000")
             notebook.add(terminal_frame, text="💻 Terminal")
-            
+
             terminal_text = tk.Text(terminal_frame, bg="#000000", fg="#00ff00",
                                   font=("Consolas", 10))
             terminal_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
+
             terminal_content = '''$ python -m pytest tests/
 ========================= test session starts =========================
 platform win32 -- Python 3.9.0, pytest-6.2.4
@@ -483,7 +483,7 @@ copying threepanewindows/dockable.py -> build/lib/threepanewindows
 Build completed successfully!
 
 $ '''
-            
+
             terminal_text.insert("1.0", terminal_content)
 
         # Configure professional panes
@@ -495,13 +495,13 @@ $ '''
             max_width=500,
             detachable=True
         )
-        
+
         editor_config = PaneConfig(
             title="Code Editor",
             icon="📝",
             detachable=False
         )
-        
+
         tools_config = PaneConfig(
             title="Output & Tools",
             icon="🔧",

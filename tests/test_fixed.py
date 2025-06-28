@@ -1,7 +1,9 @@
 """Tests for FixedThreePaneWindow."""
 
-import pytest
 import tkinter as tk
+
+import pytest
+
 from threepanewindows.fixed import FixedThreePaneWindow
 
 
@@ -146,57 +148,45 @@ class TestFixedThreePaneWindow:
 
     def test_fixed_layout_advanced_features(self, root):
         """Test advanced features of fixed layout."""
-        window = FixedThreePaneWindow(
-            root,
-            left_width=200,
-            right_width=150
-        )
+        window = FixedThreePaneWindow(root, left_width=200, right_width=150)
 
         # Test advanced methods if they exist
-        if hasattr(window, 'get_layout_info'):
+        if hasattr(window, "get_layout_info"):
             info = window.get_layout_info()
             assert isinstance(info, dict)
-        
-        if hasattr(window, 'set_layout_weights'):
+
+        if hasattr(window, "set_layout_weights"):
             window.set_layout_weights(left=1, center=2, right=1)
-        
-        if hasattr(window, 'reset_layout'):
+
+        if hasattr(window, "reset_layout"):
             window.reset_layout()
 
     def test_fixed_layout_state_management(self, root):
         """Test state management in fixed layout."""
-        window = FixedThreePaneWindow(
-            root,
-            left_width=200,
-            right_width=150
-        )
+        window = FixedThreePaneWindow(root, left_width=200, right_width=150)
 
         # Test state methods if they exist
-        if hasattr(window, 'save_state'):
+        if hasattr(window, "save_state"):
             state = window.save_state()
             assert isinstance(state, dict)
-        
-        if hasattr(window, 'restore_state'):
-            test_state = {'left_width': 250, 'right_width': 175}
+
+        if hasattr(window, "restore_state"):
+            test_state = {"left_width": 250, "right_width": 175}
             window.restore_state(test_state)
 
     def test_fixed_layout_event_handling(self, root):
         """Test event handling in fixed layout."""
-        window = FixedThreePaneWindow(
-            root,
-            left_width=200,
-            right_width=150
-        )
+        window = FixedThreePaneWindow(root, left_width=200, right_width=150)
 
         # Test event methods if they exist
-        if hasattr(window, '_on_configure'):
-            event = type('Event', (), {'width': 800, 'height': 600})()
+        if hasattr(window, "_on_configure"):
+            event = type("Event", (), {"width": 800, "height": 600})()
             window._on_configure(event)
-        
-        if hasattr(window, '_bind_events'):
+
+        if hasattr(window, "_bind_events"):
             window._bind_events()
-        
-        if hasattr(window, 'update_layout'):
+
+        if hasattr(window, "update_layout"):
             window.update_layout()
 
     def test_fixed_window_edge_cases(self, root):
@@ -208,7 +198,7 @@ class TestFixedThreePaneWindow:
         except Exception:
             # Some edge cases might be handled with exceptions
             pass
-        
+
         # Test with very large widths
         try:
             window = FixedThreePaneWindow(root, left_width=10000, right_width=10000)

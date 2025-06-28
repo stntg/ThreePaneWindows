@@ -258,7 +258,7 @@ tests/LOCAL_TESTING_README.md
 # Enhanced coverage tests (include in remote repo)
 # The following files have been REMOVED from gitignore to include in repo:
 # - tests/test_enhanced_coverage.py (new comprehensive coverage tests)
-# 
+#
 # Note: Other test files may be enhanced versions of existing tests
 # and should be reviewed before including in remote repo
 

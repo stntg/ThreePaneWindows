@@ -101,12 +101,12 @@ The enhanced demo now demonstrates all the new features:
 - **Theme Tab**: Live theme switching with radio buttons
   - Light, Dark, and Blue themes
   - Real-time theme changes with status feedback
-  
+
 - **Features Tab**: Panel visibility controls
   - Toggle Left Panel button
   - Toggle Right Panel button
   - Animation enable/disable checkbox
-  
+
 - **Info Tab**: Platform and feature information
   - Platform details
   - Recommended icon formats

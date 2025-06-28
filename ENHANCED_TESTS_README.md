@@ -228,7 +228,7 @@ Current target: 70%
 - name: Run tests with coverage
   run: |
     python -m pytest -c pytest_ci.ini
-    
+
 - name: Upload coverage to Codecov
   uses: codecov/codecov-action@v3
   with:

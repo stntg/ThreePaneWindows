@@ -28,7 +28,7 @@ Linux
 ~~~~~
 
 * **Primary**: ``.png``, ``.xbm`` - Best support
-* **Secondary**: ``.gif``, ``.bmp`` - Good support  
+* **Secondary**: ``.gif``, ``.bmp`` - Good support
 * **Limited**: ``.ico`` - May work depending on distribution
 
 Basic Usage
@@ -49,7 +49,7 @@ Simple Icon Configuration
 
     # Using platform-specific icons
     config = PaneConfig(
-        title="My Panel", 
+        title="My Panel",
         window_icon="icons/panel_icon.ico"  # Best on Windows
     )
 
@@ -59,7 +59,7 @@ Icon Validation and Recommendations
 .. code-block:: python
 
     from threepanewindows.enhanced_dockable import (
-        get_recommended_icon_formats, 
+        get_recommended_icon_formats,
         validate_icon_path
     )
 
@@ -86,7 +86,7 @@ Platform-Specific Icon Selection
     def get_platform_icon():
         """Get the best icon for the current platform."""
         system = platform.system()
-        
+
         if system == "Windows" and os.path.exists("icons/app.ico"):
             return "icons/app.ico"
         elif os.path.exists("icons/app.png"):
@@ -104,31 +104,31 @@ Complete Cross-Platform Setup
     import os
     import platform
     from threepanewindows.enhanced_dockable import (
-        EnhancedDockableThreePaneWindow, 
+        EnhancedDockableThreePaneWindow,
         PaneConfig,
         validate_icon_path
     )
 
     def setup_cross_platform_icons():
         """Setup icons with cross-platform compatibility."""
-        
+
         # Define icon paths for different platforms
         icon_paths = {
             "Windows": "icons/app.ico",
             "Darwin": "icons/app.png",  # macOS
             "Linux": "icons/app.png"
         }
-        
+
         # Get the best icon for current platform
         system = platform.system()
         icon_path = icon_paths.get(system, "icons/app.png")
-        
+
         # Validate the icon
         is_valid, message = validate_icon_path(icon_path)
         if not is_valid:
             print(f"Icon validation failed: {message}")
             icon_path = ""  # Use no icon
-        
+
         # Create pane configuration
         left_config = PaneConfig(
             title="File Explorer",
@@ -136,7 +136,7 @@ Complete Cross-Platform Setup
             window_icon=icon_path,  # File icon for detached window
             detachable=True
         )
-        
+
         return left_config
 
 Icon Resolution Strategy
@@ -176,7 +176,7 @@ Provide Multiple Formats
     def get_platform_icon():
         """Get the best icon for the current platform."""
         system = platform.system()
-        
+
         if system == "Windows" and os.path.exists("icons/app.ico"):
             return "icons/app.ico"
         elif os.path.exists("icons/app.png"):

@@ -87,7 +87,7 @@ Basic Usage Pattern
 
    # Access panes
    left_pane = window.left_pane
-   center_pane = window.center_pane  
+   center_pane = window.center_pane
    right_pane = window.right_pane
 
 Common Parameters

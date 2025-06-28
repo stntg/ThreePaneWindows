@@ -81,7 +81,7 @@ On some Linux distributions, tkinter is not installed by default:
 
     # Ubuntu/Debian
     sudo apt-get install python3-tk
-    
+
     # CentOS/RHEL/Fedora
     sudo yum install tkinter
     # or

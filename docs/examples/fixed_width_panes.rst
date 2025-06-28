@@ -28,17 +28,17 @@ Create a layout where side panes have fixed widths:
         layout.pack(fill=tk.BOTH, expand=True)
 
         # Add content to demonstrate fixed vs resizable behavior
-        tk.Label(layout.frame_left, text="FIXED WIDTH\n200px", 
+        tk.Label(layout.frame_left, text="FIXED WIDTH\n200px",
                 bg="#3A7CA5", fg="white", font=("Arial", 12, "bold")).pack(expand=True)
-        
-        tk.Label(layout.frame_center, text="CENTER - RESIZABLE\nAdjusts to fill remaining space", 
+
+        tk.Label(layout.frame_center, text="CENTER - RESIZABLE\nAdjusts to fill remaining space",
                 font=("Arial", 12, "bold")).pack(expand=True)
-        
-        tk.Label(layout.frame_right, text="RESIZABLE\nChanges with window", 
+
+        tk.Label(layout.frame_right, text="RESIZABLE\nChanges with window",
                 bg="#F4A261", font=("Arial", 10, "bold")).pack(expand=True)
 
         # Instructions
-        instructions = tk.Label(root, 
+        instructions = tk.Label(root,
             text="💡 Try resizing the window - left pane stays 200px, center adjusts, right resizes normally",
             bg="lightyellow", font=("Arial", 9))
         instructions.pack(fill=tk.X, pady=2)
@@ -81,10 +81,10 @@ Create a layout where both side panes have fixed widths:
         # Left panel - Navigation
         nav_frame = tk.Frame(layout.frame_left, bg="#E8F4FD")
         nav_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        tk.Label(nav_frame, text="Navigation Menu", font=("Arial", 11, "bold"), 
+
+        tk.Label(nav_frame, text="Navigation Menu", font=("Arial", 11, "bold"),
                 bg="#E8F4FD").pack(pady=10)
-        
+
         nav_items = ["🏠 Home", "📊 Dashboard", "📁 Projects", "⚙️ Settings", "❓ Help"]
         for item in nav_items:
             btn = tk.Button(nav_frame, text=item, width=18, anchor="w")
@@ -93,17 +93,17 @@ Create a layout where both side panes have fixed widths:
         # Center panel - Main content
         content_frame = tk.Frame(layout.frame_center)
         content_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
-        tk.Label(content_frame, text="Main Content Area", 
+
+        tk.Label(content_frame, text="Main Content Area",
                 font=("Arial", 14, "bold")).pack(pady=10)
-        
+
         text_area = tk.Text(content_frame, wrap=tk.WORD, font=("Arial", 11))
         scrollbar = tk.Scrollbar(content_frame, orient=tk.VERTICAL, command=text_area.yview)
         text_area.configure(yscrollcommand=scrollbar.set)
-        
+
         text_area.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         sample_text = '''This is the main content area.
 
 The left navigation panel is fixed at 180 pixels wide.
@@ -112,32 +112,32 @@ This center panel expands and contracts to fill the remaining space.
 
 Try resizing the window to see how the layout behaves:
 - Left panel: Always 180px
-- Right panel: Always 220px  
+- Right panel: Always 220px
 - Center panel: Adjusts to fill remaining width
 
 This is perfect for applications where you need consistent sidebar widths but want the main content to be flexible.'''
-        
+
         text_area.insert("1.0", sample_text)
 
         # Right panel - Tools
         tools_frame = tk.Frame(layout.frame_right, bg="#FFF8E1")
         tools_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        tk.Label(tools_frame, text="Tool Panel", font=("Arial", 11, "bold"), 
+
+        tk.Label(tools_frame, text="Tool Panel", font=("Arial", 11, "bold"),
                 bg="#FFF8E1").pack(pady=10)
-        
+
         # Tool sections
         sections = [
             ("Quick Actions", ["🔍 Search", "📋 Copy", "✂️ Cut", "📌 Pin"]),
             ("Format", ["🅱️ Bold", "🅸 Italic", "🅿️ Underline"]),
             ("View", ["🔍 Zoom In", "🔍 Zoom Out", "📏 Fit Width"])
         ]
-        
+
         for section_name, tools in sections:
-            section_frame = tk.LabelFrame(tools_frame, text=section_name, 
+            section_frame = tk.LabelFrame(tools_frame, text=section_name,
                                         font=("Arial", 9, "bold"), bg="#FFF8E1")
             section_frame.pack(fill=tk.X, padx=5, pady=5)
-            
+
             for tool in tools:
                 btn = tk.Button(section_frame, text=tool, width=20)
                 btn.pack(pady=1, padx=5)
@@ -167,11 +167,11 @@ Use fixed widths with the dockable window system:
             """Build a fixed-width sidebar."""
             tk.Label(frame, text="📁 SIDEBAR", font=("Arial", 12, "bold")).pack(pady=10)
             tk.Label(frame, text="Fixed: 200px", fg="red", font=("Arial", 9)).pack()
-            
+
             # File tree simulation
             files = [
                 "📁 Documents",
-                "  📄 report.docx", 
+                "  📄 report.docx",
                 "  📄 notes.txt",
                 "📁 Images",
                 "  🖼️ photo1.jpg",
@@ -180,27 +180,27 @@ Use fixed widths with the dockable window system:
                 "  📁 WebApp",
                 "  📁 MobileApp"
             ]
-            
+
             listbox = tk.Listbox(frame, font=("Arial", 9))
             listbox.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            
+
             for file in files:
                 listbox.insert(tk.END, file)
 
         def build_main_area(frame):
             """Build the main resizable area."""
             tk.Label(frame, text="📝 MAIN AREA", font=("Arial", 14, "bold")).pack(pady=10)
-            tk.Label(frame, text="Resizable - Fills remaining space", 
+            tk.Label(frame, text="Resizable - Fills remaining space",
                     fg="green", font=("Arial", 10)).pack()
-            
+
             # Main content
             content_frame = tk.Frame(frame)
             content_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-            
+
             # Simulated document editor
             editor = tk.Text(content_frame, wrap=tk.WORD, font=("Arial", 11))
             editor.pack(fill=tk.BOTH, expand=True)
-            
+
             editor_content = '''# Document Editor
 
 This is the main content area that resizes to fill the available space.
@@ -215,18 +215,18 @@ This is the main content area that resizes to fill the available space.
 ## How It Works:
 
 - Left sidebar: Fixed at 200px (cannot be resized)
-- Right panel: Fixed at 180px (cannot be resized)  
+- Right panel: Fixed at 180px (cannot be resized)
 - Center area: Expands/contracts to fill remaining width
 
 This creates a professional, predictable interface while maintaining flexibility where it matters most - in the main content area.'''
-            
+
             editor.insert("1.0", editor_content)
 
         def build_properties(frame):
             """Build a fixed-width properties panel."""
             tk.Label(frame, text="🔧 PROPERTIES", font=("Arial", 12, "bold")).pack(pady=10)
             tk.Label(frame, text="Fixed: 180px", fg="red", font=("Arial", 9)).pack()
-            
+
             # Properties sections
             sections = [
                 ("Document", [
@@ -248,19 +248,19 @@ This creates a professional, predictable interface while maintaining flexibility
                     ("Spacing:", "Single")
                 ])
             ]
-            
+
             for section_name, properties in sections:
-                section_frame = tk.LabelFrame(frame, text=section_name, 
+                section_frame = tk.LabelFrame(frame, text=section_name,
                                             font=("Arial", 9, "bold"))
                 section_frame.pack(fill=tk.X, padx=5, pady=5)
-                
+
                 for prop, value in properties:
                     prop_frame = tk.Frame(section_frame)
                     prop_frame.pack(fill=tk.X, padx=3, pady=1)
-                    
-                    tk.Label(prop_frame, text=prop, font=("Arial", 8), 
+
+                    tk.Label(prop_frame, text=prop, font=("Arial", 8),
                             width=8, anchor="w").pack(side=tk.LEFT)
-                    tk.Label(prop_frame, text=value, font=("Arial", 8, "bold"), 
+                    tk.Label(prop_frame, text=value, font=("Arial", 8, "bold"),
                             anchor="w").pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         # Create dockable window with fixed widths
@@ -275,7 +275,7 @@ This creates a professional, predictable interface while maintaining flexibility
         dockable.pack(fill=tk.BOTH, expand=True)
 
         # Instructions
-        instructions = tk.Label(root, 
+        instructions = tk.Label(root,
             text="💡 Panels are detachable but maintain their fixed widths even when detached!",
             bg="lightblue", font=("Arial", 9))
         instructions.pack(fill=tk.X, pady=2)
@@ -307,10 +307,10 @@ Use fixed widths with the enhanced professional window:
             header = tk.Frame(frame, bg="#2C3E50", height=40)
             header.pack(fill=tk.X)
             header.pack_propagate(False)
-            
+
             tk.Label(header, text="🧭 Navigation", font=("Segoe UI", 11, "bold"),
                     bg="#2C3E50", fg="white").pack(pady=10)
-            
+
             # Navigation sections
             sections = [
                 ("📊 Dashboard", ["Overview", "Analytics", "Reports"]),
@@ -318,13 +318,13 @@ Use fixed widths with the enhanced professional window:
                 ("👥 Team", ["Members", "Roles", "Permissions"]),
                 ("⚙️ Settings", ["General", "Security", "Integrations"])
             ]
-            
+
             for section_name, items in sections:
                 # Section header
                 section_btn = tk.Button(frame, text=section_name, font=("Segoe UI", 10, "bold"),
                                       bg="#34495E", fg="white", anchor="w", relief="flat")
                 section_btn.pack(fill=tk.X, padx=5, pady=2)
-                
+
                 # Section items
                 for item in items:
                     item_btn = tk.Button(frame, text=f"  • {item}", font=("Segoe UI", 9),
@@ -337,21 +337,21 @@ Use fixed widths with the enhanced professional window:
             header = tk.Frame(frame, bg="#3498DB", height=50)
             header.pack(fill=tk.X)
             header.pack_propagate(False)
-            
+
             title_frame = tk.Frame(header, bg="#3498DB")
             title_frame.pack(expand=True, fill=tk.BOTH)
-            
+
             tk.Label(title_frame, text="📝 Main Workspace", font=("Segoe UI", 14, "bold"),
                     bg="#3498DB", fg="white").pack(pady=15)
-            
+
             # Content area
             content_frame = tk.Frame(frame, bg="white")
             content_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-            
+
             # Dashboard-style content
             stats_frame = tk.Frame(content_frame, bg="white")
             stats_frame.pack(fill=tk.X, pady=10)
-            
+
             # Statistics cards
             stats = [
                 ("📈 Revenue", "$125,430", "#27AE60"),
@@ -359,36 +359,36 @@ Use fixed widths with the enhanced professional window:
                 ("📊 Orders", "1,247", "#E67E22"),
                 ("⭐ Rating", "4.8/5", "#9B59B6")
             ]
-            
+
             for i, (title, value, color) in enumerate(stats):
                 card = tk.Frame(stats_frame, bg=color, relief="raised", bd=2)
                 card.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5)
-                
+
                 tk.Label(card, text=title, font=("Segoe UI", 10, "bold"),
                         bg=color, fg="white").pack(pady=5)
                 tk.Label(card, text=value, font=("Segoe UI", 16, "bold"),
                         bg=color, fg="white").pack(pady=5)
-            
+
             # Main content area
             main_content = tk.Frame(content_frame, bg="#F8F9FA", relief="sunken", bd=1)
             main_content.pack(fill=tk.BOTH, expand=True, pady=10)
-            
+
             tk.Label(main_content, text="📋 Recent Activity", font=("Segoe UI", 12, "bold"),
                     bg="#F8F9FA").pack(pady=10)
-            
+
             # Activity list
             activities = [
                 "🔄 Project 'WebApp' updated 2 minutes ago",
-                "👤 New user registered 5 minutes ago", 
+                "👤 New user registered 5 minutes ago",
                 "📊 Monthly report generated 15 minutes ago",
                 "💰 Payment received from Client ABC 1 hour ago",
                 "📧 Email campaign sent to 1,500 subscribers 2 hours ago"
             ]
-            
+
             for activity in activities:
                 activity_frame = tk.Frame(main_content, bg="white", relief="flat", bd=1)
                 activity_frame.pack(fill=tk.X, padx=10, pady=2)
-                
+
                 tk.Label(activity_frame, text=activity, font=("Segoe UI", 9),
                         bg="white", anchor="w").pack(fill=tk.X, padx=10, pady=5)
 
@@ -398,10 +398,10 @@ Use fixed widths with the enhanced professional window:
             header = tk.Frame(frame, bg="#8E44AD", height=40)
             header.pack(fill=tk.X)
             header.pack_propagate(False)
-            
+
             tk.Label(header, text="🔍 Inspector", font=("Segoe UI", 11, "bold"),
                     bg="#8E44AD", fg="white").pack(pady=10)
-            
+
             # Inspector sections
             sections = [
                 ("📋 Details", [
@@ -429,17 +429,17 @@ Use fixed widths with the enhanced professional window:
                     ("Version:", "2.1.0")
                 ])
             ]
-            
+
             for section_name, properties in sections:
-                section_frame = tk.LabelFrame(frame, text=section_name, 
+                section_frame = tk.LabelFrame(frame, text=section_name,
                                             font=("Segoe UI", 9, "bold"),
                                             bg="#F8F9FA", fg="#2C3E50")
                 section_frame.pack(fill=tk.X, padx=8, pady=5)
-                
+
                 for prop, value in properties:
                     prop_frame = tk.Frame(section_frame, bg="#F8F9FA")
                     prop_frame.pack(fill=tk.X, padx=5, pady=2)
-                    
+
                     tk.Label(prop_frame, text=prop, font=("Segoe UI", 8, "bold"),
                             bg="#F8F9FA", width=10, anchor="w").pack(side=tk.LEFT)
                     tk.Label(prop_frame, text=value, font=("Segoe UI", 8),
@@ -452,13 +452,13 @@ Use fixed widths with the enhanced professional window:
             fixed_width=250,  # Fixed at 250px
             detachable=True
         )
-        
+
         workspace_config = PaneConfig(
             title="Workspace",
             icon="📝",
             detachable=False
         )
-        
+
         inspector_config = PaneConfig(
             title="Inspector",
             icon="🔍",
@@ -524,7 +524,7 @@ Fixed width configuration options:
         right_fixed_width=None   # Right pane resizes normally
     )
 
-    # For DockableThreePaneWindow  
+    # For DockableThreePaneWindow
     dockable = DockableThreePaneWindow(
         root,
         left_fixed_width=180,    # Left pane fixed

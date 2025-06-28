@@ -24,17 +24,17 @@ Options:
     --exclude PATTERN  Exclude files matching pattern
 """
 
+import argparse
+import glob
 import os
 import re
 import sys
-import argparse
-import glob
-from pathlib import Path
-from typing import List, Dict, Tuple, Set
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
 from collections import defaultdict
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Set, Tuple
 
 
 @dataclass

@@ -23,28 +23,28 @@ The simplest way to create a three-pane layout:
     layout.pack(fill=tk.BOTH, expand=True)
 
     # Add content to left pane
-    tk.Label(layout.frame_left, text="Left Panel", 
+    tk.Label(layout.frame_left, text="Left Panel",
              font=("Arial", 12, "bold")).pack(pady=10)
-    
+
     for i in range(5):
         tk.Button(layout.frame_left, text=f"Button {i+1}").pack(
             fill=tk.X, padx=5, pady=2)
 
     # Add content to center pane
-    tk.Label(layout.frame_center, text="Main Content", 
+    tk.Label(layout.frame_center, text="Main Content",
              font=("Arial", 14, "bold")).pack(pady=10)
-    
+
     text_area = tk.Text(layout.frame_center, wrap=tk.WORD)
     text_area.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
     text_area.insert("1.0", "This is the main content area.")
 
     # Add content to right pane
-    tk.Label(layout.frame_right, text="Properties", 
+    tk.Label(layout.frame_right, text="Properties",
              font=("Arial", 12, "bold")).pack(pady=10)
-    
+
     tk.Label(layout.frame_right, text="Setting 1:").pack(anchor="w", padx=5)
     tk.Entry(layout.frame_right).pack(fill=tk.X, padx=5, pady=2)
-    
+
     tk.Label(layout.frame_right, text="Setting 2:").pack(anchor="w", padx=5)
     tk.Entry(layout.frame_right).pack(fill=tk.X, padx=5, pady=2)
 
@@ -70,7 +70,7 @@ You can customize the pane labels:
     # Set custom labels with icons
     layout.set_label_texts(
         left="🗂️ File Explorer",
-        center="📝 Document Editor", 
+        center="📝 Document Editor",
         right="🔧 Tool Panel"
     )
 
@@ -79,14 +79,14 @@ You can customize the pane labels:
     for file in files:
         file_frame = tk.Frame(layout.frame_left)
         file_frame.pack(fill=tk.X, padx=5, pady=1)
-        
+
         icon = "📄" if file.endswith(('.txt', '.py')) else "🖼️" if file.endswith('.png') else "📊"
         tk.Label(file_frame, text=f"{icon} {file}").pack(side=tk.LEFT)
 
     # Add editor content
     editor = tk.Text(layout.frame_center, wrap=tk.WORD, font=("Consolas", 11))
     editor.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-    
+
     sample_text = '''# Sample Document
 This is a sample document in the editor.
 
@@ -96,7 +96,7 @@ You can add any content here:
 - Regular text
 
 The layout automatically handles resizing!'''
-    
+
     editor.insert("1.0", sample_text)
 
     # Add tool panel content
@@ -135,12 +135,12 @@ A basic file manager-style interface:
         # Folder tree (left pane)
         folder_tree = ttk.Treeview(layout.frame_left)
         folder_tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
+
         # Add sample folders
         documents = folder_tree.insert("", "end", text="📁 Documents", open=True)
         folder_tree.insert(documents, "end", text="📁 Projects")
         folder_tree.insert(documents, "end", text="📁 Reports")
-        
+
         pictures = folder_tree.insert("", "end", text="📁 Pictures")
         folder_tree.insert(pictures, "end", text="📁 Vacation")
         folder_tree.insert(pictures, "end", text="📁 Screenshots")
@@ -148,29 +148,29 @@ A basic file manager-style interface:
         # File list (center pane)
         file_frame = tk.Frame(layout.frame_center)
         file_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
+
         file_listbox = tk.Listbox(file_frame, font=("Arial", 10))
         file_listbox.pack(fill=tk.BOTH, expand=True)
-        
+
         # Sample files
         files = [
             "📄 report.docx",
-            "📊 data.xlsx", 
+            "📊 data.xlsx",
             "🖼️ photo.jpg",
             "📝 notes.txt",
             "🐍 script.py"
         ]
-        
+
         for file in files:
             file_listbox.insert(tk.END, file)
 
         # Details panel (right pane)
         details_frame = tk.Frame(layout.frame_right)
         details_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        
-        tk.Label(details_frame, text="File Details", 
+
+        tk.Label(details_frame, text="File Details",
                 font=("Arial", 11, "bold")).pack(pady=(0, 10))
-        
+
         details = [
             ("Name:", "report.docx"),
             ("Size:", "2.4 MB"),
@@ -178,11 +178,11 @@ A basic file manager-style interface:
             ("Modified:", "Today, 2:30 PM"),
             ("Created:", "Yesterday")
         ]
-        
+
         for label, value in details:
             detail_frame = tk.Frame(details_frame)
             detail_frame.pack(fill=tk.X, pady=2)
-            
+
             tk.Label(detail_frame, text=label, font=("Arial", 9, "bold")).pack(side=tk.LEFT)
             tk.Label(detail_frame, text=value, font=("Arial", 9)).pack(side=tk.RIGHT)
 

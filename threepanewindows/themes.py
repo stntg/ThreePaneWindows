@@ -5,10 +5,10 @@ This module provides a comprehensive theming system with predefined themes
 and customization options for creating beautiful, professional-looking interfaces.
 """
 
-from tkinter import ttk
-from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
 from enum import Enum
+from tkinter import ttk
+from typing import Any, Dict, List, Optional
 
 
 class ThemeType(Enum):
@@ -116,13 +116,11 @@ class ThemeManager:
         self._current_theme: Optional[Theme] = None
         self._style_cache: Dict[str, Dict[str, Any]] = {}
         self._initialize_default_themes()
-        
+
         # Handle custom theme
         if theme == ThemeType.CUSTOM and custom_scheme:
             custom_theme = Theme(
-                name="custom",
-                colors=custom_scheme,
-                typography=Typography()
+                name="custom", colors=custom_scheme, typography=Typography()
             )
             self.register_theme(custom_theme)
             self.set_theme("custom")
@@ -278,22 +276,23 @@ class ThemeManager:
     def get_theme(self, name) -> Optional[Theme]:
         """Get a theme by name."""
         # Handle ThemeType enum or string
-        if hasattr(name, 'value'):
+        if hasattr(name, "value"):
             name = name.value
         return self._themes.get(str(name).lower())
 
     def set_theme(self, name, custom_scheme=None) -> bool:
         """Set the current theme."""
         # Handle custom theme with scheme
-        if custom_scheme and (name == ThemeType.CUSTOM or (hasattr(name, 'value') and name.value == 'custom')):
+        if custom_scheme and (
+            name == ThemeType.CUSTOM
+            or (hasattr(name, "value") and name.value == "custom")
+        ):
             custom_theme = Theme(
-                name="custom",
-                colors=custom_scheme,
-                typography=Typography()
+                name="custom", colors=custom_scheme, typography=Typography()
             )
             self.register_theme(custom_theme)
             name = "custom"
-        
+
         theme = self.get_theme(name)
         if theme:
             self._current_theme = theme
@@ -324,7 +323,7 @@ class ThemeManager:
     def current_scheme(self) -> ColorScheme:
         """Get the current color scheme (alias for current theme colors)."""
         return self.get_current_theme().colors
-    
+
     def get_color(self, color_name: str) -> Optional[str]:
         """Get a color value from the current theme."""
         try:

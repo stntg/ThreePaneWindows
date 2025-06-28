@@ -6,6 +6,7 @@ This module provides a simple CLI to run demos and examples.
 """
 
 import argparse
+
 from .examples import run_demo
 
 

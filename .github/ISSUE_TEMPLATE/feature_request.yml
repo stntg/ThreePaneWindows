@@ -9,7 +9,7 @@ body:
     attributes:
       value: |
         Thanks for suggesting a new feature! 💡
-        
+
         Please provide as much detail as possible to help us understand your request.
 
   - type: checkboxes
@@ -88,7 +88,7 @@ body:
       placeholder: |
         # Example of how you envision using this feature
         from threepanewindows import FixedThreePaneWindow
-        
+
         window = FixedThreePaneWindow(root, new_feature=True)
         window.new_method()
 

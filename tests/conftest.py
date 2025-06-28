@@ -1,9 +1,10 @@
 """Pytest configuration and fixtures for ThreePaneWindows tests."""
 
-import pytest
-import tkinter as tk
-import sys
 import os
+import sys
+import tkinter as tk
+
+import pytest
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -32,13 +33,13 @@ def _create_tkinter_root():
             return root
         except tk.TclError as e:
             error_msg = str(e).lower()
-            
+
             # Check for temporary resource issues that might resolve with retry
             temporary_issues = [
                 "invalid command name",
                 "application-specific initialization failed",
             ]
-            
+
             # Check for permanent environment issues
             permanent_issues = [
                 "tcl_findlibrary",
@@ -48,24 +49,33 @@ def _create_tkinter_root():
                 "couldn't read file",
                 "tcl wasn't installed properly",
             ]
-            
+
             if any(keyword in error_msg for keyword in permanent_issues):
                 pytest.skip(f"Tkinter/Tcl environment not available: {e}")
-            elif any(keyword in error_msg for keyword in temporary_issues) and attempt < max_retries - 1:
+            elif (
+                any(keyword in error_msg for keyword in temporary_issues)
+                and attempt < max_retries - 1
+            ):
                 # Wait a bit and retry for temporary issues
                 import time
+
                 time.sleep(0.1 * (attempt + 1))  # Progressive backoff
                 continue
             elif attempt == max_retries - 1:
                 # Last attempt failed, skip the test
-                pytest.skip(f"Tkinter initialization failed after {max_retries} attempts: {e}")
+                pytest.skip(
+                    f"Tkinter initialization failed after {max_retries} attempts: {e}"
+                )
             else:
                 raise
         except Exception as e:
             if attempt == max_retries - 1:
-                pytest.skip(f"Failed to initialize Tkinter after {max_retries} attempts: {e}")
+                pytest.skip(
+                    f"Failed to initialize Tkinter after {max_retries} attempts: {e}"
+                )
             else:
                 import time
+
                 time.sleep(0.1 * (attempt + 1))
                 continue
 
@@ -80,17 +90,18 @@ def root():
         # Ensure all child windows are destroyed first
         for child in root.winfo_children():
             try:
-                if hasattr(child, 'destroy'):
+                if hasattr(child, "destroy"):
                     child.destroy()
             except tk.TclError:
                 pass
-        
+
         # Force update before destroying root
         root.update_idletasks()
         root.destroy()
-        
+
         # Small delay to allow cleanup
         import time
+
         time.sleep(0.01)
     except tk.TclError:
         pass  # Window already destroyed
@@ -106,17 +117,18 @@ def visible_root():
         # Ensure all child windows are destroyed first
         for child in root.winfo_children():
             try:
-                if hasattr(child, 'destroy'):
+                if hasattr(child, "destroy"):
                     child.destroy()
             except tk.TclError:
                 pass
-        
+
         # Force update before destroying root
         root.update_idletasks()
         root.destroy()
-        
+
         # Small delay to allow cleanup
         import time
+
         time.sleep(0.01)
     except tk.TclError:
         pass  # Window already destroyed

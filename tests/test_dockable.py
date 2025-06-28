@@ -2,9 +2,11 @@
 Tests for DockableThreePaneWindow functionality.
 """
 
-import tkinter as tk
-import pytest
 import os
+import tkinter as tk
+
+import pytest
+
 from threepanewindows.dockable import DockableThreePaneWindow
 
 
@@ -197,33 +199,33 @@ class TestDockableThreePaneWindow:
             right_builder=dummy_builder,
         )
         window.pack()
-        
+
         # Force update to ensure all widgets are created
         self.root.update_idletasks()
-        
+
         # Get initial number of panes - should have left, center, right
         initial_panes = len(window.paned.winfo_children())
         # Note: The actual number might vary based on how PanedWindow manages children
         assert initial_panes >= 1  # At minimum we should have the center panel
-        
+
         # Detach left panel
         window._detach("left")
         self.root.update_idletasks()
-        
+
         # Should have one less pane (no placeholder created)
         after_left_detach = len(window.paned.winfo_children())
         assert after_left_detach < initial_panes  # Should be fewer panes
         assert window.left_placeholder is None
-        
+
         # Detach right panel too
         window._detach("right")
         self.root.update_idletasks()
-        
+
         # Should have only center panel remaining
         after_right_detach = len(window.paned.winfo_children())
         assert after_right_detach <= after_left_detach  # Should be same or fewer panes
         assert window.right_placeholder is None
-        
+
         # Clean up
         if window.left_window:
             window.left_window.destroy()
@@ -284,6 +286,7 @@ class TestDockableThreePaneWindow:
 
     def test_dockable_window_error_handling(self):
         """Test error handling in dockable window."""
+
         def dummy_builder(frame):
             tk.Label(frame, text="Test").pack()
 
@@ -294,7 +297,7 @@ class TestDockableThreePaneWindow:
                 left_builder=dummy_builder,
                 center_builder=dummy_builder,
                 right_builder=dummy_builder,
-                side_width=-100  # Invalid negative width
+                side_width=-100,  # Invalid negative width
             )
             # Should handle gracefully or use default
             assert window is not None
@@ -304,6 +307,7 @@ class TestDockableThreePaneWindow:
 
     def test_dockable_window_state_management(self):
         """Test state management in dockable window."""
+
         def dummy_builder(frame):
             tk.Label(frame, text="Test").pack()
 
@@ -311,20 +315,21 @@ class TestDockableThreePaneWindow:
             self.root,
             left_builder=dummy_builder,
             center_builder=dummy_builder,
-            right_builder=dummy_builder
+            right_builder=dummy_builder,
         )
 
         # Test state methods if they exist
-        if hasattr(window, 'get_state'):
+        if hasattr(window, "get_state"):
             state = window.get_state()
             assert isinstance(state, dict)
-        
-        if hasattr(window, 'set_state'):
-            test_state = {'left_detached': False, 'right_detached': False}
+
+        if hasattr(window, "set_state"):
+            test_state = {"left_detached": False, "right_detached": False}
             window.set_state(test_state)
 
     def test_dockable_window_advanced_features(self):
         """Test advanced features of dockable window."""
+
         def dummy_builder(frame):
             tk.Label(frame, text="Test").pack()
 
@@ -332,27 +337,28 @@ class TestDockableThreePaneWindow:
             self.root,
             left_builder=dummy_builder,
             center_builder=dummy_builder,
-            right_builder=dummy_builder
+            right_builder=dummy_builder,
         )
 
         # Test advanced methods if they exist
-        if hasattr(window, 'toggle_left_pane'):
+        if hasattr(window, "toggle_left_pane"):
             window.toggle_left_pane()
-        
-        if hasattr(window, 'toggle_right_pane'):
+
+        if hasattr(window, "toggle_right_pane"):
             window.toggle_right_pane()
-        
-        if hasattr(window, 'reset_layout'):
+
+        if hasattr(window, "reset_layout"):
             window.reset_layout()
-        
-        if hasattr(window, 'save_layout'):
+
+        if hasattr(window, "save_layout"):
             layout = window.save_layout()
-        
-        if hasattr(window, 'restore_layout'):
-            window.restore_layout({'test': 'layout'})
+
+        if hasattr(window, "restore_layout"):
+            window.restore_layout({"test": "layout"})
 
     def test_dockable_window_cleanup(self):
         """Test cleanup functionality."""
+
         def dummy_builder(frame):
             tk.Label(frame, text="Test").pack()
 
@@ -360,15 +366,15 @@ class TestDockableThreePaneWindow:
             self.root,
             left_builder=dummy_builder,
             center_builder=dummy_builder,
-            right_builder=dummy_builder
+            right_builder=dummy_builder,
         )
 
         # Test cleanup methods if they exist
-        if hasattr(window, 'cleanup'):
+        if hasattr(window, "cleanup"):
             window.cleanup()
-        
-        if hasattr(window, '_cleanup_detached_windows'):
+
+        if hasattr(window, "_cleanup_detached_windows"):
             window._cleanup_detached_windows()
-        
+
         # Test destroy
         window.destroy()
