@@ -2,10 +2,170 @@
 
 ## Overview
 
-ThreePaneWindows provides two main classes for creating three-pane layouts in Tkinter applications:
+ThreePaneWindows provides multiple classes for creating three-pane layouts in Tkinter applications:
 
+- `EnhancedDockableThreePaneWindow`: Professional layout with advanced theming and cross-platform icon support
 - `DockableThreePaneWindow`: Advanced layout with detachable side panels
 - `FixedThreePaneLayout`: Simple fixed layout with customizable panels
+
+## EnhancedDockableThreePaneWindow
+
+### Class: `EnhancedDockableThreePaneWindow(tk.Frame)`
+
+A professional three-pane window with advanced theming, cross-platform icon support, and sophisticated user interactions.
+
+**Key Features:**
+- **Professional Theming**: Multiple built-in themes (light, dark, blue professional)
+- **Cross-Platform Icons**: Support for .ico, .png, .gif, .bmp, .xbm formats with automatic fallback
+- **Drag & Drop Interface**: Intuitive panel detaching by dragging headers
+- **Advanced Customization**: Configurable panel properties, icons, and constraints
+- **Smart Positioning**: Intelligent window placement and sizing
+
+#### Constructor: EnhancedDockableThreePaneWindow
+
+```python
+EnhancedDockableThreePaneWindow(master=None, left_config=None, center_config=None,
+                               right_config=None, left_builder=None, center_builder=None,
+                               right_builder=None, theme_name="light", enable_animations=True,
+                               menu_bar=None, **kwargs)
+```
+
+**Parameters:**
+
+- `master`: Parent widget (default: None)
+- `left_config`: PaneConfig object for left panel configuration (default: None)
+- `center_config`: PaneConfig object for center panel configuration (default: None)
+- `right_config`: PaneConfig object for right panel configuration (default: None)
+- `left_builder`: Function to build left panel content (default: None)
+- `center_builder`: Function to build center panel content (default: None)
+- `right_builder`: Function to build right panel content (default: None)
+- `theme_name`: Theme name ("light", "dark", "blue") (default: "light")
+- `enable_animations`: Enable smooth animations (default: True)
+- `menu_bar`: Optional menu bar widget (default: None)
+- `**kwargs`: Additional arguments passed to tk.Frame
+
+#### PaneConfig Class
+
+```python
+@dataclass
+class PaneConfig:
+    title: str = ""                    # Panel title
+    icon: str = ""                     # Icon (emoji or text)
+    window_icon: str = ""              # Path to icon file for detached windows (.ico, .png, .gif, .bmp, .xbm)
+    custom_titlebar: bool = False      # Use custom title bar instead of system title bar
+    custom_titlebar_shadow: bool = True # Add shadow/border to custom title bar windows
+    detached_height: int = 0           # Fixed height for detached windows (0 = auto)
+    detached_scrollable: bool = True   # Add scrollbars if content exceeds detached window size
+    default_width: int = 200           # Default panel width
+    min_width: int = 100               # Minimum panel width
+    max_width: int = 0                 # Maximum panel width (0 = no limit)
+    fixed_width: Optional[int] = None  # Fixed width (prevents resizing)
+    detachable: bool = True            # Panel can be detached
+    closable: bool = False             # Panel can be closed
+    resizable: bool = True             # Panel can be resized
+```
+
+#### Cross-Platform Icon Support
+
+The enhanced window supports cross-platform icon display for detached windows:
+
+**Supported Formats:**
+- **Windows**: `.ico` (primary), `.png`, `.bmp`, `.gif` (secondary)
+- **macOS**: `.png` (primary), `.gif`, `.bmp` (secondary), `.ico` (limited)
+- **Linux**: `.png`, `.xbm` (primary), `.gif`, `.bmp` (secondary), `.ico` (limited)
+
+**Icon Resolution Strategy:**
+1. Check file existence
+2. Detect format from extension
+3. Use best method for format (iconbitmap for .ico, iconphoto for others)
+4. Fallback to alternative methods if primary fails
+5. Continue without icon if all methods fail
+
+#### Utility Functions
+
+##### `get_recommended_icon_formats()`
+
+Get recommended icon formats for the current platform.
+
+**Returns:** `List[str]` - List of recommended file extensions
+
+##### `validate_icon_path(icon_path: str)`
+
+Validate an icon path for cross-platform compatibility.
+
+**Parameters:**
+- `icon_path`: Path to icon file
+
+**Returns:** `tuple[bool, str]` - (is_valid, message)
+
+#### Example Usage: EnhancedDockableThreePaneWindow
+
+```python
+import tkinter as tk
+from threepanewindows.enhanced_dockable import (
+    EnhancedDockableThreePaneWindow,
+    PaneConfig,
+    get_recommended_icon_formats,
+    validate_icon_path
+)
+
+# Check recommended formats for current platform
+formats = get_recommended_icon_formats()
+print(f"Recommended formats: {formats}")
+
+# Validate icon before use
+is_valid, message = validate_icon_path("icons/app.png")
+print(f"Icon validation: {message}")
+
+# Configure panels with icons
+left_config = PaneConfig(
+    title="File Explorer",
+    icon="📁",                          # Unicode icon for header
+    window_icon="icons/explorer.png",   # File icon for detached window
+    default_width=250,
+    min_width=200,
+    max_width=400,
+    detachable=True
+)
+
+center_config = PaneConfig(
+    title="Editor",
+    icon="📝",
+    detachable=False  # Center panel typically not detachable
+)
+
+right_config = PaneConfig(
+    title="Properties",
+    icon="🔧",
+    window_icon="icons/properties.ico",  # Windows .ico file
+    default_width=200,
+    detachable=True
+)
+
+def build_left(frame):
+    tk.Label(frame, text="File Explorer").pack(pady=10)
+
+def build_center(frame):
+    text = tk.Text(frame)
+    text.pack(fill='both', expand=True)
+
+def build_right(frame):
+    tk.Label(frame, text="Properties").pack(pady=10)
+
+root = tk.Tk()
+window = EnhancedDockableThreePaneWindow(
+    root,
+    left_config=left_config,
+    center_config=center_config,
+    right_config=right_config,
+    left_builder=build_left,
+    center_builder=build_center,
+    right_builder=build_right,
+    theme_name="blue"
+)
+window.pack(fill='both', expand=True)
+root.mainloop()
+```
 
 ## DockableThreePaneWindow
 
@@ -22,9 +182,9 @@ A sophisticated three-pane window with detachable left and right panels.
 #### Constructor: DockableThreePaneWindow
 
 ```python
-DockableThreePaneWindow(master=None, side_width=150, left_builder=None, 
+DockableThreePaneWindow(master=None, side_width=150, left_builder=None,
                        center_builder=None, right_builder=None, **kwargs)
-```
+```bash
 
 **Parameters:**
 
@@ -116,7 +276,7 @@ A simple three-pane layout with fixed panel sizes and customizable appearance.
 
 ```python
 FixedThreePaneLayout(master, side_width=150, sash_width=2, **kwargs)
-```
+```bash
 
 **Parameters:**
 
@@ -206,7 +366,7 @@ layout.pack(fill='both', expand=True)
 # Customize labels
 layout.set_label_texts(
     left="Navigation",
-    center="Workspace", 
+    center="Workspace",
     right="Properties"
 )
 
@@ -234,7 +394,7 @@ layout = FixedThreePaneLayout(root)
 layout.frame_left.config(bg="#FF0000")  # Red background
 layout.frame_center.config(bg="#00FF00")  # Green background
 layout.frame_right.config(bg="#0000FF")  # Blue background
-```
+```javascript
 
 ## Best Practices
 
@@ -246,7 +406,7 @@ layout.frame_right.config(bg="#0000FF")  # Blue background
    # Good
    widget = tk.Label(layout.frame_left, text="Content")
    layout.add_to_left(widget)
-   
+
    # Also works, but less efficient
    widget = tk.Label(root, text="Content")
    layout.add_to_left(widget)
@@ -257,7 +417,7 @@ layout.frame_right.config(bg="#0000FF")  # Blue background
    ```python
    # For center content that should resize
    layout.add_to_center(text_widget)  # Automatically uses fill='both', expand=True
-   
+
    # For side content that should stay fixed
    layout.add_to_left(button_widget)  # Uses default packing
    ```

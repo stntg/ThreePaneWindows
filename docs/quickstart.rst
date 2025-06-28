@@ -132,6 +132,81 @@ Available themes:
 * ``"dark"`` - Professional dark theme
 * ``"system"`` - Follows system theme preferences
 
+Enhanced Professional Layout with Icons
+----------------------------------------
+
+For more advanced applications, use the enhanced layout with cross-platform icon support:
+
+.. code-block:: python
+
+    import tkinter as tk
+    from threepanewindows import EnhancedDockableThreePaneWindow, PaneConfig
+
+    def build_sidebar(frame):
+        tk.Label(frame, text="📁 File Explorer", font=("Arial", 12, "bold")).pack(pady=10)
+        for item in ["📄 Documents", "🖼️ Images", "🎵 Music"]:
+            tk.Button(frame, text=item, anchor="w").pack(fill=tk.X, padx=5, pady=2)
+
+    def build_editor(frame):
+        tk.Label(frame, text="📝 Text Editor", font=("Arial", 12, "bold")).pack(pady=10)
+        text = tk.Text(frame, wrap=tk.WORD)
+        text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+    def build_properties(frame):
+        tk.Label(frame, text="🔧 Properties", font=("Arial", 12, "bold")).pack(pady=10)
+        tk.Label(frame, text="Font Size:").pack(anchor="w", padx=10)
+        tk.Scale(frame, from_=8, to=24, orient=tk.HORIZONTAL).pack(fill=tk.X, padx=10)
+
+    root = tk.Tk()
+    root.title("Professional Editor")
+    root.geometry("1200x800")
+
+    # Configure panels with cross-platform icons
+    left_config = PaneConfig(
+        title="Explorer",
+        icon="📁",
+        window_icon="icons/explorer.png",  # Cross-platform PNG icon
+        default_width=250,
+        detachable=True
+    )
+
+    center_config = PaneConfig(
+        title="Editor",
+        icon="📝",
+        window_icon="icons/editor.png",    # Cross-platform PNG icon
+        detachable=False
+    )
+
+    right_config = PaneConfig(
+        title="Properties",
+        icon="🔧",
+        window_icon="icons/properties.ico", # Windows .ico with fallback
+        default_width=200,
+        detachable=True
+    )
+
+    # Create enhanced window
+    window = EnhancedDockableThreePaneWindow(
+        root,
+        left_config=left_config,
+        center_config=center_config,
+        right_config=right_config,
+        left_builder=build_sidebar,
+        center_builder=build_editor,
+        right_builder=build_properties,
+        theme_name="blue"  # Professional blue theme
+    )
+    window.pack(fill=tk.BOTH, expand=True)
+
+    root.mainloop()
+
+This enhanced layout provides:
+
+* **Cross-platform icon support** for detached windows
+* **Professional theming** with multiple built-in themes
+* **Drag & drop interface** for intuitive panel management
+* **Advanced customization** with PaneConfig
+
 Next Steps
 ----------
 

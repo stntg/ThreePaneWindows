@@ -12,6 +12,15 @@ Utility Functions
 
 This module contains various utility functions and constants used throughout the library.
 
+Icon Utilities
+~~~~~~~~~~~~~~
+
+Cross-platform icon support utilities for enhanced window functionality.
+
+.. autofunction:: threepanewindows.get_recommended_icon_formats
+
+.. autofunction:: threepanewindows.validate_icon_path
+
 Version Information
 ~~~~~~~~~~~~~~~~~~~
 

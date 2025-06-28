@@ -23,6 +23,7 @@ The enhanced dockable module provides a sophisticated, highly customizable three
 #### 3. **Highly Customizable Panels**
 
 - **Panel Configuration**: Title, icon, size constraints, and behavior
+- **Cross-Platform Icons**: Support for .ico, .png, .gif, .bmp, .xbm formats with automatic fallback
 - **Flexible Sizing**: Min/max width constraints with intelligent defaults
 - **Optional Features**: Detachable, closable, resizable panels
 - **Professional Headers**: Icons, titles, and control buttons
@@ -76,7 +77,8 @@ window = EnhancedDockableThreePaneWindow(
 ```python
 config = PaneConfig(
     title="Panel Title",           # Display title
-    icon="📁",                     # Icon (emoji or text)
+    icon="📁",                     # Icon (emoji or text) for header
+    window_icon="icons/panel.png", # File icon for detached windows
     default_width=250,             # Default width in pixels
     min_width=200,                 # Minimum width constraint
     max_width=400,                 # Maximum width constraint
@@ -86,26 +88,54 @@ config = PaneConfig(
 )
 ```
 
+### Cross-Platform Icon Support
+
+The enhanced system supports multiple icon formats with automatic platform optimization:
+
+```python
+from threepanewindows.enhanced_dockable import (
+    get_recommended_icon_formats,
+    validate_icon_path
+)
+
+# Get recommended formats for current platform
+formats = get_recommended_icon_formats()
+print(f"Recommended: {formats}")  # e.g., ['.ico', '.png', '.bmp', '.gif'] on Windows
+
+# Validate icon compatibility
+is_valid, message = validate_icon_path("my_icon.png")
+if is_valid:
+    config = PaneConfig(window_icon="my_icon.png")
+else:
+    print(f"Icon issue: {message}")
+```
+
+**Supported Formats by Platform:**
+- **Windows**: `.ico` (best), `.png`, `.bmp`, `.gif`
+- **macOS**: `.png` (best), `.gif`, `.bmp`, `.ico` (limited)
+- **Linux**: `.png`, `.xbm` (best), `.gif`, `.bmp`, `.ico` (limited)
+
 ## 🎨 Theming System
 
 ### Available Themes
 
 1. **Light Theme** (`"light"`)
-   - Clean, bright interface
-   - Professional white/gray color scheme
-   - Perfect for daytime use
+    - Clean, bright interface
+    - Professional white/gray color scheme
+    - Perfect for daytime use
 
 2. **Dark Theme** (`"dark"`)
-   - Modern dark interface
-   - Easy on the eyes
-   - Great for extended coding sessions
+    - Modern dark interface
+    - Easy on the eyes
+    - Great for extended coding sessions
 
 3. **Blue Professional** (`"blue"`)
-   - Corporate-friendly design
-   - Professional blue accents
-   - Ideal for business applications
+    - Corporate-friendly design
+    - Professional blue accents
+    - Ideal for business applications
 
 ### Changing Themes
+
 
 ```python
 # Set theme during creation
@@ -155,13 +185,13 @@ window.set_theme("custom")
 ### Detaching Panels
 
 1. **Drag Method**: Drag the panel header to detach
-   - Grab the grip area in the panel header
-   - Drag away from the main window
-   - Panel automatically detaches when threshold is reached
+    - Grab the grip area in the panel header
+    - Drag away from the main window
+    - Panel automatically detaches when threshold is reached
 
 2. **Button Method**: Click the detach button (⧉) in the header
-   - Professional icon button in panel header
-   - One-click detaching
+    - Professional icon button in panel header
+    - One-click detaching
 
 ### Reattaching Panels
 
@@ -178,8 +208,9 @@ window.set_theme("custom")
 
 ## 📋 Complete Example
 
+
 ```python
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 import tkinter as tk
 from tkinter import ttk
 from threepanewindows import EnhancedDockableThreePaneWindow, PaneConfig
@@ -188,7 +219,7 @@ def build_file_explorer(frame):
     """Build a professional file explorer."""
     tree = ttk.Treeview(frame)
     tree.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
-    
+
     # Add sample files
     root_item = tree.insert("", "end", text="📁 Project", open=True)
     tree.insert(root_item, "end", text="📄 main.py")
@@ -199,7 +230,7 @@ def build_code_editor(frame):
     """Build a professional code editor."""
     text = tk.Text(frame, font=("Consolas", 10), wrap=tk.NONE)
     text.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
-    
+
     # Add scrollbars
     v_scroll = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=text.yview)
     v_scroll.pack(side=tk.RIGHT, fill=tk.Y)
@@ -212,15 +243,15 @@ def build_properties(frame):
         ("File Info", [("Name", "main.py"), ("Size", "2.1 KB")]),
         ("Settings", [("Theme", "Blue"), ("Font", "Consolas")])
     ]
-    
+
     for section_name, properties in sections:
         section = ttk.LabelFrame(frame, text=section_name)
         section.pack(fill="x", padx=8, pady=4)
-        
+
         for prop_name, prop_value in properties:
             prop_frame = ttk.Frame(section)
             prop_frame.pack(fill="x", padx=8, pady=2)
-            
+
             ttk.Label(prop_frame, text=f"{prop_name}:").pack(side="left")
             ttk.Label(prop_frame, text=prop_value).pack(side="right")
 
@@ -228,32 +259,35 @@ def main():
     root = tk.Tk()
     root.title("Professional IDE")
     root.geometry("1200x800")
-    
-    # Configure panels
+
+    # Configure panels with cross-platform icons
     left_config = PaneConfig(
         title="Explorer",
-        icon="📁",
+        icon="📁",                        # Unicode icon for header
+        window_icon="icons/explorer.png", # Cross-platform PNG icon
         default_width=250,
         min_width=200,
         max_width=400,
         detachable=True
     )
-    
+
     center_config = PaneConfig(
         title="Editor",
         icon="📝",
+        window_icon="icons/editor.png",   # Icon for detached editor window
         detachable=False
     )
-    
+
     right_config = PaneConfig(
         title="Properties",
         icon="🔧",
+        window_icon="icons/properties.ico", # Windows .ico with PNG fallback
         default_width=200,
         min_width=150,
         max_width=300,
         detachable=True
     )
-    
+
     # Create enhanced window
     window = EnhancedDockableThreePaneWindow(
         root,
@@ -267,16 +301,17 @@ def main():
         enable_animations=True
     )
     window.pack(fill=tk.BOTH, expand=True)
-    
+
     root.mainloop()
 
-if __name__ == "__main__":
+if **name** == "**main**":
     main()
 ```
 
 ## 🔧 Advanced Features
 
 ### Animation Control
+
 
 ```python
 # Enable/disable animations
@@ -287,6 +322,7 @@ window = EnhancedDockableThreePaneWindow(
 ```
 
 ### Panel State Management
+
 
 ```python
 # Check if panel is detached
@@ -339,6 +375,7 @@ button_style = theme_manager.get_style("button", "hover")
 ## 🚀 Migration Guide
 
 ### From Original to Enhanced
+
 
 ```python
 # Original

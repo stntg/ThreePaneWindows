@@ -6,7 +6,7 @@ and customization options for creating beautiful, professional-looking interface
 """
 
 from tkinter import ttk
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -111,11 +111,23 @@ class Theme:
 class ThemeManager:
     """Manages themes and provides styling utilities."""
 
-    def __init__(self):
+    def __init__(self, theme=None, custom_scheme=None):
         self._themes: Dict[str, Theme] = {}
         self._current_theme: Optional[Theme] = None
         self._style_cache: Dict[str, Dict[str, Any]] = {}
         self._initialize_default_themes()
+        
+        # Handle custom theme
+        if theme == ThemeType.CUSTOM and custom_scheme:
+            custom_theme = Theme(
+                name="custom",
+                colors=custom_scheme,
+                typography=Typography()
+            )
+            self.register_theme(custom_theme)
+            self.set_theme("custom")
+        elif theme:
+            self.set_theme(theme)
 
     def _initialize_default_themes(self):
         """Initialize default themes."""
@@ -125,7 +137,7 @@ class ThemeManager:
             primary_bg="#ffffff",
             secondary_bg="#f8f9fa",
             accent_bg="#e3f2fd",
-            primary_text="#212529",
+            primary_text="#212121",
             secondary_text="#6c757d",
             accent_text="#0d6efd",
             border="#dee2e6",
@@ -204,15 +216,84 @@ class ThemeManager:
             spacing=Spacing(),
         )
 
+        # Green Theme
+        green_colors = ColorScheme(
+            primary_bg="#ffffff",
+            secondary_bg="#f8f9fa",
+            accent_bg="#e8f5e8",
+            primary_text="#1b5e20",
+            secondary_text="#388e3c",
+            accent_text="#2e7d32",
+            border="#c8e6c9",
+            separator="#a5d6a7",
+            button_bg="#4caf50",
+            button_fg="#ffffff",
+            button_hover="#388e3c",
+            button_active="#2e7d32",
+            panel_header_bg="#e8f5e8",
+            panel_header_fg="#1b5e20",
+            panel_content_bg="#ffffff",
+            drag_indicator="#4caf50",
+            drop_zone="#e8f5e8",
+        )
+
+        self._themes["green"] = Theme(
+            name="Green Nature",
+            colors=green_colors,
+            typography=Typography(font_family="Segoe UI"),
+            spacing=Spacing(),
+        )
+
+        # Purple Theme
+        purple_colors = ColorScheme(
+            primary_bg="#ffffff",
+            secondary_bg="#f8f9fa",
+            accent_bg="#f3e5f5",
+            primary_text="#4a148c",
+            secondary_text="#7b1fa2",
+            accent_text="#8e24aa",
+            border="#ce93d8",
+            separator="#ba68c8",
+            button_bg="#9c27b0",
+            button_fg="#ffffff",
+            button_hover="#7b1fa2",
+            button_active="#6a1b9a",
+            panel_header_bg="#f3e5f5",
+            panel_header_fg="#4a148c",
+            panel_content_bg="#ffffff",
+            drag_indicator="#9c27b0",
+            drop_zone="#f3e5f5",
+        )
+
+        self._themes["purple"] = Theme(
+            name="Purple Elegance",
+            colors=purple_colors,
+            typography=Typography(font_family="Segoe UI"),
+            spacing=Spacing(),
+        )
+
         # Set default theme
         self._current_theme = self._themes["light"]
 
-    def get_theme(self, name: str) -> Optional[Theme]:
+    def get_theme(self, name) -> Optional[Theme]:
         """Get a theme by name."""
-        return self._themes.get(name.lower())
+        # Handle ThemeType enum or string
+        if hasattr(name, 'value'):
+            name = name.value
+        return self._themes.get(str(name).lower())
 
-    def set_theme(self, name: str) -> bool:
+    def set_theme(self, name, custom_scheme=None) -> bool:
         """Set the current theme."""
+        # Handle custom theme with scheme
+        if custom_scheme and (name == ThemeType.CUSTOM or (hasattr(name, 'value') and name.value == 'custom')):
+            custom_theme = Theme(
+                name="custom",
+                colors=custom_scheme,
+                typography=Typography()
+            )
+            self.register_theme(custom_theme)
+            name = "custom"
+        
         theme = self.get_theme(name)
         if theme:
             self._current_theme = theme
@@ -223,6 +304,33 @@ class ThemeManager:
     def get_current_theme(self) -> Theme:
         """Get the current theme."""
         return self._current_theme or self._themes["light"]
+
+    @property
+    def current_theme(self) -> ThemeType:
+        """Get the current theme as a ThemeType enum."""
+        current = self.get_current_theme()
+        # Find the theme name by comparing the theme object
+        for name, theme in self._themes.items():
+            if theme is current:
+                # Convert string name to ThemeType enum
+                try:
+                    return ThemeType(name)
+                except ValueError:
+                    # If it's a custom theme not in ThemeType enum
+                    return ThemeType.CUSTOM
+        return ThemeType.LIGHT  # fallback
+
+    @property
+    def current_scheme(self) -> ColorScheme:
+        """Get the current color scheme (alias for current theme colors)."""
+        return self.get_current_theme().colors
+    
+    def get_color(self, color_name: str) -> Optional[str]:
+        """Get a color value from the current theme."""
+        try:
+            return getattr(self.get_current_theme().colors, color_name)
+        except AttributeError:
+            return None
 
     def register_theme(self, theme: Theme):
         """Register a custom theme."""
@@ -389,6 +497,14 @@ class ThemeManager:
             ],
         )
 
+    def get_available_themes(self) -> List[str]:
+        """Get list of available theme names."""
+        return list(self._themes.keys())
+
+    def list_themes(self) -> Dict[str, str]:
+        """Get dictionary of theme names and their display names."""
+        return {name: theme.name for name, theme in self._themes.items()}
+
 
 # Global theme manager instance
 theme_manager = ThemeManager()
@@ -399,9 +515,9 @@ def get_theme_manager() -> ThemeManager:
     return theme_manager
 
 
-def set_global_theme(theme_name: str) -> bool:
+def set_global_theme(theme_name, custom_scheme=None) -> bool:
     """Set the global theme."""
-    return theme_manager.set_theme(theme_name)
+    return theme_manager.set_theme(theme_name, custom_scheme)
 
 
 def get_current_theme() -> Theme:

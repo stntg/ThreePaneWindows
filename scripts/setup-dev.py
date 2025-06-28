@@ -7,7 +7,7 @@ and tools for contributing to the ThreePaneWindows project.
 
 Features:
 - Installing the package in development mode
-- Installing all development dependencies  
+- Installing all development dependencies
 - Setting up pre-commit hooks
 - Running initial tests to verify setup
 - Secure subprocess execution (no shell injection vulnerabilities)
@@ -35,7 +35,7 @@ def run_command(cmd, check=True):
         result = subprocess.run(cmd_list, capture_output=True, text=True, check=check)
         return result.stdout.strip(), result.stderr.strip()
     except subprocess.CalledProcessError as e:
-        cmd_str = ' '.join(cmd_list) if isinstance(cmd_list, list) else cmd
+        cmd_str = " ".join(cmd_list) if isinstance(cmd_list, list) else cmd
         print(f"Error running command: {cmd_str}")
         print(f"Return code: {e.returncode}")
         print(f"Error output: {e.stderr}")
@@ -49,13 +49,15 @@ def setup_dev_environment():
     """Set up development environment."""
     print("🚀 Setting up ThreePaneWindows development environment")
     print("=" * 60)
-    
+
     # Check Python version
     if sys.version_info < (3, 8):
         print("❌ Python 3.8 or higher is required")
         sys.exit(1)
-    
-    print(f"✅ Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} detected")
+
+    print(
+        f"✅ Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro} detected"
+    )
 
     # Change to project root directory
     script_dir = Path(__file__).parent
@@ -69,7 +71,14 @@ def setup_dev_environment():
             "Installing package in development mode",
         ),
         (["pre-commit", "install"], "Setting up pre-commit hooks"),
-        (["python", "-c", "import threepanewindows; print(f'ThreePaneWindows v{threepanewindows.__version__} imported successfully')"], "Verifying package installation"),
+        (
+            [
+                "python",
+                "-c",
+                "import threepanewindows; print(f'ThreePaneWindows v{threepanewindows.__version__} imported successfully')",
+            ],
+            "Verifying package installation",
+        ),
     ]
 
     success_count = 0
@@ -95,7 +104,9 @@ def setup_dev_environment():
         print("   5. Run examples: python -m threepanewindows.examples")
         print("\n🔧 Development commands:")
         print("   • Run all checks: tox")
-        print("   • Test release: python scripts/release.py --version 0.1.0 --type minor")
+        print(
+            "   • Test release: python scripts/release.py --version 0.1.0 --type minor"
+        )
         print("   • Build package: python -m build")
         print("\n📚 Documentation:")
         print("   • Contributing: CONTRIBUTING.md")

@@ -4,6 +4,7 @@ ThreePaneWindows - Professional three-pane window layouts for Tkinter applicatio
 This package provides sophisticated three-pane window layouts with advanced features:
 - Fixed and dockable layouts
 - Professional theming system
+- Cross-platform icon support (.ico, .png, .gif, .bmp, .xbm)
 - Drag-and-drop pane management
 - Resizable panes with constraints
 - Status bars, toolbars, and context menus
@@ -33,7 +34,12 @@ from ._version import __version__, __version_info__, FULL_VERSION
 from .dockable import DockableThreePaneWindow
 from .fixed import FixedThreePaneLayout
 from .fixed import FixedThreePaneWindow
-from .enhanced_dockable import EnhancedDockableThreePaneWindow, PaneConfig
+from .enhanced_dockable import (
+    EnhancedDockableThreePaneWindow,
+    PaneConfig,
+    get_recommended_icon_formats,
+    validate_icon_path,
+)
 from .themes import ThemeManager, get_theme_manager, set_global_theme, ThemeType
 
 # Metadata
@@ -55,6 +61,9 @@ __all__ = [
     "EnhancedDockableThreePaneWindow",
     # Configuration classes
     "PaneConfig",
+    # Icon utilities
+    "get_recommended_icon_formats",
+    "validate_icon_path",
     # Theming system
     "ThemeManager",
     "get_theme_manager",

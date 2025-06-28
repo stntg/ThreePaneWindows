@@ -9,6 +9,7 @@ This comprehensive user guide covers all aspects of using ThreePaneWindows in yo
 
    layouts
    theming
+   cross_platform_icons
    customization
    advanced_features
    best_practices
@@ -24,6 +25,7 @@ Key Features
 
 * **Multiple Layout Types**: Choose from fixed-width or fully dockable layouts
 * **Professional Theming**: Built-in light and dark themes with customization options
+* **Cross-Platform Icon Support**: Multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic platform optimization
 * **Advanced Docking**: Drag-and-drop pane reordering and window detachment
 * **Responsive Design**: Automatic resizing and intelligent layout management
 * **Rich Components**: Status bars, toolbars, context menus, and more
@@ -67,6 +69,10 @@ Layout Types Comparison
    * - Built-in theming
      - Basic
      - ✓
+     - ✓
+   * - Cross-platform icons
+     - ✗
+     - ✗
      - ✓
    * - Status bars
      - ✗

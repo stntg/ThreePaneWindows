@@ -19,7 +19,7 @@ We welcome contributions from everyone! Please see our [Contributing Guide](CONT
 ### Types of Contributions
 
 - 🐛 **Bug Reports**: Help us identify and fix issues
-- 💡 **Feature Requests**: Suggest new features or improvements  
+- 💡 **Feature Requests**: Suggest new features or improvements
 - 📝 **Documentation**: Improve our docs and examples
 - 🧪 **Testing**: Add tests or improve test coverage
 - 💻 **Code**: Fix bugs or implement new features

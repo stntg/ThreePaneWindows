@@ -8,10 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Cross-Platform Icon Support**: Enhanced detached windows now support multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic platform optimization
+- **Icon Utility Functions**: Added `get_recommended_icon_formats()` and `validate_icon_path()` for better icon management
+- **Platform-Specific Optimizations**: Automatic icon format selection and fallback mechanisms for Windows, macOS, and Linux
+
 ### Changed
-### Deprecated
-### Removed
+- **Enhanced Icon Handling**: Improved icon loading with better error handling and cross-platform compatibility
+- **PaneConfig Documentation**: Updated window_icon field to reflect multi-format support
+- **Platform Behavior**: Added platform-specific window behavior optimizations for detached windows
+
 ### Fixed
+- **Icon Display Issues**: Fixed icon display problems on Linux and macOS platforms
+- **Format Compatibility**: Resolved .ico file compatibility issues on non-Windows platforms
+
 ### Security
 
 ## [1.0.4] - 2025-01-20
@@ -109,7 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Builder functions for dynamic content creation
   - Automatic reattachment on window close
   - Resizable panels with PanedWindow
-  
+
 - **FixedThreePaneLayout**:
   - Fixed-width side panels
   - Customizable panel colors and labels

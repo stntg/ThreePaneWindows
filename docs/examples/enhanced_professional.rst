@@ -202,10 +202,11 @@ Create a professional file manager with theming:
                               font=("Segoe UI", 9), relief="flat", pady=3)
                 btn.pack(fill=tk.X, padx=5, pady=2)
 
-        # Configure professional panes
+        # Configure professional panes with cross-platform icons
         sidebar_config = PaneConfig(
             title="Navigation",
             icon="🗂️",
+            window_icon="icons/navigation.png",  # Cross-platform PNG icon
             default_width=280,
             min_width=200,
             max_width=400,
@@ -215,12 +216,14 @@ Create a professional file manager with theming:
         main_config = PaneConfig(
             title="Files",
             icon="📄",
+            window_icon="icons/files.png",       # Cross-platform PNG icon
             detachable=False
         )
         
         properties_config = PaneConfig(
             title="Properties",
             icon="ℹ️",
+            window_icon="icons/properties.ico",  # Windows .ico with fallback
             default_width=250,
             min_width=200,
             max_width=350,

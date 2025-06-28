@@ -40,12 +40,12 @@ This project adheres to a code of conduct. By participating, you are expected to
    ```bash
    # Create a virtual environment
    python -m venv venv
-   
+
    # Activate it (Windows)
    venv\Scripts\activate
    # Or on Unix/macOS
    source venv/bin/activate
-   
+
    # Install in development mode
    pip install -e .[dev,docs,test]
    ```
@@ -77,6 +77,7 @@ We use a Git Flow-inspired branching model:
 
 ### Creating a Feature Branch
 
+
 ```bash
 # Switch to develop branch
 git checkout develop
@@ -105,6 +106,7 @@ We follow these coding standards:
 
 Before submitting, ensure your code passes all checks:
 
+
 ```bash
 # Format code
 black .
@@ -125,6 +127,7 @@ tox -e lint
 ## Testing
 
 ### Running Tests
+
 
 ```bash
 # Run all tests
@@ -161,7 +164,7 @@ class TestFixedThreePaneWindow:
         """Test basic initialization."""
         window = FixedThreePaneWindow(root)
         assert window.master == root
-        
+
     def test_custom_dimensions(self, root):
         """Test initialization with custom dimensions."""
         window = FixedThreePaneWindow(root, left_width=200)
@@ -171,6 +174,7 @@ class TestFixedThreePaneWindow:
 ### Visual Tests
 
 For GUI components, we have visual tests marked with `@pytest.mark.visual`:
+
 
 ```bash
 # Run visual tests (requires display)
@@ -183,6 +187,7 @@ pytest -m "not visual"
 ## Documentation
 
 ### Building Documentation
+
 
 ```bash
 # Install documentation dependencies
@@ -236,17 +241,18 @@ docs/
    ```
 
 3. **Create a pull request** on GitHub:
-   - Use a descriptive title
-   - Reference any related issues
-   - Describe what changes you made and why
-   - Include screenshots for UI changes
+    - Use a descriptive title
+    - Reference any related issues
+    - Describe what changes you made and why
+    - Include screenshots for UI changes
 
 4. **Address review feedback**:
-   - Make requested changes
-   - Push updates to your branch
-   - Respond to reviewer comments
+    - Make requested changes
+    - Push updates to your branch
+    - Respond to reviewer comments
 
 ### Pull Request Template
+
 
 ```markdown
 ## Description
@@ -292,13 +298,13 @@ We use semantic versioning (SemVer):
    ```
 
 2. **Update version numbers**:
-   - `threepanewindows/_version.py`
-   - `pyproject.toml`
-   - `docs/conf.py`
+    - `threepanewindows/_version.py`
+    - `pyproject.toml`
+    - `docs/conf.py`
 
 3. **Update CHANGELOG.md**:
-   - Add release notes
-   - List all changes since last release
+    - Add release notes
+    - List all changes since last release
 
 4. **Test the release**:
 
@@ -320,10 +326,10 @@ We use semantic versioning (SemVer):
    ```
 
 7. **GitHub Actions will automatically**:
-   - Run tests
-   - Build packages
-   - Publish to PyPI
-   - Create GitHub release
+    - Run tests
+    - Build packages
+    - Publish to PyPI
+    - Create GitHub release
 
 ### Hotfix Process
 

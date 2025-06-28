@@ -24,6 +24,7 @@
 ### 🎨 Enhanced Professional Features (NEW!)
 
 - **Professional Theming System**: Light, Dark, and Blue Professional themes
+- **Cross-Platform Icon Support**: Multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic platform optimization
 - **Drag & Drop Interface**: Intuitive panel detaching by dragging headers
 - **Advanced Customization**: Configurable panel properties, icons, and constraints
 - **Fixed Width Control**: Panes can be set to fixed widths or remain resizable
@@ -33,6 +34,8 @@
 - **Visual Feedback**: Professional hover effects and drag indicators
 
 > 📖 **See [ENHANCED_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/ENHANCED_FEATURES.md) for complete documentation of the new professional features.**
+>
+> 🖼️ **See [CROSS_PLATFORM_ICONS.md](https://github.com/stntg/threepanewindows/blob/main/CROSS_PLATFORM_ICONS.md) for detailed cross-platform icon support documentation.**
 
 ## Installation
 
@@ -118,7 +121,7 @@ left_config = PaneConfig(
 )
 
 right_config = PaneConfig(
-    title="Properties", 
+    title="Properties",
     icon="🔧",
     default_width=200,
     detachable=True
@@ -154,8 +157,8 @@ layout.pack(fill='both', expand=True)
 
 # Customize panel labels
 layout.set_label_texts(
-    left="Navigation", 
-    center="Workspace", 
+    left="Navigation",
+    center="Workspace",
     right="Properties"
 )
 

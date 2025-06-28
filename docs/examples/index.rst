@@ -16,6 +16,7 @@ This section contains practical examples showing how to use ThreePaneWindows in 
    :caption: Advanced Examples:
 
    enhanced_professional
+   cross_platform_icons
    fixed_width_panes
    theming_examples
    real_world_applications

@@ -48,6 +48,15 @@ Theming System
    threepanewindows.set_global_theme
    threepanewindows.ThemeType
 
+Icon Utilities
+~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: _autosummary
+
+   threepanewindows.get_recommended_icon_formats
+   threepanewindows.validate_icon_path
+
 Quick Reference
 ---------------
 

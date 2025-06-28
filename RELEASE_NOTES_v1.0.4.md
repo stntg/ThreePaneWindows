@@ -24,7 +24,7 @@
 
 **Solution**: Removed placeholder frame creation entirely, allowing the center panel to automatically expand when side panels are detached.
 
-**Impact**: 
+**Impact**:
 - ✅ Center panel now fills entire available space when panels are detached
 - ✅ No more empty gaps in the layout
 - ✅ Better user experience with proper space utilization
@@ -47,7 +47,7 @@
 
 ```bash
 pip install threepanewindows==1.0.4
-```
+```sql
 
 Or upgrade from previous version:
 ```bash

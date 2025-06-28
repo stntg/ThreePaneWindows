@@ -76,6 +76,7 @@ def build_right(frame):
 root = tk.Tk()
 
 # Create menu
+
 menubar = tk.Menu(root)
 # ... configure menu ...
 
@@ -139,6 +140,7 @@ right_config = PaneConfig(
 )
 
 # Create menu
+
 menubar = tk.Menu(root)
 # ... configure menu ...
 
@@ -251,6 +253,7 @@ python simple_fixed_width_example.py
 
 ### Existing Code Compatibility
 All existing code continues to work without changes. The new parameters are optional:
+
 
 ```python
 # Old code - still works

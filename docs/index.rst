@@ -28,6 +28,7 @@ Features
 
 * **Multiple Layout Types**: Fixed-width and dockable three-pane layouts
 * **Professional Theming**: Built-in light and dark themes with customization options
+* **Cross-Platform Icon Support**: Multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic platform optimization
 * **Advanced Docking**: Drag-and-drop pane reordering and detachment
 * **Responsive Design**: Automatic resizing and layout management
 * **Rich Components**: Status bars, toolbars, context menus, and more
@@ -91,7 +92,9 @@ Table of Contents
    api/index
    api/fixed
    api/dockable
+   api/enhanced
    api/themes
+   api/utilities
    api/cli
 
 .. toctree::
