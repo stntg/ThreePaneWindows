@@ -40,7 +40,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/stntg/threepanewindows"
-Documentation = "https://threepanewindows.readthedocs.io/"
+Documentation = "https://stntg.github.io/ThreePaneWindows/"
 Repository = "https://github.com/stntg/threepanewindows.git"
 "Bug Tracker" = "https://github.com/stntg/threepanewindows/issues"
 Changelog = "https://github.com/stntg/threepanewindows/blob/main/CHANGELOG.md"
