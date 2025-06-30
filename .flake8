@@ -13,6 +13,8 @@ exclude =
     *.egg-info,
     .eggs,
     docs/_build,
-    htmlcov
+    htmlcov,
+    scripts,
+    dev_files
 per-file-ignores =
     __init__.py:F401

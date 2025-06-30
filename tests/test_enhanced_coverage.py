@@ -7,7 +7,7 @@ They include proper error handling for display-less systems.
 
 import os
 import tkinter as tk
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -67,17 +67,17 @@ class TestEnhancedDockableCoverage:
 
         # Test validate_icon_path with various scenarios
         valid, msg = validate_icon_path("")
-        assert valid == True
+        assert valid is True
         assert "No icon specified" in msg
 
         valid, msg = validate_icon_path("nonexistent.ico")
-        assert valid == False
+        assert valid is False
         assert "not found" in msg
 
         # Test with invalid format
         with patch("os.path.exists", return_value=True):
             valid, msg = validate_icon_path("test.xyz")
-            assert valid == False
+            assert valid is False
             assert "not recommended" in msg
 
     def test_pane_config_comprehensive(self):
@@ -101,7 +101,7 @@ class TestEnhancedDockableCoverage:
         )
 
         assert config.title == "Test Panel"
-        assert config.custom_titlebar == True
+        assert config.custom_titlebar is True
         assert config.detached_height == 400
         assert config.fixed_width == 250
 
@@ -286,7 +286,7 @@ class TestEnhancedDockableCoverage:
 
         # Test with invalid theme
         try:
-            window = EnhancedDockableThreePaneWindow(
+            EnhancedDockableThreePaneWindow(
                 self.root,
                 left_builder=dummy_builder,
                 center_builder=dummy_builder,
@@ -340,7 +340,7 @@ class TestEnhancedDockableCoverage:
                         "get_state",
                         "get_pane_visibility",
                     ]:
-                        result = method()
+                        method()  # Call method but don't store unused result
                     elif method_name in [
                         "toggle_left_pane",
                         "toggle_right_pane",
@@ -374,13 +374,13 @@ class TestEnhancedDockableCoverage:
 
         # Test widget access methods
         if hasattr(window, "get_left_widgets"):
-            widgets = window.get_left_widgets()
+            window.get_left_widgets()  # Call method but don't store unused result
 
         if hasattr(window, "get_center_widgets"):
-            widgets = window.get_center_widgets()
+            window.get_center_widgets()  # Call method but don't store unused result
 
         if hasattr(window, "get_right_widgets"):
-            widgets = window.get_right_widgets()
+            window.get_right_widgets()  # Call method but don't store unused result
 
         # Test widget manipulation
         if hasattr(window, "clear_pane"):

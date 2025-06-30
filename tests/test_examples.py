@@ -30,8 +30,8 @@ class TestExamples:
         if hasattr(self, "root") and self.root:
             try:
                 self.root.destroy()
-            except:
-                pass
+            except Exception as e:
+                print(f"Error destroying root window: {e}")
 
     def test_examples_module_importable(self):
         """Test that examples module can be imported."""
@@ -52,8 +52,8 @@ class TestExamples:
                     if demo and len(demo) >= 1 and demo[0]:
                         try:
                             demo[0].destroy()
-                        except:
-                            pass
+                        except Exception as e:
+                            print(f"Error destroying demo window: {e}")
         except tk.TclError:
             pytest.skip("GUI environment not available")
         except Exception as e:
@@ -391,8 +391,8 @@ except Exception as e:
         # Clean up temp file
         try:
             os.unlink(temp_script)
-        except:
-            pass
+        except Exception as e:
+            print(f"Error deleting temp file: {e}")
 
 
 class TestExampleBuilderFunctions:
@@ -409,7 +409,10 @@ class TestExampleBuilderFunctions:
     def teardown_method(self):
         """Clean up after tests."""
         if hasattr(self, "root") and self.root:
-            self.root.destroy()
+            try:
+                self.root.destroy()
+            except Exception as e:
+                print(f"Error destroying root window: {e}")
 
     def test_file_explorer_builders(self):
         """Test file explorer builder functions."""
@@ -490,7 +493,10 @@ class TestExampleUtilities:
     def teardown_method(self):
         """Clean up after tests."""
         if hasattr(self, "root") and self.root:
-            self.root.destroy()
+            try:
+                self.root.destroy()
+            except Exception as e:
+                print(f"Error destroying root window: {e}")
 
     def test_sample_content_creation(self):
         """Test sample content creation utilities."""

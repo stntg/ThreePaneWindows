@@ -1,19 +1,31 @@
-"""
-Professional themes and styling for ThreePaneWindows.
-
-This module provides a comprehensive theming system with predefined themes
-and customization options for creating beautiful, professional-looking interfaces.
-"""
-
+import platform
+import sys
 from dataclasses import dataclass, field
 from enum import Enum
 from tkinter import ttk
 from typing import Any, Dict, List, Optional
 
+if sys.platform == "win32":
+    import ctypes
+
+    def set_windows_titlebar_color(hwnd, color_hex: str):
+        color_hex = color_hex.lstrip("#")
+        r, g, b = [int(color_hex[i : i + 2], 16) for i in (0, 2, 4)]
+        colorref = r | (g << 8) | (b << 16)
+        DWMWA_CAPTION_COLOR = 35
+        try:
+            ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                hwnd,
+                DWMWA_CAPTION_COLOR,
+                ctypes.byref(ctypes.c_int(colorref)),
+                ctypes.sizeof(ctypes.c_int),
+            )
+
+        except Exception as e:
+            print(f"Failed to set title bar color: {e}")
+
 
 class ThemeType(Enum):
-    """Available theme types."""
-
     LIGHT = "light"
     DARK = "dark"
     BLUE = "blue"
@@ -24,48 +36,31 @@ class ThemeType(Enum):
 
 @dataclass
 class ColorScheme:
-    """Color scheme for theming."""
-
-    # Background colors
     primary_bg: str = "#ffffff"
     secondary_bg: str = "#f5f5f5"
     accent_bg: str = "#e3f2fd"
-
-    # Text colors
     primary_text: str = "#212121"
     secondary_text: str = "#757575"
     accent_text: str = "#1976d2"
-
-    # Border and separator colors
     border: str = "#e0e0e0"
     separator: str = "#bdbdbd"
-
-    # Interactive elements
     button_bg: str = "#2196f3"
     button_fg: str = "#ffffff"
     button_hover: str = "#1976d2"
     button_active: str = "#0d47a1"
-
-    # Status colors
     success: str = "#4caf50"
     warning: str = "#ff9800"
     error: str = "#f44336"
     info: str = "#2196f3"
-
-    # Panel specific
     panel_header_bg: str = "#fafafa"
     panel_header_fg: str = "#424242"
     panel_content_bg: str = "#ffffff"
-
-    # Drag and drop
     drag_indicator: str = "#2196f3"
     drop_zone: str = "#e3f2fd"
 
 
 @dataclass
 class Typography:
-    """Typography settings."""
-
     font_family: str = "Segoe UI"
     font_size_small: int = 9
     font_size_normal: int = 10
@@ -77,8 +72,6 @@ class Typography:
 
 @dataclass
 class Spacing:
-    """Spacing and sizing settings."""
-
     padding_small: int = 4
     padding_normal: int = 8
     padding_large: int = 16
@@ -91,42 +84,31 @@ class Spacing:
 
 @dataclass
 class Theme:
-    """Complete theme configuration."""
-
     name: str
     colors: ColorScheme = field(default_factory=ColorScheme)
     typography: Typography = field(default_factory=Typography)
     spacing: Spacing = field(default_factory=Spacing)
-
-    # Animation settings
-    animation_duration: int = 200  # milliseconds
+    animation_duration: int = 200
     enable_animations: bool = True
-
-    # Visual effects
     enable_shadows: bool = True
     enable_gradients: bool = False
     corner_radius: int = 4
 
 
 class ThemeManager:
-    """Manages themes and provides styling utilities."""
-
     def __init__(self, theme=None, custom_scheme=None):
         self._themes: Dict[str, Theme] = {}
         self._current_theme: Optional[Theme] = None
         self._style_cache: Dict[str, Dict[str, Any]] = {}
         self._initialize_default_themes()
-
-        # Handle custom theme
         if theme == ThemeType.CUSTOM and custom_scheme:
-            custom_theme = Theme(
-                name="custom", colors=custom_scheme, typography=Typography()
-            )
+            custom_theme = Theme(name="custom", colors=custom_scheme)
             self.register_theme(custom_theme)
             self.set_theme("custom")
         elif theme:
             self.set_theme(theme)
 
+    # original
     def _initialize_default_themes(self):
         """Initialize default themes."""
 
@@ -140,7 +122,7 @@ class ThemeManager:
             accent_text="#0d6efd",
             border="#dee2e6",
             separator="#e9ecef",
-            button_bg="#0d6efd",
+            button_bg="#6c757d",  # "#0d6efd",
             button_fg="#ffffff",
             button_hover="#0b5ed7",
             button_active="#0a58ca",
@@ -270,38 +252,169 @@ class ThemeManager:
             spacing=Spacing(),
         )
 
+        # System Theme - dynamically follows OS theme
+        self._initialize_system_theme()
+
         # Set default theme
         self._current_theme = self._themes["light"]
 
-    def get_theme(self, name) -> Optional[Theme]:
-        """Get a theme by name."""
-        # Handle ThemeType enum or string
-        if hasattr(name, "value"):
-            name = name.value
-        return self._themes.get(str(name).lower())
+    def _initialize_system_theme(self):
+        """Initialize system theme that follows OS theme."""
+        try:
+            import darkdetect
 
-    def set_theme(self, name, custom_scheme=None) -> bool:
-        """Set the current theme."""
-        # Handle custom theme with scheme
+            is_dark = darkdetect.isDark()
+        except ImportError:
+            # Fallback if darkdetect is not available
+            is_dark = False
+
+        # Use existing dark or light theme as base for system theme
+        base_theme = self._themes["dark"] if is_dark else self._themes["light"]
+
+        # Create system theme as a copy of the appropriate base theme
+        self._themes["system"] = Theme(
+            name="System",
+            colors=base_theme.colors,
+            typography=base_theme.typography,
+            spacing=base_theme.spacing,
+            animation_duration=base_theme.animation_duration,
+            enable_animations=base_theme.enable_animations,
+            enable_shadows=base_theme.enable_shadows,
+            enable_gradients=base_theme.enable_gradients,
+            corner_radius=base_theme.corner_radius,
+        )
+
+    def _update_system_theme(self):
+        """Update system theme to match current OS theme."""
+        try:
+            import darkdetect
+
+            is_dark = darkdetect.isDark()
+        except ImportError:
+            is_dark = False
+
+        # Update system theme to match OS
+        base_theme = self._themes["dark"] if is_dark else self._themes["light"]
+        self._themes["system"] = Theme(
+            name="System",
+            colors=base_theme.colors,
+            typography=base_theme.typography,
+            spacing=base_theme.spacing,
+            animation_duration=base_theme.animation_duration,
+            enable_animations=base_theme.enable_animations,
+            enable_shadows=base_theme.enable_shadows,
+            enable_gradients=base_theme.enable_gradients,
+            corner_radius=base_theme.corner_radius,
+        )
+
+        return is_dark
+
+    def set_theme(self, name, custom_scheme=None, window=None) -> bool:
         if custom_scheme and (
             name == ThemeType.CUSTOM
             or (hasattr(name, "value") and name.value == "custom")
         ):
-            custom_theme = Theme(
-                name="custom", colors=custom_scheme, typography=Typography()
-            )
+            custom_theme = Theme(name="custom", colors=custom_scheme)
             self.register_theme(custom_theme)
             name = "custom"
 
         theme = self.get_theme(name)
         if theme:
             self._current_theme = theme
-            self._style_cache.clear()  # Clear cache when theme changes
+            self._style_cache.clear()
+
+            if window:
+                if sys.platform == "win32":
+                    try:
+                        # Try to get the window handle
+                        hwnd = window.winfo_id()
+                        # If it's a child window, get the parent
+                        parent_hwnd = ctypes.windll.user32.GetParent(hwnd)
+                        if parent_hwnd:
+                            hwnd = parent_hwnd
+                        set_windows_titlebar_color(hwnd, theme.colors.primary_bg)
+                    except Exception as e:
+                        print(f"Could not set Windows titlebar color: {e}")
+                elif sys.platform == "darwin":
+                    self._apply_macos_custom_titlebar(window, theme.colors)
+
             return True
         return False
 
+    def _apply_macos_custom_titlebar(self, window, colors: ColorScheme):
+        window.overrideredirect(True)
+        style = ttk.Style()
+        style.configure("CustomTitle.TFrame", background=colors.panel_header_bg)
+
+        titlebar = ttk.Frame(window, style="CustomTitle.TFrame")
+        titlebar.pack(side="top", fill="x")
+
+        def brighten(color_hex, factor=1.2):
+            color_hex = color_hex.lstrip("#")
+            r, g, b = [
+                min(int(int(color_hex[i : i + 2], 16) * factor), 255) for i in (0, 2, 4)
+            ]
+            return f"#{r:02x}{g:02x}{b:02x}"
+
+        def create_circle_button(base_color, command):
+            btn = ttk.Label(
+                titlebar,
+                text="",
+                background=base_color,
+                width=2,
+                anchor="center",
+                relief="flat",
+            )
+            btn.pack(side="left", padx=(6, 4), pady=4)
+
+            def on_enter(e):
+                btn.configure(background=brighten(base_color))
+
+            def on_leave(e):
+                btn.configure(background=base_color)
+
+            btn.bind("<Enter>", on_enter)
+            btn.bind("<Leave>", on_leave)
+            btn.bind("<Button-1>", lambda e: command())
+            return btn
+
+        create_circle_button("#ff5f57", window.destroy)
+        create_circle_button("#ffbd2e", lambda: window.iconify())
+
+        def toggle_fullscreen():
+            is_fullscreen = window.attributes("-fullscreen")
+            window.attributes("-fullscreen", not is_fullscreen)
+
+        create_circle_button("#28c840", toggle_fullscreen)
+
+        title_label = ttk.Label(
+            titlebar,
+            text=window.title(),
+            background=colors.panel_header_bg,
+            foreground=colors.panel_header_fg,
+            anchor="center",
+            font=("Segoe UI", 12, "bold"),
+        )
+        title_label.pack(side="left", padx=10)
+
+        def start_move(event):
+            window._drag_start_x = event.x
+            window._drag_start_y = event.y
+
+        def do_move(event):
+            x = window.winfo_pointerx() - window._drag_start_x
+            y = window.winfo_pointery() - window._drag_start_y
+            window.geometry(f"+{x}+{y}")
+
+        titlebar.bind("<ButtonPress-1>", start_move)
+        titlebar.bind("<B1-Motion>", do_move)
+
+    def get_theme(self, name) -> Optional[Theme]:
+        if hasattr(name, "value"):
+            name = name.value
+        return self._themes.get(str(name).lower())
+
     def get_current_theme(self) -> Theme:
-        """Get the current theme."""
         return self._current_theme or self._themes["light"]
 
     @property
@@ -332,7 +445,6 @@ class ThemeManager:
             return None
 
     def register_theme(self, theme: Theme):
-        """Register a custom theme."""
         self._themes[theme.name.lower()] = theme
 
     def get_style(self, component: str, state: str = "normal") -> Dict[str, Any]:
@@ -420,14 +532,262 @@ class ThemeManager:
 
         return base_style
 
+    def _is_dark_theme(self, colors: ColorScheme) -> bool:
+        """Determine if a theme is dark based on its background color."""
+        # Convert hex to RGB and check brightness
+        bg_color = colors.panel_content_bg.lstrip("#")
+        r, g, b = [int(bg_color[i : i + 2], 16) for i in (0, 2, 4)]
+        # Calculate luminance (perceived brightness)
+        luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+        return luminance < 0.5  # Dark if luminance is less than 50%
+
+    def get_tk_widget_style(
+        self, widget_type: str, state: str = "normal"
+    ) -> Dict[str, Any]:
+        """Get styling for custom Tkinter widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        typography = theme.typography
+        spacing = theme.spacing
+
+        base_style = {
+            "font": (typography.font_family, typography.font_size_normal),
+            "relief": "flat",
+            "borderwidth": 0,
+        }
+
+        if widget_type == "text":
+            return {
+                **base_style,
+                "bg": colors.panel_content_bg,
+                "fg": colors.primary_text,
+                "insertbackground": colors.primary_text,
+                "selectbackground": colors.accent_bg,
+                "selectforeground": colors.primary_text,
+                "highlightcolor": colors.accent_text,
+                "highlightbackground": colors.border,
+                "highlightthickness": 1,
+                "borderwidth": 1,
+                "relief": "solid",
+            }
+
+        elif widget_type == "listbox":
+            return {
+                **base_style,
+                "bg": colors.panel_content_bg,
+                "fg": colors.primary_text,
+                "selectbackground": colors.accent_bg,
+                "selectforeground": colors.primary_text,
+                "highlightcolor": colors.accent_text,
+                "highlightbackground": colors.border,
+                "highlightthickness": 1,
+                "borderwidth": 1,
+                "relief": "solid",
+                "activestyle": "dotbox",
+            }
+
+        elif widget_type == "scrollbar":
+            # For dark themes, use specific dark colors
+            is_dark_theme = self._is_dark_theme(colors)
+            if is_dark_theme:
+                scrollbar_bg = colors.secondary_bg  # #2d2d30 for dark theme
+                trough_color = colors.panel_content_bg  # #1e1e1e for dark theme
+                border_color = colors.panel_content_bg  # #1e1e1e for dark theme
+                arrow_color = colors.secondary_text  # Arrow color
+            else:
+                # For colored themes, use white bg and theme color for trough/border
+                scrollbar_bg = "#ffffff"  # White background
+                trough_color = colors.accent_bg  # Theme color for trough
+                border_color = colors.accent_bg  # Theme color for border
+                arrow_color = colors.primary_text  # Arrow color
+
+            return {
+                "bg": scrollbar_bg,
+                "troughcolor": trough_color,
+                "activebackground": colors.button_hover,
+                "highlightbackground": border_color,
+                "highlightcolor": colors.accent_text,
+                "relief": "flat",
+                "borderwidth": 1,
+                "highlightthickness": 0,
+                "elementborderwidth": 1,
+                "width": 16,
+                # Additional options that work on most platforms
+                "jump": 1,
+                "repeatdelay": 300,
+                "repeatinterval": 100,
+            }
+
+        elif widget_type == "canvas":
+            return {
+                "bg": colors.panel_content_bg,
+                "highlightcolor": colors.accent_text,
+                "highlightbackground": colors.border,
+                "highlightthickness": 1,
+                "relief": "flat",
+                "borderwidth": 0,
+            }
+
+        elif widget_type == "frame":
+            return {
+                "bg": colors.panel_content_bg,
+                "relief": "flat",
+                "borderwidth": 0,
+            }
+
+        elif widget_type == "toplevel":
+            return {
+                "bg": colors.panel_content_bg,
+                "relief": "flat",
+                "borderwidth": 0,
+            }
+
+        elif widget_type == "label":
+            return {
+                **base_style,
+                "bg": colors.panel_content_bg,
+                "fg": colors.primary_text,
+            }
+
+        elif widget_type == "button":
+            if state == "hover":
+                bg = colors.button_hover
+            elif state == "active":
+                bg = colors.button_active
+            else:
+                bg = colors.button_bg
+
+            return {
+                **base_style,
+                "bg": bg,
+                "fg": colors.button_fg,
+                "activebackground": colors.button_active,
+                "activeforeground": colors.button_fg,
+                "cursor": "hand2",
+                "padx": spacing.padding_normal,
+                "pady": spacing.padding_small,
+            }
+
+        elif widget_type == "entry":
+            return {
+                **base_style,
+                "bg": colors.panel_content_bg,
+                "fg": colors.primary_text,
+                "insertbackground": colors.primary_text,
+                "selectbackground": colors.accent_bg,
+                "selectforeground": colors.primary_text,
+                "highlightcolor": colors.accent_text,
+                "highlightbackground": colors.border,
+                "highlightthickness": 1,
+                "borderwidth": 1,
+                "relief": "solid",
+            }
+
+        elif widget_type == "checkbutton":
+            return {
+                **base_style,
+                "bg": colors.panel_content_bg,
+                "fg": colors.primary_text,
+                "activebackground": colors.panel_content_bg,
+                "activeforeground": colors.primary_text,
+                "selectcolor": colors.panel_content_bg,
+                "cursor": "hand2",
+            }
+
+        elif widget_type == "radiobutton":
+            return {
+                **base_style,
+                "bg": colors.panel_content_bg,
+                "fg": colors.primary_text,
+                "activebackground": colors.panel_content_bg,
+                "activeforeground": colors.primary_text,
+                "selectcolor": colors.panel_content_bg,
+                "cursor": "hand2",
+            }
+
+        elif widget_type == "scale":
+            return {
+                **base_style,
+                "bg": colors.panel_content_bg,
+                "fg": colors.primary_text,
+                "troughcolor": colors.secondary_bg,
+                "activebackground": colors.button_hover,
+                "highlightcolor": colors.accent_text,
+                "highlightbackground": colors.border,
+            }
+
+        elif widget_type == "spinbox":
+            return {
+                **base_style,
+                "bg": colors.panel_content_bg,
+                "fg": colors.primary_text,
+                "insertbackground": colors.primary_text,
+                "selectbackground": colors.accent_bg,
+                "selectforeground": colors.primary_text,
+                "highlightcolor": colors.accent_text,
+                "highlightbackground": colors.border,
+                "highlightthickness": 1,
+                "borderwidth": 1,
+                "relief": "solid",
+                "buttonbackground": colors.button_bg,
+            }
+
+        elif widget_type == "menu":
+            return {
+                **base_style,
+                "bg": colors.panel_content_bg,
+                "fg": colors.primary_text,
+                "activebackground": colors.accent_bg,
+                "activeforeground": colors.primary_text,
+                "selectcolor": colors.accent_bg,
+                "borderwidth": 1,
+                "relief": "solid",
+            }
+
+        elif widget_type == "menubutton":
+            return {
+                **base_style,
+                "bg": colors.button_bg,
+                "fg": colors.button_fg,
+                "activebackground": colors.button_hover,
+                "activeforeground": colors.button_fg,
+                "cursor": "hand2",
+                "padx": spacing.padding_normal,
+                "pady": spacing.padding_small,
+            }
+
+        elif widget_type == "message":
+            return {
+                **base_style,
+                "bg": colors.panel_content_bg,
+                "fg": colors.primary_text,
+            }
+
+        return base_style
+
     def apply_ttk_theme(self, style: ttk.Style):
         """Apply current theme to ttk widgets."""
         theme = self.get_current_theme()
         colors = theme.colors
         typography = theme.typography
 
-        # Configure ttk styles
-        style.theme_use("clam")  # Use clam as base theme
+        # Configure ttk styles - choose base theme based on current theme
+        base_theme = "clam"  # Default base theme
+
+        # On Windows, use vista or winnative for better integration
+        # import platform
+        # if platform.system() == "Windows":
+        #    try:
+        #        # Try vista first (better looking), fall back to winnative
+        #        available_themes = style.theme_names()
+        #        if "vista" in available_themes:
+        #            base_theme = "vista"
+        #        elif "winnative" in available_themes:
+        #            base_theme = "winnative"
+        #    except:
+        #        pass
+
+        style.theme_use(base_theme)
 
         # PanedWindow
         style.configure(
@@ -496,6 +856,350 @@ class ThemeManager:
             ],
         )
 
+        # Checkbutton
+        style.configure(
+            "Themed.TCheckbutton",
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            focuscolor="none",
+            font=(typography.font_family, typography.font_size_normal),
+        )
+
+        style.map(
+            "Themed.TCheckbutton",
+            background=[
+                ("active", colors.panel_content_bg),
+                ("pressed", colors.panel_content_bg),
+            ],
+            foreground=[
+                ("active", colors.primary_text),
+                ("pressed", colors.primary_text),
+            ],
+        )
+
+        # Radiobutton
+        style.configure(
+            "Themed.TRadiobutton",
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            focuscolor="none",
+            font=(typography.font_family, typography.font_size_normal),
+        )
+
+        style.map(
+            "Themed.TRadiobutton",
+            background=[
+                ("active", colors.panel_content_bg),
+                ("pressed", colors.panel_content_bg),
+            ],
+            foreground=[
+                ("active", colors.primary_text),
+                ("pressed", colors.primary_text),
+            ],
+        )
+
+        # Entry
+        style.configure(
+            "Themed.TEntry",
+            fieldbackground=colors.panel_content_bg,
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+            insertcolor=colors.primary_text,
+            selectbackground=colors.accent_bg,
+            selectforeground=colors.primary_text,
+            font=(typography.font_family, typography.font_size_normal),
+        )
+
+        style.map(
+            "Themed.TEntry",
+            fieldbackground=[
+                ("focus", colors.panel_content_bg),
+                ("!focus", colors.panel_content_bg),
+            ],
+            bordercolor=[
+                ("focus", colors.accent_text),
+                ("!focus", colors.border),
+            ],
+        )
+
+        # Combobox
+        style.configure(
+            "Themed.TCombobox",
+            fieldbackground=colors.panel_content_bg,
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+            insertcolor=colors.primary_text,
+            selectbackground=colors.accent_bg,
+            selectforeground=colors.primary_text,
+            font=(typography.font_family, typography.font_size_normal),
+        )
+
+        style.map(
+            "Themed.TCombobox",
+            fieldbackground=[
+                ("focus", colors.panel_content_bg),
+                ("!focus", colors.panel_content_bg),
+            ],
+            bordercolor=[
+                ("focus", colors.accent_text),
+                ("!focus", colors.border),
+            ],
+        )
+
+        # Spinbox
+        style.configure(
+            "Themed.TSpinbox",
+            fieldbackground=colors.panel_content_bg,
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+            insertcolor=colors.primary_text,
+            selectbackground=colors.accent_bg,
+            selectforeground=colors.primary_text,
+            font=(typography.font_family, typography.font_size_normal),
+        )
+
+        style.map(
+            "Themed.TSpinbox",
+            fieldbackground=[
+                ("focus", colors.panel_content_bg),
+                ("!focus", colors.panel_content_bg),
+            ],
+            bordercolor=[
+                ("focus", colors.accent_text),
+                ("!focus", colors.border),
+            ],
+        )
+
+        # Scale - configure both orientations
+        style.configure(
+            "Themed.Horizontal.TScale",
+            background=colors.panel_content_bg,
+            troughcolor=colors.secondary_bg,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+        )
+
+        style.configure(
+            "Themed.Vertical.TScale",
+            background=colors.panel_content_bg,
+            troughcolor=colors.secondary_bg,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+        )
+
+        # Progressbar - configure both orientations
+        style.configure(
+            "Themed.Horizontal.TProgressbar",
+            background=colors.accent_bg,
+            troughcolor=colors.secondary_bg,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+        )
+
+        style.configure(
+            "Themed.Vertical.TProgressbar",
+            background=colors.accent_bg,
+            troughcolor=colors.secondary_bg,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+        )
+
+        # Scrollbar - Enhanced theming for better visibility
+        is_dark_theme = self._is_dark_theme(colors)
+        if is_dark_theme:
+            scrollbar_bg = colors.secondary_bg
+            scrollbar_trough = colors.panel_content_bg
+            scrollbar_arrow = colors.secondary_text
+        else:
+            scrollbar_bg = colors.panel_content_bg
+            scrollbar_trough = colors.accent_bg
+            scrollbar_arrow = colors.primary_text
+
+        style.configure(
+            "Themed.Vertical.TScrollbar",
+            background=scrollbar_bg,
+            troughcolor=scrollbar_trough,
+            bordercolor=colors.border,
+            arrowcolor=scrollbar_arrow,
+            darkcolor=colors.border,
+            lightcolor=colors.panel_content_bg,
+            relief="flat",
+            borderwidth=1,
+        )
+
+        style.configure(
+            "Themed.Horizontal.TScrollbar",
+            background=scrollbar_bg,
+            troughcolor=scrollbar_trough,
+            bordercolor=colors.border,
+            arrowcolor=scrollbar_arrow,
+            darkcolor=colors.border,
+            lightcolor=colors.panel_content_bg,
+            relief="flat",
+            borderwidth=1,
+        )
+
+        style.map(
+            "Themed.Vertical.TScrollbar",
+            background=[
+                ("active", colors.button_hover),
+                ("pressed", colors.button_active),
+            ],
+            troughcolor=[
+                ("active", scrollbar_trough),
+                ("pressed", scrollbar_trough),
+            ],
+            arrowcolor=[
+                ("active", colors.accent_text),
+                ("pressed", colors.accent_text),
+            ],
+        )
+
+        style.map(
+            "Themed.Horizontal.TScrollbar",
+            background=[
+                ("active", colors.button_hover),
+                ("pressed", colors.button_active),
+            ],
+            troughcolor=[
+                ("active", scrollbar_trough),
+                ("pressed", scrollbar_trough),
+            ],
+            arrowcolor=[
+                ("active", colors.accent_text),
+                ("pressed", colors.accent_text),
+            ],
+        )
+
+        # Listbox (via Treeview styling)
+        style.configure(
+            "Themed.Treeview",
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            fieldbackground=colors.panel_content_bg,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+            font=(typography.font_family, typography.font_size_normal),
+        )
+
+        style.configure(
+            "Themed.Treeview.Heading",
+            background=colors.panel_header_bg,
+            foreground=colors.panel_header_fg,
+            font=(
+                typography.font_family,
+                typography.font_size_normal,
+                typography.font_weight_bold,
+            ),
+        )
+
+        style.map(
+            "Themed.Treeview",
+            background=[
+                ("selected", colors.accent_bg),
+                ("focus", colors.accent_bg),
+            ],
+            foreground=[
+                ("selected", colors.primary_text),
+                ("focus", colors.primary_text),
+            ],
+        )
+
+        # Notebook
+        style.configure(
+            "Themed.TNotebook",
+            background=colors.secondary_bg,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+        )
+
+        style.configure(
+            "Themed.TNotebook.Tab",
+            background=colors.secondary_bg,
+            foreground=colors.secondary_text,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+            font=(typography.font_family, typography.font_size_normal),
+            padding=[12, 8, 12, 8],
+        )
+
+        style.map(
+            "Themed.TNotebook.Tab",
+            background=[
+                ("selected", colors.panel_content_bg),
+                ("active", colors.accent_bg),
+            ],
+            foreground=[
+                ("selected", colors.primary_text),
+                ("active", colors.primary_text),
+            ],
+        )
+
+        # LabelFrame
+        style.configure(
+            "Themed.TLabelframe",
+            background=colors.panel_content_bg,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+        )
+
+        style.configure(
+            "Themed.TLabelframe.Label",
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            font=(
+                typography.font_family,
+                typography.font_size_normal,
+                typography.font_weight_bold,
+            ),
+        )
+
+        # Menubutton
+        style.configure(
+            "Themed.TMenubutton",
+            background=colors.button_bg,
+            foreground=colors.button_fg,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+            font=(typography.font_family, typography.font_size_normal),
+        )
+
+        style.map(
+            "Themed.TMenubutton",
+            background=[
+                ("active", colors.button_hover),
+                ("pressed", colors.button_active),
+            ],
+            foreground=[
+                ("active", colors.button_fg),
+                ("pressed", colors.button_fg),
+            ],
+        )
+
+        # Separator
+        style.configure(
+            "Themed.TSeparator",
+            background=colors.separator,
+        )
+
     def get_available_themes(self) -> List[str]:
         """Get list of available theme names."""
         return list(self._themes.keys())
@@ -504,21 +1208,75 @@ class ThemeManager:
         """Get dictionary of theme names and their display names."""
         return {name: theme.name for name, theme in self._themes.items()}
 
+    def should_use_custom_scrollbars(self) -> bool:
+        """
+        Determine whether to use custom scrollbars based on platform.
 
-# Global theme manager instance
+        Returns:
+            bool: True if custom scrollbars should be used, False for native scrollbars
+
+        Platform-specific behavior:
+        - Windows: Custom scrollbars (better theming support)
+        - macOS/Linux: Native scrollbars (better system integration)
+        """
+        return platform.system() == "Windows"
+
+    def get_platform_info(self) -> Dict[str, str]:
+        """
+        Get platform information for display purposes.
+
+        Returns:
+            Dict containing platform name and recommended scrollbar type
+        """
+        system = platform.system()
+        scrollbar_type = "custom" if self.should_use_custom_scrollbars() else "native"
+
+        return {
+            "platform": system,
+            "scrollbar_type": scrollbar_type,
+            "scrollbar_description": f"{'Custom scrollbars (better theming)' if scrollbar_type == 'custom' else 'Native scrollbars (better integration)'}",
+        }
+
+    def create_themed_scrollbar_auto(
+        self, parent, orient="vertical", command=None, **kwargs
+    ):
+        """
+        Create a scrollbar with automatic platform-specific type selection.
+
+        Args:
+            parent: Parent widget
+            orient: Scrollbar orientation ("vertical" or "horizontal")
+            command: Scroll command callback
+            **kwargs: Additional arguments passed to scrollbar creation
+
+        Returns:
+            Scrollbar widget (custom or native based on platform)
+        """
+        # Import here to avoid circular imports
+        from .custom_scrollbar import create_themed_scrollbar
+
+        use_custom = self.should_use_custom_scrollbars()
+        return create_themed_scrollbar(
+            parent=parent,
+            orient=orient,
+            command=command,
+            use_custom=use_custom,
+            theme_manager=self,
+            **kwargs,
+        )
+
+
+# Global instance
 theme_manager = ThemeManager()
 
 
 def get_theme_manager() -> ThemeManager:
-    """Get the global theme manager instance."""
     return theme_manager
 
 
-def set_global_theme(theme_name, custom_scheme=None) -> bool:
-    """Set the global theme."""
-    return theme_manager.set_theme(theme_name, custom_scheme)
+def set_global_theme(theme_name, custom_scheme=None, window=None) -> bool:
+    return theme_manager.set_theme(theme_name, custom_scheme, window)
 
 
 def get_current_theme() -> Theme:
-    """Get the current global theme."""
     return theme_manager.get_current_theme()

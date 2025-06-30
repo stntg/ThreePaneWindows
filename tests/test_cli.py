@@ -2,8 +2,6 @@
 Tests for CLI functionality.
 """
 
-import sys
-from io import StringIO
 from unittest.mock import Mock, patch
 
 import pytest
@@ -102,8 +100,6 @@ class TestCLIIntegration:
 
     def test_argument_parser_setup(self):
         """Test argument parser is set up correctly."""
-        import argparse
-
         from threepanewindows.cli import main
 
         # Mock ArgumentParser to capture its configuration

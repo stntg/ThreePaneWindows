@@ -17,7 +17,23 @@ class FixedThreePaneLayout(tk.Frame):
     ):
         super().__init__(master, **kwargs)
 
-        # Validate parameters
+        self._validate_parameters(left_width, right_width, min_pane_size)
+        self._initialize_attributes(
+            side_width,
+            sash_width,
+            min_pane_size,
+            left_width,
+            right_width,
+            left_fixed_width,
+            right_fixed_width,
+            menu_bar,
+        )
+        self._setup_menu_bar(master)
+        self._create_panels()
+        self._setup_layout()
+
+    def _validate_parameters(self, left_width, right_width, min_pane_size):
+        """Validate initialization parameters."""
         if left_width is not None and left_width < 0:
             raise ValueError("left_width must be non-negative")
         if right_width is not None and right_width < 0:
@@ -25,6 +41,18 @@ class FixedThreePaneLayout(tk.Frame):
         if min_pane_size < 0:
             raise ValueError("min_pane_size must be non-negative")
 
+    def _initialize_attributes(
+        self,
+        side_width,
+        sash_width,
+        min_pane_size,
+        left_width,
+        right_width,
+        left_fixed_width,
+        right_fixed_width,
+        menu_bar,
+    ):
+        """Initialize instance attributes."""
         self.side_width = side_width
         self.sash_width = sash_width
         self.min_pane_size = min_pane_size
@@ -37,11 +65,20 @@ class FixedThreePaneLayout(tk.Frame):
 
         self.menu_bar = menu_bar
 
-        # Add menu bar if provided
+    def _setup_menu_bar(self, master):
+        """Setup menu bar if provided."""
         if self.menu_bar and hasattr(master, "config"):
             master.config(menu=self.menu_bar)
 
-        # Left panel
+    def _create_panels(self):
+        """Create all panel frames and labels."""
+        self._create_left_panel()
+        self._create_center_panel()
+        self._create_right_panel()
+        self._create_sashes()
+
+    def _create_left_panel(self):
+        """Create left panel frame and label."""
         self._frame_left = tk.Frame(self, bg="#3A7CA5")
         self.label_left = tk.Label(
             self._frame_left,
@@ -52,9 +89,8 @@ class FixedThreePaneLayout(tk.Frame):
         )
         self.label_left.pack(pady=10)
 
-        self._sash_left = tk.Frame(self, bg="#888888")
-
-        # Center panel
+    def _create_center_panel(self):
+        """Create center panel frame and label."""
         self._frame_center = tk.Frame(self, bg="#FFFFFF")
         self.label_center = tk.Label(
             self._frame_center,
@@ -64,9 +100,8 @@ class FixedThreePaneLayout(tk.Frame):
         )
         self.label_center.pack(pady=10)
 
-        self._sash_right = tk.Frame(self, bg="#888888")
-
-        # Right panel
+    def _create_right_panel(self):
+        """Create right panel frame and label."""
         self._frame_right = tk.Frame(self, bg="#F4A261")
         self.label_right = tk.Label(
             self._frame_right,
@@ -77,6 +112,13 @@ class FixedThreePaneLayout(tk.Frame):
         )
         self.label_right.pack(pady=10)
 
+    def _create_sashes(self):
+        """Create sash frames for visual separation."""
+        self._sash_left = tk.Frame(self, bg="#888888")
+        self._sash_right = tk.Frame(self, bg="#888888")
+
+    def _setup_layout(self):
+        """Setup initial layout and event bindings."""
         self.place(relwidth=1, relheight=1)
         self.bind("<Configure>", self._resize)
 

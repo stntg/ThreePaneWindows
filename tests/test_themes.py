@@ -485,9 +485,9 @@ class TestThemeManagerAdvanced:
 
         # Test color validation methods if they exist
         if hasattr(manager, "validate_color"):
-            assert manager.validate_color("#ffffff") == True
-            assert manager.validate_color("white") == True
-            assert manager.validate_color("invalid") == False
+            assert manager.validate_color("#ffffff") is True
+            assert manager.validate_color("white") is True
+            assert manager.validate_color("invalid") is False
 
         # Test color conversion methods if they exist
         if hasattr(manager, "convert_color"):

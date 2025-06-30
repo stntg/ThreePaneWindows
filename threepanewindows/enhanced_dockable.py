@@ -108,7 +108,6 @@ class DragHandle(tk.Frame):
     def _setup_ui(self):
         """Setup the drag handle UI."""
         theme = self.theme_manager.get_current_theme()
-
         # Configure the handle
         self.configure(
             height=24, bg=theme.colors.panel_header_bg, relief="flat", cursor="fleur"
@@ -327,12 +326,16 @@ class PaneHeader(tk.Frame):
 
     def refresh_theme(self):
         """Refresh the header with the current theme."""
-        # Clear existing widgets
-        for child in self.winfo_children():
-            child.destroy()
+        try:
+            # Clear existing widgets
+            for child in self.winfo_children():
+                child.destroy()
 
-        # Recreate UI with new theme
-        self._setup_ui()
+            # Recreate UI with new theme
+            self._setup_ui()
+        except tk.TclError:
+            # Widget has been destroyed, ignore
+            pass
 
 
 class DetachedWindow(tk.Toplevel):
@@ -364,6 +367,7 @@ class DetachedWindow(tk.Toplevel):
         content_builder: Callable,
         on_reattach: Callable,
         theme_manager: ThemeManager,
+        layout_instance=None,
         **kwargs,
     ):
         super().__init__(parent, **kwargs)
@@ -372,6 +376,7 @@ class DetachedWindow(tk.Toplevel):
         self.content_builder = content_builder
         self.on_reattach = on_reattach
         self.theme_manager = theme_manager
+        self.layout_instance = layout_instance  # Reference to the main layout
 
         self._setup_window()
         self._setup_ui()
@@ -737,6 +742,59 @@ class DetachedWindow(tk.Toplevel):
         """Handle window close."""
         self.on_reattach()
 
+    def refresh_theme(self):
+        """Refresh the detached window with the current theme."""
+        try:
+            # Update the theme manager reference to ensure it's current
+            theme = self.theme_manager.get_current_theme()
+
+            # Clear and recreate the UI with new theme
+            for child in self.winfo_children():
+                child.destroy()
+
+            # Reset any internal references that might have been destroyed
+            if hasattr(self, "_border_frame"):
+                delattr(self, "_border_frame")
+            if hasattr(self, "_content_parent"):
+                delattr(self, "_content_parent")
+
+            # Recreate the window setup (including borders for custom titlebar)
+            self._setup_window()
+            self._setup_ui()
+
+            # Note: The content frame is recreated in _setup_ui() with the new theme,
+            # so no additional theme update is needed for the content
+
+        except tk.TclError:
+            # Window has been destroyed, ignore
+            pass
+        except Exception as e:
+            print(f"Error refreshing detached window theme: {e}")
+
+    def create_themed_scrollbar(
+        self, parent, orient="vertical", command=None, **kwargs
+    ):
+        """
+        Create a platform-appropriate themed scrollbar for detached window.
+        Delegates to the main layout instance if available.
+        """
+        if self.layout_instance:
+            return self.layout_instance.create_themed_scrollbar(
+                parent, orient, command, **kwargs
+            )
+        else:
+            # Fallback to theme manager method
+            return self.theme_manager.create_themed_scrollbar_auto(
+                parent, orient, command, **kwargs
+            )
+
+    def get_platform_info(self):
+        """Get platform information. Delegates to layout instance if available."""
+        if self.layout_instance:
+            return self.layout_instance.get_platform_info()
+        else:
+            return self.theme_manager.get_platform_info()
+
 
 class EnhancedDockableThreePaneWindow(tk.Frame):
     """
@@ -783,8 +841,8 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self.right_builder = right_builder
 
         # Theme management - handle both theme_name and theme parameters
-        # Create individual theme manager for each window to allow independent theming
-        self.theme_manager = ThemeManager()
+        # Use the global theme manager to ensure synchronization
+        self.theme_manager = get_theme_manager()
         if theme is not None:
             # Handle ThemeType enum or string
             if hasattr(theme, "value"):
@@ -792,8 +850,8 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             else:
                 theme_name = str(theme)
 
-        # Validate theme name
-        if not self.theme_manager.set_theme(theme_name):
+        # Validate theme name and set titlebar color
+        if not self.theme_manager.set_theme(theme_name, window=master):
             raise ValueError(f"Invalid theme: {theme_name}")
 
         # Animation settings
@@ -1122,6 +1180,7 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             builder,
             lambda: self._reattach_pane(pane_side),
             self.theme_manager,
+            layout_instance=self,
         )
 
         self.detached_windows[pane_side] = detached_window
@@ -1416,6 +1475,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             window.theme_manager = self.theme_manager
             if hasattr(window, "refresh_theme"):
                 window.refresh_theme()
+
+        # Update custom widgets in panes (like text widgets and scrollbars)
+        self._refresh_custom_widgets()
 
         # Force update
         self.update_idletasks()
@@ -1778,3 +1840,74 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         """Refresh the entire UI (useful after theme changes)."""
         self._refresh_theme()
         self.update_idletasks()
+
+    def _refresh_custom_widgets(self):
+        """Refresh custom widgets (text, scrollbars, etc.) in all panes."""
+        current_theme = self.theme_manager.get_current_theme()
+        for pane_side in ["left", "center", "right"]:
+            # Only update attached panes - detached panes are handled by their refresh_theme method
+            if pane_side not in self.detached_windows:
+                frame = self.get_pane_content_frame(pane_side)
+                if frame and hasattr(frame, "update_theme"):
+                    try:
+                        # Call the frame's update_theme method with current theme name
+                        frame.update_theme(current_theme.name)
+                    except Exception as e:
+                        print(f"Error updating theme for {pane_side} pane: {e}")
+
+    def get_pane_content_frame(self, pane_side: str) -> Optional[tk.Frame]:
+        """Get the content frame for a specific pane."""
+        if pane_side == "center":
+            return self.get_center_frame()
+        elif pane_side == "left":
+            return self.get_left_frame()
+        elif pane_side == "right":
+            return self.get_right_frame()
+        return None
+
+    def switch_theme(self, theme_name: str, update_status: bool = True):
+        """
+        Switch to a new theme and automatically update all widgets.
+
+        Args:
+            theme_name: Name of the theme to switch to
+            update_status: Whether to update the status bar with theme info
+        """
+        # Set the theme
+        if self.theme_manager.set_theme(theme_name, window=self.master):
+            # Refresh the UI
+            self.refresh_ui()
+
+            # Update status bar if requested and available
+            if update_status and hasattr(self, "update_status"):
+                platform_info = self.theme_manager.get_platform_info()
+                status_text = f"Theme: {theme_name} | Platform: {platform_info['platform']} | Scrollbars: {platform_info['scrollbar_type']}"
+                self.update_status(status_text)
+        else:
+            print(f"Warning: Failed to set theme '{theme_name}'")
+
+    def create_themed_scrollbar(
+        self, parent, orient="vertical", command=None, **kwargs
+    ):
+        """
+        Create a platform-appropriate themed scrollbar.
+
+        This method automatically chooses between custom and native scrollbars
+        based on the current platform for optimal user experience.
+
+        Args:
+            parent: Parent widget
+            orient: Scrollbar orientation ("vertical" or "horizontal")
+            command: Scroll command callback
+            **kwargs: Additional arguments
+
+        Returns:
+            Scrollbar widget (custom or native based on platform)
+        """
+        return self.theme_manager.create_themed_scrollbar_auto(
+            parent=parent, orient=orient, command=command, **kwargs
+        )
+
+    def get_platform_info(self) -> Dict[str, str]:
+        """Get platform information including recommended scrollbar type."""
+        return self.theme_manager.get_platform_info()
