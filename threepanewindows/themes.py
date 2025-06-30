@@ -2,13 +2,17 @@ import platform
 import sys
 from dataclasses import dataclass, field
 from enum import Enum
+import tkinter as tk
 from tkinter import ttk
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union, Callable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .custom_scrollbar import ThemedScrollbar
 
 if sys.platform == "win32":
     import ctypes
 
-    def set_windows_titlebar_color(hwnd, color_hex: str):
+    def set_windows_titlebar_color(hwnd: int, color_hex: str) -> None:
         color_hex = color_hex.lstrip("#")
         r, g, b = [int(color_hex[i : i + 2], 16) for i in (0, 2, 4)]
         colorref = r | (g << 8) | (b << 16)
@@ -96,7 +100,7 @@ class Theme:
 
 
 class ThemeManager:
-    def __init__(self, theme=None, custom_scheme=None):
+    def __init__(self, theme: Optional[Union[str, ThemeType]] = None, custom_scheme: Optional[ColorScheme] = None) -> None:
         self._themes: Dict[str, Theme] = {}
         self._current_theme: Optional[Theme] = None
         self._style_cache: Dict[str, Dict[str, Any]] = {}
@@ -109,7 +113,7 @@ class ThemeManager:
             self.set_theme(theme)
 
     # original
-    def _initialize_default_themes(self):
+    def _initialize_default_themes(self) -> None:
         """Initialize default themes."""
 
         # Light Theme
@@ -258,10 +262,10 @@ class ThemeManager:
         # Set default theme
         self._current_theme = self._themes["light"]
 
-    def _initialize_system_theme(self):
+    def _initialize_system_theme(self) -> None:
         """Initialize system theme that follows OS theme."""
         try:
-            import darkdetect
+            import darkdetect  # type: ignore[import-untyped]
 
             is_dark = darkdetect.isDark()
         except ImportError:
@@ -284,7 +288,7 @@ class ThemeManager:
             corner_radius=base_theme.corner_radius,
         )
 
-    def _update_system_theme(self):
+    def _update_system_theme(self) -> bool:
         """Update system theme to match current OS theme."""
         try:
             import darkdetect
@@ -307,9 +311,9 @@ class ThemeManager:
             corner_radius=base_theme.corner_radius,
         )
 
-        return is_dark
+        return bool(is_dark)
 
-    def set_theme(self, name, custom_scheme=None, window=None) -> bool:
+    def set_theme(self, name: Union[str, ThemeType], custom_scheme: Optional[ColorScheme] = None, window: Optional[tk.Tk] = None) -> bool:
         if custom_scheme and (
             name == ThemeType.CUSTOM
             or (hasattr(name, "value") and name.value == "custom")
@@ -341,7 +345,7 @@ class ThemeManager:
             return True
         return False
 
-    def _apply_macos_custom_titlebar(self, window, colors: ColorScheme):
+    def _apply_macos_custom_titlebar(self, window: tk.Tk, colors: ColorScheme) -> None:
         window.overrideredirect(True)
         style = ttk.Style()
         style.configure("CustomTitle.TFrame", background=colors.panel_header_bg)
@@ -349,14 +353,14 @@ class ThemeManager:
         titlebar = ttk.Frame(window, style="CustomTitle.TFrame")
         titlebar.pack(side="top", fill="x")
 
-        def brighten(color_hex, factor=1.2):
+        def brighten(color_hex: str, factor: float = 1.2) -> str:
             color_hex = color_hex.lstrip("#")
             r, g, b = [
                 min(int(int(color_hex[i : i + 2], 16) * factor), 255) for i in (0, 2, 4)
             ]
             return f"#{r:02x}{g:02x}{b:02x}"
 
-        def create_circle_button(base_color, command):
+        def create_circle_button(base_color: str, command: Callable[[], None]) -> ttk.Label:
             btn = ttk.Label(
                 titlebar,
                 text="",
@@ -367,10 +371,10 @@ class ThemeManager:
             )
             btn.pack(side="left", padx=(6, 4), pady=4)
 
-            def on_enter(e):
+            def on_enter(e: tk.Event) -> None:
                 btn.configure(background=brighten(base_color))
 
-            def on_leave(e):
+            def on_leave(e: tk.Event) -> None:
                 btn.configure(background=base_color)
 
             btn.bind("<Enter>", on_enter)
@@ -381,7 +385,7 @@ class ThemeManager:
         create_circle_button("#ff5f57", window.destroy)
         create_circle_button("#ffbd2e", lambda: window.iconify())
 
-        def toggle_fullscreen():
+        def toggle_fullscreen() -> None:
             is_fullscreen = window.attributes("-fullscreen")
             window.attributes("-fullscreen", not is_fullscreen)
 
@@ -397,19 +401,19 @@ class ThemeManager:
         )
         title_label.pack(side="left", padx=10)
 
-        def start_move(event):
-            window._drag_start_x = event.x
-            window._drag_start_y = event.y
+        def start_move(event: tk.Event) -> None:
+            window._drag_start_x = event.x  # type: ignore[attr-defined]
+            window._drag_start_y = event.y  # type: ignore[attr-defined]
 
-        def do_move(event):
-            x = window.winfo_pointerx() - window._drag_start_x
-            y = window.winfo_pointery() - window._drag_start_y
+        def do_move(event: tk.Event) -> None:
+            x = window.winfo_pointerx() - window._drag_start_x  # type: ignore[attr-defined]
+            y = window.winfo_pointery() - window._drag_start_y  # type: ignore[attr-defined]
             window.geometry(f"+{x}+{y}")
 
         titlebar.bind("<ButtonPress-1>", start_move)
         titlebar.bind("<B1-Motion>", do_move)
 
-    def get_theme(self, name) -> Optional[Theme]:
+    def get_theme(self, name: Union[str, ThemeType]) -> Optional[Theme]:
         if hasattr(name, "value"):
             name = name.value
         return self._themes.get(str(name).lower())
@@ -440,11 +444,12 @@ class ThemeManager:
     def get_color(self, color_name: str) -> Optional[str]:
         """Get a color value from the current theme."""
         try:
-            return getattr(self.get_current_theme().colors, color_name)
+            color_value = getattr(self.get_current_theme().colors, color_name)
+            return str(color_value) if color_value is not None else None
         except AttributeError:
             return None
 
-    def register_theme(self, theme: Theme):
+    def register_theme(self, theme: Theme) -> None:
         self._themes[theme.name.lower()] = theme
 
     def get_style(self, component: str, state: str = "normal") -> Dict[str, Any]:
@@ -765,7 +770,7 @@ class ThemeManager:
 
         return base_style
 
-    def apply_ttk_theme(self, style: ttk.Style):
+    def apply_ttk_theme(self, style: ttk.Style) -> None:
         """Apply current theme to ttk widgets."""
         theme = self.get_current_theme()
         colors = theme.colors
@@ -1242,8 +1247,8 @@ class ThemeManager:
         }
 
     def create_themed_scrollbar_auto(
-        self, parent, orient="vertical", command=None, **kwargs
-    ):
+        self, parent: tk.Widget, orient: str = "vertical", command: Optional[Callable] = None, **kwargs: Any
+    ) -> Union["ThemedScrollbar", ttk.Scrollbar]:
         """
         Create a scrollbar with automatic platform-specific type selection.
 
@@ -1260,7 +1265,7 @@ class ThemeManager:
         from .custom_scrollbar import create_themed_scrollbar
 
         use_custom = self.should_use_custom_scrollbars()
-        return create_themed_scrollbar(
+        scrollbar = create_themed_scrollbar(
             parent=parent,
             orient=orient,
             command=command,
@@ -1268,6 +1273,7 @@ class ThemeManager:
             theme_manager=self,
             **kwargs,
         )
+        return scrollbar  # type: ignore[no-any-return]
 
 
 # Global instance
@@ -1278,7 +1284,7 @@ def get_theme_manager() -> ThemeManager:
     return theme_manager
 
 
-def set_global_theme(theme_name, custom_scheme=None, window=None) -> bool:
+def set_global_theme(theme_name: Union[str, ThemeType], custom_scheme: Optional[ColorScheme] = None, window: Optional[tk.Tk] = None) -> bool:
     return theme_manager.set_theme(theme_name, custom_scheme, window)
 
 

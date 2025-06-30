@@ -1,9 +1,10 @@
 """Version information for ThreePaneWindows."""
+from typing import Tuple
 
 __version__ = "1.0.4"
 
 
-def _parse_version(version_string):
+def _parse_version(version_string: str) -> Tuple[int, int, int]:
     """Parse version string into numeric components, handling pre-release suffixes."""
     # Split by dots and handle pre-release suffixes
     parts = version_string.split(".")
@@ -27,7 +28,11 @@ def _parse_version(version_string):
     while len(numeric_parts) < 3:
         numeric_parts.append(0)
 
-    return tuple(numeric_parts[:3])  # Return only first 3 components
+    # Ensure exactly 3 components and return as typed tuple
+    result = numeric_parts[:3]
+    while len(result) < 3:
+        result.append(0)
+    return (result[0], result[1], result[2])
 
 
 __version_info__ = _parse_version(__version__)

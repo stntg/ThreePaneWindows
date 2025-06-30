@@ -1,20 +1,21 @@
 import tkinter as tk
+from typing import Optional, Any
 
 
 class FixedThreePaneLayout(tk.Frame):
     def __init__(
         self,
-        master,
-        side_width=150,
-        sash_width=2,
-        left_width=None,
-        right_width=None,
-        left_fixed_width=None,
-        right_fixed_width=None,
-        min_pane_size=50,
-        menu_bar=None,
-        **kwargs,
-    ):
+        master: tk.Widget,
+        side_width: int = 150,
+        sash_width: int = 2,
+        left_width: Optional[int] = None,
+        right_width: Optional[int] = None,
+        left_fixed_width: Optional[int] = None,
+        right_fixed_width: Optional[int] = None,
+        min_pane_size: int = 50,
+        menu_bar: Optional[tk.Menu] = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(master, **kwargs)
 
         self._validate_parameters(left_width, right_width, min_pane_size)
@@ -32,7 +33,7 @@ class FixedThreePaneLayout(tk.Frame):
         self._create_panels()
         self._setup_layout()
 
-    def _validate_parameters(self, left_width, right_width, min_pane_size):
+    def _validate_parameters(self, left_width: Optional[int], right_width: Optional[int], min_pane_size: int) -> None:
         """Validate initialization parameters."""
         if left_width is not None and left_width < 0:
             raise ValueError("left_width must be non-negative")
@@ -43,15 +44,15 @@ class FixedThreePaneLayout(tk.Frame):
 
     def _initialize_attributes(
         self,
-        side_width,
-        sash_width,
-        min_pane_size,
-        left_width,
-        right_width,
-        left_fixed_width,
-        right_fixed_width,
-        menu_bar,
-    ):
+        side_width: int,
+        sash_width: int,
+        min_pane_size: int,
+        left_width: Optional[int],
+        right_width: Optional[int],
+        left_fixed_width: Optional[int],
+        right_fixed_width: Optional[int],
+        menu_bar: Optional[tk.Menu],
+    ) -> None:
         """Initialize instance attributes."""
         self.side_width = side_width
         self.sash_width = sash_width
@@ -65,19 +66,19 @@ class FixedThreePaneLayout(tk.Frame):
 
         self.menu_bar = menu_bar
 
-    def _setup_menu_bar(self, master):
+    def _setup_menu_bar(self, master: tk.Widget) -> None:
         """Setup menu bar if provided."""
         if self.menu_bar and hasattr(master, "config"):
             master.config(menu=self.menu_bar)
 
-    def _create_panels(self):
+    def _create_panels(self) -> None:
         """Create all panel frames and labels."""
         self._create_left_panel()
         self._create_center_panel()
         self._create_right_panel()
         self._create_sashes()
 
-    def _create_left_panel(self):
+    def _create_left_panel(self) -> None:
         """Create left panel frame and label."""
         self._frame_left = tk.Frame(self, bg="#3A7CA5")
         self.label_left = tk.Label(
@@ -89,7 +90,7 @@ class FixedThreePaneLayout(tk.Frame):
         )
         self.label_left.pack(pady=10)
 
-    def _create_center_panel(self):
+    def _create_center_panel(self) -> None:
         """Create center panel frame and label."""
         self._frame_center = tk.Frame(self, bg="#FFFFFF")
         self.label_center = tk.Label(
@@ -100,7 +101,7 @@ class FixedThreePaneLayout(tk.Frame):
         )
         self.label_center.pack(pady=10)
 
-    def _create_right_panel(self):
+    def _create_right_panel(self) -> None:
         """Create right panel frame and label."""
         self._frame_right = tk.Frame(self, bg="#F4A261")
         self.label_right = tk.Label(
@@ -112,17 +113,17 @@ class FixedThreePaneLayout(tk.Frame):
         )
         self.label_right.pack(pady=10)
 
-    def _create_sashes(self):
+    def _create_sashes(self) -> None:
         """Create sash frames for visual separation."""
         self._sash_left = tk.Frame(self, bg="#888888")
         self._sash_right = tk.Frame(self, bg="#888888")
 
-    def _setup_layout(self):
+    def _setup_layout(self) -> None:
         """Setup initial layout and event bindings."""
         self.place(relwidth=1, relheight=1)
         self.bind("<Configure>", self._resize)
 
-    def _resize(self, event=None):
+    def _resize(self, event: Optional[tk.Event] = None) -> None:
         w = self.winfo_width()
         h = self.winfo_height()
 
@@ -147,7 +148,7 @@ class FixedThreePaneLayout(tk.Frame):
 
         self._frame_right.place(x=w - right_width, y=0, width=right_width, height=h)
 
-    def set_label_texts(self, left=None, center=None, right=None):
+    def set_label_texts(self, left: Optional[str] = None, center: Optional[str] = None, right: Optional[str] = None) -> None:
         if left is not None:
             self.label_left.config(text=left)
         if center is not None:
@@ -155,52 +156,52 @@ class FixedThreePaneLayout(tk.Frame):
         if right is not None:
             self.label_right.config(text=right)
 
-    def add_to_left(self, widget):
+    def add_to_left(self, widget: tk.Widget) -> None:
         # Reparent the widget to the left frame
         widget.pack_forget()
         widget.master = self._frame_left
         widget.pack(in_=self._frame_left, pady=5)
 
-    def add_to_center(self, widget):
+    def add_to_center(self, widget: tk.Widget) -> None:
         # Reparent the widget to the center frame
         widget.pack_forget()
         widget.master = self._frame_center
         widget.pack(in_=self._frame_center, fill=tk.BOTH, expand=True, pady=5)
 
-    def add_to_right(self, widget):
+    def add_to_right(self, widget: tk.Widget) -> None:
         # Reparent the widget to the right frame
         widget.pack_forget()
         widget.master = self._frame_right
         widget.pack(in_=self._frame_right, pady=5)
 
     @property
-    def frame_left(self):
+    def frame_left(self) -> tk.Frame:
         return self._frame_left
 
     @property
-    def frame_center(self):
+    def frame_center(self) -> tk.Frame:
         return self._frame_center
 
     @property
-    def frame_right(self):
+    def frame_right(self) -> tk.Frame:
         return self._frame_right
 
-    def clear_left(self):
+    def clear_left(self) -> None:
         for widget in self._frame_left.winfo_children():
             if widget != self.label_left:
                 widget.destroy()
 
-    def clear_center(self):
+    def clear_center(self) -> None:
         for widget in self._frame_center.winfo_children():
             if widget != self.label_center:
                 widget.destroy()
 
-    def clear_right(self):
+    def clear_right(self) -> None:
         for widget in self._frame_right.winfo_children():
             if widget != self.label_right:
                 widget.destroy()
 
-    def set_left_width(self, width: int):
+    def set_left_width(self, width: int) -> None:
         """Set the left pane width."""
         if width < 0:
             raise ValueError("Width must be non-negative")
@@ -209,7 +210,7 @@ class FixedThreePaneLayout(tk.Frame):
         self.left_fixed_width = width
         self._resize()
 
-    def set_right_width(self, width: int):
+    def set_right_width(self, width: int) -> None:
         """Set the right pane width."""
         if width < 0:
             raise ValueError("Width must be non-negative")
@@ -235,17 +236,17 @@ class FixedThreePaneLayout(tk.Frame):
         return self.right_fixed_width is not None
 
     @property
-    def left_pane(self):
+    def left_pane(self) -> tk.Frame:
         """Access to left pane for adding widgets."""
         return self._frame_left
 
     @property
-    def center_pane(self):
+    def center_pane(self) -> tk.Frame:
         """Access to center pane for adding widgets."""
         return self._frame_center
 
     @property
-    def right_pane(self):
+    def right_pane(self) -> tk.Frame:
         """Access to right pane for adding widgets."""
         return self._frame_right
 

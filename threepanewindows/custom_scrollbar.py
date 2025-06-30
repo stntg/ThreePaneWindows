@@ -5,20 +5,20 @@ Custom scrollbar implementation for better theming control
 
 import tkinter as tk
 from tkinter import ttk
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 
 
 class ThemedScrollbar(tk.Frame):
     """A custom scrollbar that responds better to theming than native scrollbars."""
 
     def __init__(
-        self, parent, orient="vertical", command: Optional[Callable] = None, **kwargs
-    ):
+        self, parent: tk.Widget, orient: str = "vertical", command: Optional[Callable] = None, **kwargs: Any
+    ) -> None:
         super().__init__(parent, **kwargs)
 
         self.orient = orient
         self.command = command
-        self._drag_start = None
+        self._drag_start: Optional[int] = None
         self._thumb_pos = 0.0
         self._thumb_size = 0.1
 
@@ -26,7 +26,7 @@ class ThemedScrollbar(tk.Frame):
         self._create_widgets()
         self._bind_events()
 
-    def _create_widgets(self):
+    def _create_widgets(self) -> None:
         """Create the scrollbar components."""
         if self.orient == "vertical":
             # Up arrow button
@@ -92,7 +92,7 @@ class ThemedScrollbar(tk.Frame):
             )
             self.right_button.pack(side="right", fill="y")
 
-    def _bind_events(self):
+    def _bind_events(self) -> None:
         """Bind mouse events for dragging."""
         self.thumb.bind("<Button-1>", self._start_drag)
         self.thumb.bind("<B1-Motion>", self._drag)
@@ -104,11 +104,11 @@ class ThemedScrollbar(tk.Frame):
         # Update thumb position when trough is configured
         self.trough.bind("<Configure>", self._update_thumb_position)
 
-    def _start_drag(self, event):
+    def _start_drag(self, event: tk.Event) -> None:
         """Start dragging the thumb."""
         self._drag_start = event.y if self.orient == "vertical" else event.x
 
-    def _drag(self, event):
+    def _drag(self, event: tk.Event) -> None:
         """Handle thumb dragging."""
         if self._drag_start is None:
             return
@@ -135,11 +135,11 @@ class ThemedScrollbar(tk.Frame):
         self._update_thumb_position()
         self._scroll("moveto", self._thumb_pos)
 
-    def _end_drag(self, event):
+    def _end_drag(self, event: tk.Event) -> None:
         """End dragging the thumb."""
         self._drag_start = None
 
-    def _trough_click(self, event):
+    def _trough_click(self, event: tk.Event) -> None:
         """Handle clicks on the trough."""
         if self.orient == "vertical":
             thumb_center = self.thumb.winfo_y() + self.thumb.winfo_height() // 2
@@ -154,12 +154,12 @@ class ThemedScrollbar(tk.Frame):
             else:
                 self._scroll("scroll", 1, "pages")
 
-    def _scroll(self, *args):
+    def _scroll(self, *args: Any) -> None:
         """Execute the scroll command."""
         if self.command:
             self.command(*args)
 
-    def _update_thumb_position(self, event=None):
+    def _update_thumb_position(self, event: Optional[tk.Event] = None) -> None:
         """Update the thumb position based on current values."""
         if self.orient == "vertical":
             trough_height = self.trough.winfo_height()
@@ -178,13 +178,13 @@ class ThemedScrollbar(tk.Frame):
                 x=thumb_x, y=0, width=thumb_width, height=self.trough.winfo_height()
             )
 
-    def set(self, first, last):
+    def set(self, first: str, last: str) -> None:
         """Set the scrollbar position (called by the scrolled widget)."""
         self._thumb_pos = float(first)
         self._thumb_size = float(last) - float(first)
         self._update_thumb_position()
 
-    def apply_theme(self, theme_colors):
+    def apply_theme(self, theme_colors: Any) -> None:
         """Apply theme colors to the scrollbar."""
         # Determine if it's a dark theme
         bg_color = theme_colors.panel_content_bg.lstrip("#")
@@ -231,8 +231,8 @@ class ThemedScrollbar(tk.Frame):
 
 
 def create_themed_scrollbar(
-    parent, orient="vertical", command=None, use_custom=False, theme_manager=None
-):
+    parent: tk.Widget, orient: str = "vertical", command: Optional[Callable] = None, use_custom: bool = False, theme_manager: Any = None
+) -> Any:
     """
     Create a themed scrollbar - either custom or native TTK.
 
@@ -257,4 +257,4 @@ def create_themed_scrollbar(
         style_name = (
             f"Themed.{'Vertical' if orient == 'vertical' else 'Horizontal'}.TScrollbar"
         )
-        return ttk.Scrollbar(parent, orient=orient, command=command, style=style_name)
+        return ttk.Scrollbar(parent, orient=orient, command=command, style=style_name)  # type: ignore[arg-type]
