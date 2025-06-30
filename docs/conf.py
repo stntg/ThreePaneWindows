@@ -170,10 +170,12 @@ todo_include_todos = True
 
 # -- Options for autodoc extension -------------------------------------------
 
-# This value selects what content will be inserted into the main body of an autoclass directive.
+# This value selects what content will be inserted into the main body of an
+# autoclass directive.
 autoclass_content = "both"
 
-# This value is a list of autodoc directive flags that should be automatically applied to all autodoc directives.
+# This value is a list of autodoc directive flags that should be automatically
+# applied to all autodoc directives.
 autodoc_default_flags = ["members", "undoc-members", "show-inheritance"]
 
 # This value controls how to represent typehints.

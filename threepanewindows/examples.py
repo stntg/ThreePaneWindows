@@ -3,7 +3,6 @@ Example applications demonstrating the use of ThreePaneWindows.
 """
 
 import threading
-import time
 import tkinter as tk
 
 from .dockable import DockableThreePaneWindow
@@ -92,8 +91,9 @@ def test_all_demo_components():
             )
             results["dockable_window"] = True
             window.destroy()
-        except Exception as e:
-            # Failed to create dockable window - likely due to missing dependencies or display issues
+        except Exception:
+            # Failed to create dockable window - likely due to missing dependencies
+            # or display issues
             results["dockable_window"] = False
 
         # Test FixedThreePaneLayout creation
@@ -101,8 +101,9 @@ def test_all_demo_components():
             layout = FixedThreePaneLayout(root, side_width=180)
             results["fixed_layout"] = True
             layout.destroy()
-        except Exception as e:
-            # Failed to create fixed layout - likely due to missing dependencies or display issues
+        except Exception:
+            # Failed to create fixed layout - likely due to missing dependencies
+            # or display issues
             results["fixed_layout"] = False
 
         # Test EnhancedDockableThreePaneWindow creation with error handling
@@ -125,11 +126,12 @@ def test_all_demo_components():
             except (RuntimeError, tk.TclError) as e:
                 # If theme issues occur, try without theme
                 if "main thread" in str(e) or "theme" in str(e).lower():
-                    # Skip enhanced window test if theme issues - this is expected in test environments
+                    # Skip enhanced window test if theme issues - this is expected
+                    # in test environments
                     results["enhanced_window"] = False
                 else:
                     raise
-        except Exception as e:
+        except Exception:
             # Failed to create enhanced window - likely due to missing dependencies
             results["enhanced_window"] = False
 
@@ -139,7 +141,7 @@ def test_all_demo_components():
             dummy_builder(frame)
             results["builders"] = True
             frame.destroy()
-        except Exception as e:
+        except Exception:
             # Failed to test builder functions - likely due to display issues
             results["builders"] = False
 
@@ -147,7 +149,8 @@ def test_all_demo_components():
 
     except Exception as e:
         # Failed to initialize test environment - likely no display available
-        # Return current results (all False by default) - this is expected in headless environments
+        # Return current results (all False by default) - this is expected in
+        # headless environments
         print(f"Debug: Test environment initialization failed: {e}")
         # This is expected in headless environments, so we don't raise
 
@@ -182,8 +185,9 @@ def test_basic_demo_components():
             )
             results["dockable_window"] = True
             window.destroy()
-        except Exception as e:
-            # Failed to create basic dockable window - likely due to missing dependencies or display issues
+        except Exception:
+            # Failed to create basic dockable window - likely due to missing
+            # dependencies or display issues
             results["dockable_window"] = False
 
         # Test FixedThreePaneLayout creation
@@ -191,8 +195,9 @@ def test_basic_demo_components():
             layout = FixedThreePaneLayout(root, side_width=180)
             results["fixed_layout"] = True
             layout.destroy()
-        except Exception as e:
-            # Failed to create basic fixed layout - likely due to missing dependencies or display issues
+        except Exception:
+            # Failed to create basic fixed layout - likely due to missing
+            # dependencies or display issues
             results["fixed_layout"] = False
 
         # Test builder functions
@@ -201,15 +206,17 @@ def test_basic_demo_components():
             dummy_builder(frame)
             results["builders"] = True
             frame.destroy()
-        except Exception as e:
-            # Failed to test basic builder functions - likely due to display issues
+        except Exception:
+            # Failed to test basic builder functions - likely due to display
+            # issues
             results["builders"] = False
 
         root.destroy()
 
     except Exception as e:
         # Failed to initialize basic test environment - likely no display available
-        # Return current results (all False by default) - this is expected in headless environments
+        # Return current results (all False by default) - this is expected in
+        # headless environments
         print(f"Debug: Basic test environment initialization failed: {e}")
         # This is expected in headless environments, so we don't raise
 
@@ -375,7 +382,8 @@ def _run_non_interactive_demos():
             demos.append(show_enhanced_with_icons(interactive=False))
         except (RuntimeError, tk.TclError) as e:
             if "main thread" in str(e) or "theme" in str(e).lower():
-                # Skip enhanced demo if theme issues - this is expected in non-interactive environments
+                # Skip enhanced demo if theme issues - this is expected in
+                # non-interactive environments
                 print(
                     f"Debug: Skipping enhanced demo due to theme/threading issue: {e}"
                 )
@@ -909,7 +917,7 @@ def show_enhanced_with_icons(interactive=True, auto_close_delay=None):
     """
     import darkdetect
 
-    from .themes import get_theme_manager, set_global_theme
+    from .themes import set_global_theme
 
     root = tk.Tk()
     root.title("🎨 Enhanced Three-Pane Demo - All Improved Features")
@@ -1460,29 +1468,30 @@ def _show_enhanced_demo_info(window, initial_theme):
 
     platform_info = window.get_platform_info()
 
-    print(f"\n🎨 === Enhanced Three-Pane Demo Started ===")
+    print("\n🎨 === Enhanced Three-Pane Demo Started ===")
     print(f"🖥️  Platform: {platform_info['platform']}")
     print(f"📜 Scrollbars: {platform_info['scrollbar_type']}")
     print(f"📝 Description: {platform_info['scrollbar_description']}")
     print(f"🎨 Initial theme: {initial_theme}")
     print(f"🎯 Available themes: {list(get_theme_manager().list_themes().keys())}")
-    print(f"\n✨ NEW FEATURES DEMONSTRATED:")
-    print(f"  ✅ Automatic theme synchronization")
-    print(f"  ✅ Perfect detached window theming")
-    print(f"  ✅ Custom titlebar detached window fix")
-    print(f"  ✅ Platform-specific scrollbar detection")
-    print(f"  ✅ One-call theme switching API")
-    print(f"\n🎯 TEST INSTRUCTIONS:")
-    print(f"  1️⃣  Detach panels using ⧉ buttons")
-    print(f"  2️⃣  Switch themes using dropdown")
-    print(f"  3️⃣  Notice instant theme updates")
-    print(f"  4️⃣  Test custom titlebar panel (right)")
-    print(f"  5️⃣  Try multiple detached panels")
-    print(f"=" * 60)
+    print("\n✨ NEW FEATURES DEMONSTRATED:")
+    print("  ✅ Automatic theme synchronization")
+    print("  ✅ Perfect detached window theming")
+    print("  ✅ Custom titlebar detached window fix")
+    print("  ✅ Platform-specific scrollbar detection")
+    print("  ✅ One-call theme switching API")
+    print("\n🎯 TEST INSTRUCTIONS:")
+    print("  1️⃣  Detach panels using ⧉ buttons")
+    print("  2️⃣  Switch themes using dropdown")
+    print("  3️⃣  Notice instant theme updates")
+    print("  4️⃣  Test custom titlebar panel (right)")
+    print("  5️⃣  Try multiple detached panels")
+    print("=" * 60)
 
     # Update status bar
     window.update_status(
-        f"🎨 Enhanced demo ready! Platform: {platform_info['platform']} | Scrollbars: {platform_info['scrollbar_type']} | Theme: {initial_theme}"
+        f"🎨 Enhanced demo ready! Platform: {platform_info['platform']} | "
+        f"Scrollbars: {platform_info['scrollbar_type']} | Theme: {initial_theme}"
     )
 
 

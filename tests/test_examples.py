@@ -3,7 +3,6 @@ Tests for examples module functionality - Non-hanging version.
 """
 
 import inspect
-import threading
 import time
 import tkinter as tk
 from unittest.mock import MagicMock, Mock, patch
@@ -235,7 +234,7 @@ class TestExampleBuilders:
         try:
             root = tk.Tk()
             root.withdraw()
-            frame = tk.Frame(root)
+            _ = tk.Frame(root)  # Create frame but don't use it
 
             # Test the component testing function instead of individual builders
             results = examples.test_all_demo_components()
@@ -604,9 +603,6 @@ class TestExampleUtilityFunctions:
 
     def test_demo_threading_paths(self):
         """Test threading paths in demo functions."""
-        import threading
-        import time
-
         from threepanewindows import examples
 
         # Test threading timeout scenario

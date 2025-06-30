@@ -187,7 +187,8 @@ class TestDockableThreePaneWindow:
         assert window.right_placeholder is None
 
     '''def test_center_panel_expansion_no_placeholders(self):
-        """Test that center panel can expand when side panels are detached (no placeholders)."""
+        """Test that center panel can expand when side panels are detached
+        (no placeholders)."""
         def dummy_builder(frame):
             tk.Label(frame, text="Test").pack()
 
@@ -351,7 +352,7 @@ class TestDockableThreePaneWindow:
             window.reset_layout()
 
         if hasattr(window, "save_layout"):
-            layout = window.save_layout()
+            _ = window.save_layout()  # Store layout but don't use it
 
         if hasattr(window, "restore_layout"):
             window.restore_layout({"test": "layout"})

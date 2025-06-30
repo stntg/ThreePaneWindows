@@ -11,8 +11,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Check if Tkinter is available at import time
 try:
-    import tkinter as tk
-
     _tkinter_available = True
 except ImportError:
     _tkinter_available = False

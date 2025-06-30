@@ -274,7 +274,7 @@ class TestEnhancedDockableCoverage:
 
         # Test with error in builder
         try:
-            window = EnhancedDockableThreePaneWindow(
+            _ = EnhancedDockableThreePaneWindow(
                 self.root,
                 left_builder=error_builder,
                 center_builder=dummy_builder,

@@ -3,7 +3,7 @@ Integration tests for ThreePaneWindows package.
 """
 
 import tkinter as tk
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -12,7 +12,6 @@ from threepanewindows import (
     EnhancedDockableThreePaneWindow,
     FixedThreePaneWindow,
     PaneConfig,
-    ThemeManager,
     ThemeType,
     get_theme_manager,
     set_global_theme,
@@ -271,22 +270,19 @@ class TestPackageAPI:
 
     def test_main_imports(self):
         """Test that main classes can be imported from package root."""
-        from threepanewindows import (
-            DockableThreePaneWindow,
-            EnhancedDockableThreePaneWindow,
-            FixedThreePaneWindow,
-            PaneConfig,
-            ThemeManager,
-            ThemeType,
-        )
+        from threepanewindows import DockableThreePaneWindow as DockableWindow
+        from threepanewindows import EnhancedDockableThreePaneWindow as EnhancedWindow
+        from threepanewindows import FixedThreePaneWindow as FixedWindow
+        from threepanewindows import PaneConfig as Config
+        from threepanewindows import ThemeManager, ThemeType
 
         # All should be importable
-        assert FixedThreePaneWindow is not None
-        assert DockableThreePaneWindow is not None
-        assert EnhancedDockableThreePaneWindow is not None
+        assert FixedWindow is not None
+        assert DockableWindow is not None
+        assert EnhancedWindow is not None
         assert ThemeManager is not None
         assert ThemeType is not None
-        assert PaneConfig is not None
+        assert Config is not None
 
     def test_utility_functions_importable(self):
         """Test that utility functions can be imported."""

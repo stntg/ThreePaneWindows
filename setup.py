@@ -11,7 +11,10 @@ setup(
     version="1.0.4",
     author="ThreePaneWindows Team",
     author_email="contact@example.com",
-    description="A Python library for creating dockable and fixed three-pane window layouts in Tkinter with cross-platform icon support",
+    description=(
+        "A Python library for creating dockable and fixed three-pane window "
+        "layouts in Tkinter with cross-platform icon support"
+    ),
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/yourusername/threepanewindows",

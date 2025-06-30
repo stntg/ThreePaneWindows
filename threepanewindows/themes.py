@@ -593,13 +593,13 @@ class ThemeManager:
                 scrollbar_bg = colors.secondary_bg  # #2d2d30 for dark theme
                 trough_color = colors.panel_content_bg  # #1e1e1e for dark theme
                 border_color = colors.panel_content_bg  # #1e1e1e for dark theme
-                arrow_color = colors.secondary_text  # Arrow color
+                _ = colors.secondary_text  # Arrow color (not used in current config)
             else:
                 # For colored themes, use white bg and theme color for trough/border
                 scrollbar_bg = "#ffffff"  # White background
                 trough_color = colors.accent_bg  # Theme color for trough
                 border_color = colors.accent_bg  # Theme color for border
-                arrow_color = colors.primary_text  # Arrow color
+                _ = colors.primary_text  # Arrow color (not used in current config)
 
             return {
                 "bg": scrollbar_bg,
@@ -1234,7 +1234,11 @@ class ThemeManager:
         return {
             "platform": system,
             "scrollbar_type": scrollbar_type,
-            "scrollbar_description": f"{'Custom scrollbars (better theming)' if scrollbar_type == 'custom' else 'Native scrollbars (better integration)'}",
+            "scrollbar_description": (
+                "Custom scrollbars (better theming)"
+                if scrollbar_type == "custom"
+                else "Native scrollbars (better integration)"
+            ),
         }
 
     def create_themed_scrollbar_auto(

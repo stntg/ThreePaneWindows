@@ -50,7 +50,8 @@ def validate_icon_path(icon_path: str) -> tuple[bool, str]:
     if ext not in recommended:
         return (
             False,
-            f"Icon format {ext} not recommended for {platform.system()}. Recommended: {', '.join(recommended)}",
+            f"Icon format {ext} not recommended for {platform.system()}. "
+            f"Recommended: {', '.join(recommended)}",
         )
 
     return True, f"Icon format {ext} is compatible with {platform.system()}"
@@ -462,7 +463,6 @@ class DetachedWindow(tk.Toplevel):
     def _set_window_icon(self, icon_path: str):
         """Set window icon with cross-platform compatibility."""
         import os
-        import platform
 
         if not os.path.exists(icon_path):
             print(f"Warning: Icon file not found: {icon_path}")
@@ -508,7 +508,8 @@ class DetachedWindow(tk.Toplevel):
         """Setup the UI."""
         theme = self.theme_manager.get_current_theme()
 
-        # Determine the parent container (border frame if using Windows border, otherwise self)
+        # Determine the parent container (border frame if using Windows border,
+        # otherwise self)
         parent_container = getattr(self, "_border_frame", self)
 
         # Header with reattach button (and custom title bar if needed)
@@ -561,7 +562,8 @@ class DetachedWindow(tk.Toplevel):
 
         # Reattach button - match the detach button style exactly
         if self.config.custom_titlebar:
-            # For custom title bar, put reattach button in controls frame instead of close button
+            # For custom title bar, put reattach button in controls frame
+            # instead of close button
             reattach_btn = tk.Button(
                 controls_frame,  # Use controls_frame instead of header_frame
                 text="⧈",
@@ -746,7 +748,7 @@ class DetachedWindow(tk.Toplevel):
         """Refresh the detached window with the current theme."""
         try:
             # Update the theme manager reference to ensure it's current
-            theme = self.theme_manager.get_current_theme()
+            _ = self.theme_manager.get_current_theme()
 
             # Clear and recreate the UI with new theme
             for child in self.winfo_children():
@@ -1627,10 +1629,6 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             # If no status bar, just print for debugging
             print(f"Status: {message}")
 
-    def switch_theme(self, theme_name: str):
-        """Switch to a different theme (alias for set_theme)."""
-        self.set_theme(theme_name)
-
     def show_left_pane(self):
         """Show the left pane if it's hidden."""
         if "left" in self.pane_frames and "left" not in self.detached_windows:
@@ -1845,7 +1843,8 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         """Refresh custom widgets (text, scrollbars, etc.) in all panes."""
         current_theme = self.theme_manager.get_current_theme()
         for pane_side in ["left", "center", "right"]:
-            # Only update attached panes - detached panes are handled by their refresh_theme method
+            # Only update attached panes - detached panes are handled by their
+            # refresh_theme method
             if pane_side not in self.detached_windows:
                 frame = self.get_pane_content_frame(pane_side)
                 if frame and hasattr(frame, "update_theme"):
@@ -1881,7 +1880,10 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             # Update status bar if requested and available
             if update_status and hasattr(self, "update_status"):
                 platform_info = self.theme_manager.get_platform_info()
-                status_text = f"Theme: {theme_name} | Platform: {platform_info['platform']} | Scrollbars: {platform_info['scrollbar_type']}"
+                status_text = (
+                    f"Theme: {theme_name} | Platform: {platform_info['platform']} | "
+                    f"Scrollbars: {platform_info['scrollbar_type']}"
+                )
                 self.update_status(status_text)
         else:
             print(f"Warning: Failed to set theme '{theme_name}'")
