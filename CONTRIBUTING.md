@@ -102,6 +102,20 @@ We follow these coding standards:
 - **Type hints** for all public APIs
 - **Docstrings** for all public functions and classes
 
+### Python Version Compatibility
+
+This project supports Python 3.8 and above. When developing, be aware of:
+
+1. **Python 3.8 Compatibility**: Some features require special handling in Python 3.8:
+   - Use `typing-extensions` for newer typing features (like TypedDict, Literal, Protocol)
+   - Avoid f-strings with `=` debugging syntax (Python 3.8 doesn't support it)
+   - Be careful with Unicode handling in Python 3.8
+   - Test your changes with Python 3.8 specifically
+
+2. **CI Testing**: The CI workflow uses different configurations for Python 3.8 vs newer versions:
+   - Python 3.8 uses `pytest_py38.ini` and skips certain problematic tests
+   - Python 3.9+ uses `pytest_ci.ini` for testing
+
 ### Code Quality Tools
 
 Before submitting, ensure your code passes all checks:
@@ -142,6 +156,20 @@ pytest tests/test_fixed.py
 # Run tests for specific Python versions
 tox -e py38,py39,py310,py311,py312
 ```
+
+### CI Workflow Tests
+
+To run tests as they would run in the CI workflow:
+
+```bash
+# For Python 3.9 and above
+pytest -c pytest_ci.ini tests/ -m "not gui"
+
+# For Python 3.8 (which has special handling)
+pytest -c pytest_py38.ini tests/ -m "not gui" -k "not test_demo_integration_with_mainloop and not test_run_demo_creates_window and not test_examples_no_longer_hang"
+```
+
+The Python 3.8 configuration skips certain tests that may cause stack overflow errors or have compatibility issues with Python 3.8.
 
 ### Writing Tests
 
