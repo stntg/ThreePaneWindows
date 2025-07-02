@@ -47,10 +47,14 @@ Changelog = "https://github.com/stntg/threepanewindows/blob/main/CHANGELOG.md"
 "Source Code" = "https://github.com/stntg/threepanewindows"
 
 [project.optional-dependencies]
+theme = [
+    "darkdetect>=0.7.0",
+]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "pytest-xvfb>=2.0; sys_platform=='linux'",
+    "pytest-timeout>=2.0",
     "black>=22.0",
     "flake8>=5.0",
     "mypy>=1.0",
@@ -59,6 +63,7 @@ dev = [
     "bandit>=1.7",
     "safety>=2.0",
     "tox>=4.0",
+    "darkdetect>=0.7.0",
 ]
 docs = [
     "sphinx>=5.0",
@@ -71,6 +76,8 @@ test = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "pytest-xvfb>=2.0; sys_platform=='linux'",
+    "pytest-timeout>=2.0",
+    "darkdetect>=0.7.0",
 ]
 
 [project.scripts]
@@ -146,6 +153,7 @@ markers = [
     "visual: marks tests requiring visual inspection",
     "integration: marks tests as integration tests",
     "gui: marks tests requiring GUI/Tkinter",
+    "timeout: marks tests with timeout requirements",
 ]
 filterwarnings = [
     "error",

@@ -915,16 +915,20 @@ def show_enhanced_with_icons(interactive=True, auto_close_delay=None):
     ✅ Professional UI with animations and status updates
     ✅ Mixed detached window scenarios
     """
-    import darkdetect
+    try:
+        import darkdetect
+
+        # Detect system theme for perfect initial setup
+        initial_theme = "dark" if darkdetect.isDark() else "light"
+    except ImportError:
+        # Fallback if darkdetect is not available
+        initial_theme = "light"
 
     from .themes import set_global_theme
 
     root = tk.Tk()
     root.title("🎨 Enhanced Three-Pane Demo - All Improved Features")
     root.geometry("1400x800")
-
-    # Detect system theme for perfect initial setup
-    initial_theme = "dark" if darkdetect.isDark() else "light"
 
     # Create enhanced pane configurations showcasing different features
     left_config = PaneConfig(
