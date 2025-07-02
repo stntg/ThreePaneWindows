@@ -43,19 +43,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[dev,test]
 
-    - name: Install Python 3.8 specific dependencies
-      if: matrix.python-version == '3.8'
-      run: |
-        pip install typing-extensions>=4.0.0
-        # Ensure typing-extensions is installed for Python 3.8
-        if [ "${{ matrix.python-version }}" == "3.8" ]; then
-          pip install typing-extensions>=4.0.0
-        fi
-        # Ensure typing-extensions is installed for Python 3.8
-        if [ "${{ matrix.python-version }}" = "3.8" ]; then
-          pip install typing-extensions>=4.0.0
-        fi
-
     - name: Lint with flake8
       timeout-minutes: 5
       run: |
