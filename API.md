@@ -96,7 +96,7 @@ Validate an icon path for cross-platform compatibility.
 **Parameters:**
 - `icon_path`: Path to icon file
 
-**Returns:** `tuple[bool, str]` - (is_valid, message)
+**Returns:** `Tuple[bool, str]` - (is_valid, message)
 
 #### Example Usage: EnhancedDockableThreePaneWindow
 
