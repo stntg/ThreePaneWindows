@@ -1,10 +1,10 @@
 import platform
 import sys
+import tkinter as tk
 from dataclasses import dataclass, field
 from enum import Enum
-import tkinter as tk
 from tkinter import ttk
-from typing import Any, Dict, List, Optional, Union, Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 
 if TYPE_CHECKING:
     from .custom_scrollbar import ThemedScrollbar

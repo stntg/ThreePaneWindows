@@ -1,5 +1,5 @@
 import tkinter as tk
-from typing import Optional, Any
+from typing import Any, Optional
 
 
 class FixedThreePaneLayout(tk.Frame):

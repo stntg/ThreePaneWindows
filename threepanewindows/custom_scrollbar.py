@@ -5,7 +5,7 @@ Custom scrollbar implementation for better theming control
 
 import tkinter as tk
 from tkinter import ttk
-from typing import Callable, Optional, Any
+from typing import Any, Callable, Optional
 
 
 class ThemedScrollbar(tk.Frame):
