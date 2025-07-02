@@ -9,7 +9,7 @@ detaching/attaching functionality.
 import tkinter as tk
 from dataclasses import dataclass
 from tkinter import ttk
-from typing import Callable, Dict, List, Optional, tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from .themes import ThemeManager, get_theme_manager
 
@@ -28,7 +28,7 @@ def get_recommended_icon_formats() -> List[str]:
         return [".png", ".xbm", ".gif", ".bmp", ".ico"]
 
 
-def validate_icon_path(icon_path: str) -> tuple[bool, str]:
+def validate_icon_path(icon_path: str) -> Tuple[bool, str]:
     """
     Validate an icon path for cross-platform compatibility.
 
