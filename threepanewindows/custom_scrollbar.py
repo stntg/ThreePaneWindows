@@ -12,7 +12,11 @@ class ThemedScrollbar(tk.Frame):
     """A custom scrollbar that responds better to theming than native scrollbars."""
 
     def __init__(
-        self, parent: tk.Widget, orient: str = "vertical", command: Optional[Callable] = None, **kwargs: Any
+        self,
+        parent: tk.Widget,
+        orient: str = "vertical",
+        command: Optional[Callable] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(parent, **kwargs)
 
@@ -231,7 +235,11 @@ class ThemedScrollbar(tk.Frame):
 
 
 def create_themed_scrollbar(
-    parent: tk.Widget, orient: str = "vertical", command: Optional[Callable] = None, use_custom: bool = False, theme_manager: Any = None
+    parent: tk.Widget,
+    orient: str = "vertical",
+    command: Optional[Callable] = None,
+    use_custom: bool = False,
+    theme_manager: Any = None,
 ) -> Any:
     """
     Create a themed scrollbar - either custom or native TTK.

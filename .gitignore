@@ -253,7 +253,10 @@ run_tests.py
 # Local test files (keep these local-only)
 tests/test_runner.py
 tests/pytest_local.ini
+tests/pytest_robust.ini
 tests/LOCAL_TESTING_README.md
+tests/test_local_examples.py
+
 
 # Enhanced coverage tests (include in remote repo)
 # The following files have been REMOVED from gitignore to include in repo:

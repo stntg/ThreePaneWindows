@@ -33,7 +33,9 @@ class FixedThreePaneLayout(tk.Frame):
         self._create_panels()
         self._setup_layout()
 
-    def _validate_parameters(self, left_width: Optional[int], right_width: Optional[int], min_pane_size: int) -> None:
+    def _validate_parameters(
+        self, left_width: Optional[int], right_width: Optional[int], min_pane_size: int
+    ) -> None:
         """Validate initialization parameters."""
         if left_width is not None and left_width < 0:
             raise ValueError("left_width must be non-negative")
@@ -148,7 +150,12 @@ class FixedThreePaneLayout(tk.Frame):
 
         self._frame_right.place(x=w - right_width, y=0, width=right_width, height=h)
 
-    def set_label_texts(self, left: Optional[str] = None, center: Optional[str] = None, right: Optional[str] = None) -> None:
+    def set_label_texts(
+        self,
+        left: Optional[str] = None,
+        center: Optional[str] = None,
+        right: Optional[str] = None,
+    ) -> None:
         if left is not None:
             self.label_left.config(text=left)
         if center is not None:

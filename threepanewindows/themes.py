@@ -100,7 +100,11 @@ class Theme:
 
 
 class ThemeManager:
-    def __init__(self, theme: Optional[Union[str, ThemeType]] = None, custom_scheme: Optional[ColorScheme] = None) -> None:
+    def __init__(
+        self,
+        theme: Optional[Union[str, ThemeType]] = None,
+        custom_scheme: Optional[ColorScheme] = None,
+    ) -> None:
         self._themes: Dict[str, Theme] = {}
         self._current_theme: Optional[Theme] = None
         self._style_cache: Dict[str, Dict[str, Any]] = {}
@@ -313,7 +317,12 @@ class ThemeManager:
 
         return bool(is_dark)
 
-    def set_theme(self, name: Union[str, ThemeType], custom_scheme: Optional[ColorScheme] = None, window: Optional[tk.Tk] = None) -> bool:
+    def set_theme(
+        self,
+        name: Union[str, ThemeType],
+        custom_scheme: Optional[ColorScheme] = None,
+        window: Optional[tk.Tk] = None,
+    ) -> bool:
         if custom_scheme and (
             name == ThemeType.CUSTOM
             or (hasattr(name, "value") and name.value == "custom")
@@ -360,7 +369,9 @@ class ThemeManager:
             ]
             return f"#{r:02x}{g:02x}{b:02x}"
 
-        def create_circle_button(base_color: str, command: Callable[[], None]) -> ttk.Label:
+        def create_circle_button(
+            base_color: str, command: Callable[[], None]
+        ) -> ttk.Label:
             btn = ttk.Label(
                 titlebar,
                 text="",
@@ -1247,7 +1258,11 @@ class ThemeManager:
         }
 
     def create_themed_scrollbar_auto(
-        self, parent: tk.Widget, orient: str = "vertical", command: Optional[Callable] = None, **kwargs: Any
+        self,
+        parent: tk.Widget,
+        orient: str = "vertical",
+        command: Optional[Callable] = None,
+        **kwargs: Any,
     ) -> Union["ThemedScrollbar", ttk.Scrollbar]:
         """
         Create a scrollbar with automatic platform-specific type selection.
@@ -1284,7 +1299,11 @@ def get_theme_manager() -> ThemeManager:
     return theme_manager
 
 
-def set_global_theme(theme_name: Union[str, ThemeType], custom_scheme: Optional[ColorScheme] = None, window: Optional[tk.Tk] = None) -> bool:
+def set_global_theme(
+    theme_name: Union[str, ThemeType],
+    custom_scheme: Optional[ColorScheme] = None,
+    window: Optional[tk.Tk] = None,
+) -> bool:
     return theme_manager.set_theme(theme_name, custom_scheme, window)
 
 

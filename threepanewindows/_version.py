@@ -1,4 +1,5 @@
 """Version information for ThreePaneWindows."""
+
 from typing import Tuple
 
 __version__ = "1.0.4"
