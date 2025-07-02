@@ -28,7 +28,7 @@ def _parse_version(version_string: str) -> Tuple[int, int, int]:
     while len(numeric_parts) < 3:
         numeric_parts.append(0)
 
-    # Ensure exactly 3 components and return as typed tuple
+    # Ensure exactly 3 components and return as a typed tuple
     result = numeric_parts[:3]
     while len(result) < 3:
         result.append(0)
