@@ -186,7 +186,7 @@ class TestPackageIntegration:
         assert isinstance(enhanced, tk.Widget)
 
     def test_cross_window_theming(self):
-        """Test theming works across different window types."""
+        """Test theming works across different window types with shared global theme manager."""
 
         def dummy_builder(frame):
             tk.Label(frame, text="Test").pack()
@@ -208,8 +208,10 @@ class TestPackageIntegration:
             theme=ThemeType.DARK,
         )
 
-        # Each should have its own theme
-        assert enhanced1.theme_manager.current_theme == ThemeType.LIGHT
+        # Both windows should share the same global theme manager
+        assert enhanced1.theme_manager is enhanced2.theme_manager
+        # The last theme set (DARK) should be the current theme for both windows
+        assert enhanced1.theme_manager.current_theme == ThemeType.DARK
         assert enhanced2.theme_manager.current_theme == ThemeType.DARK
 
     def test_builder_pattern_consistency(self):

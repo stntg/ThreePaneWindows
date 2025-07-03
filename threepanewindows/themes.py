@@ -417,8 +417,10 @@ class ThemeManager:
             window._drag_start_y = event.y  # type: ignore[attr-defined]
 
         def do_move(event: tk.Event) -> None:
-            x = window.winfo_pointerx() - window._drag_start_x  # type: ignore[attr-defined]
-            y = window.winfo_pointery() - window._drag_start_y  # type: ignore[attr-defined]
+            x = window.winfo_pointerx() - window._drag_start_x
+            # type: ignore[attr-defined]
+            y = window.winfo_pointery() - window._drag_start_y
+            # type: ignore[attr-defined]
             window.geometry(f"+{x}+{y}")
 
         titlebar.bind("<ButtonPress-1>", start_move)

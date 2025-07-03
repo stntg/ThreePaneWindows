@@ -1,9 +1,11 @@
 # ThreePaneWindows Information
 
 ## Summary
+
 ThreePaneWindows is a Python library that provides professional three-pane window layouts for Tkinter applications. It offers sophisticated UI components with features like docking, theming, and cross-platform icon support. The library includes multiple window types: fixed layouts, dockable layouts, and enhanced professional layouts with advanced features.
 
 ## Structure
+
 - **threepanewindows/**: Core package containing the main implementation
   - **dockable.py**: Implementation of DockableThreePaneWindow
   - **enhanced_dockable.py**: Implementation of EnhancedDockableThreePaneWindow
@@ -17,12 +19,14 @@ ThreePaneWindows is a Python library that provides professional three-pane windo
 - **dev_files/**: Development resources and examples
 
 ## Language & Runtime
+
 **Language**: Python
 **Version**: Python 3.8+ (supports 3.8, 3.9, 3.10, 3.11, 3.12)
 **Build System**: setuptools
 **Package Manager**: pip
 
 ## Dependencies
+
 **Main Dependencies**:
 - tkinter (included in Python standard library)
 - typing-extensions (for Python < 3.10)
@@ -39,6 +43,7 @@ ThreePaneWindows is a Python library that provides professional three-pane windo
 - sphinx (>=5.0, for documentation)
 
 ## Build & Installation
+
 ```bash
 # Basic installation
 pip install threepanewindows
@@ -56,6 +61,7 @@ pip install -e ".[docs]"
 ```
 
 ## Main Entry Points
+
 **Package Entry Points**:
 - `threepane`: CLI tool for running demos and displaying information
 - `threepane-demo`: Direct access to run the interactive demo
@@ -67,6 +73,7 @@ pip install -e ".[docs]"
 - `ThemeManager`: Professional theming system
 
 ## Testing
+
 **Framework**: pytest
 **Test Location**: tests/ directory
 **Naming Convention**: test_*.py files with test_* functions
@@ -91,6 +98,7 @@ pytest -m "not gui"
 ```
 
 ## Features
+
 - Multiple window layout types (fixed, dockable, enhanced)
 - Professional theming system with light, dark, and blue themes
 - Cross-platform icon support (.ico, .png, .gif, .bmp, .xbm)

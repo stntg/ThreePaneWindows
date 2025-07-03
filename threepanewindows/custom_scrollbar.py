@@ -265,4 +265,5 @@ def create_themed_scrollbar(
         style_name = (
             f"Themed.{'Vertical' if orient == 'vertical' else 'Horizontal'}.TScrollbar"
         )
-        return ttk.Scrollbar(parent, orient=orient, command=command, style=style_name)  # type: ignore[arg-type]
+        return ttk.Scrollbar(parent, orient=orient, command=command, style=style_name)
+    # type: ignore[arg-type]
