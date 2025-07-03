@@ -28,10 +28,12 @@ ThreePaneWindows is a Python library that provides professional three-pane windo
 ## Dependencies
 
 **Main Dependencies**:
+
 - tkinter (included in Python standard library)
 - typing-extensions (for Python < 3.10)
 
 **Development Dependencies**:
+
 - pytest (>=7.0)
 - pytest-cov (>=4.0)
 - pytest-xvfb (>=2.0, Linux only)
@@ -63,10 +65,12 @@ pip install -e ".[docs]"
 ## Main Entry Points
 
 **Package Entry Points**:
+
 - `threepane`: CLI tool for running demos and displaying information
 - `threepane-demo`: Direct access to run the interactive demo
 
 **Main Classes**:
+
 - `FixedThreePaneWindow`: Simple fixed three-pane layout
 - `DockableThreePaneWindow`: Advanced layout with docking capabilities
 - `EnhancedDockableThreePaneWindow`: Full-featured layout with professional features
@@ -79,6 +83,7 @@ pip install -e ".[docs]"
 **Naming Convention**: test_*.py files with test_* functions
 **Configuration**: pytest.ini, pytest_ci.ini, pytest_py38.ini
 **Run Command**:
+
 ```bash
 # Run all tests
 pytest

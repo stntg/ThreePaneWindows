@@ -22,12 +22,23 @@ class TestVersionInfo:
     """Test cases for version information."""
 
     def test_version_string_format(self):
-        """Test that version string follows semantic versioning."""
-        # Should be in format X.Y.Z or X.Y.Z-suffix
-        version_pattern = r"^\d+\.\d+\.\d+(?:-\w+)?$"
-        assert re.match(
-            version_pattern, __version__
-        ), f"Version '{__version__}' doesn't match semantic versioning"
+        """Test that version string follows semantic versioning or PEP 440."""
+        # Should be in format X.Y.Z, X.Y.Z-suffix, or X.Y.Z.devN (PEP 440)
+        # This handles both semantic versioning and PEP 440 development versions
+        version_patterns = [
+            r"^\d+\.\d+\.\d+$",  # Basic semantic versioning: 1.0.4
+            r"^\d+\.\d+\.\d+-\w+$",  # Semantic versioning with suffix: 1.0.4-beta
+            r"^\d+\.\d+\.\d+\.dev\d+$",  # PEP 440 dev version: 1.0.4.dev123
+            r"^\d+\.\d+\.\d+[ab]\d+\.dev\d+$",  # PEP 440 alpha/beta dev: 1.0.4a1.dev123
+            r"^\d+\.\d+\.\d+rc\d+\.dev\d+$",  # PEP 440 rc dev: 1.0.4rc1.dev123
+        ]
+
+        version_matches = any(
+            re.match(pattern, __version__) for pattern in version_patterns
+        )
+        assert (
+            version_matches
+        ), f"Version '{__version__}' doesn't match expected format"
 
     def test_version_info_tuple(self):
         """Test that version_info is a proper tuple."""
@@ -41,7 +52,23 @@ class TestVersionInfo:
 
     def test_version_consistency(self):
         """Test that version string and version_info are consistent."""
-        version_parts = __version__.split("-")[0].split(".")  # Remove any suffix
+        # Handle different version formats (semantic versioning and PEP 440)
+        version_base = __version__
+
+        # Remove PEP 440 suffixes (.devN, aN.devN, bN.devN, rcN.devN)
+        if ".dev" in version_base:
+            version_base = version_base.split(".dev")[0]
+
+        # Remove alpha/beta/rc suffixes
+        import re
+
+        version_base = re.sub(r"[ab]\d+$", "", version_base)
+        version_base = re.sub(r"rc\d+$", "", version_base)
+
+        # Remove semantic versioning suffixes (with dash)
+        version_base = version_base.split("-")[0]
+
+        version_parts = version_base.split(".")
 
         assert int(version_parts[0]) == __version_info__[0]  # major
         assert int(version_parts[1]) == __version_info__[1]  # minor

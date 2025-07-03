@@ -15,6 +15,7 @@ ThreePaneWindows provides multiple classes for creating three-pane layouts in Tk
 A professional three-pane window with advanced theming, cross-platform icon support, and sophisticated user interactions.
 
 **Key Features:**
+
 - **Professional Theming**: Multiple built-in themes (light, dark, blue professional)
 - **Cross-Platform Icons**: Support for .ico, .png, .gif, .bmp, .xbm formats with automatic fallback
 - **Drag & Drop Interface**: Intuitive panel detaching by dragging headers
@@ -70,11 +71,13 @@ class PaneConfig:
 The enhanced window supports cross-platform icon display for detached windows:
 
 **Supported Formats:**
+
 - **Windows**: `.ico` (primary), `.png`, `.bmp`, `.gif` (secondary)
 - **macOS**: `.png` (primary), `.gif`, `.bmp` (secondary), `.ico` (limited)
 - **Linux**: `.png`, `.xbm` (primary), `.gif`, `.bmp` (secondary), `.ico` (limited)
 
 **Icon Resolution Strategy:**
+
 1. Check file existence
 2. Detect format from extension
 3. Use best method for format (iconbitmap for .ico, iconphoto for others)
@@ -94,6 +97,7 @@ Get recommended icon formats for the current platform.
 Validate an icon path for cross-platform compatibility.
 
 **Parameters:**
+
 - `icon_path`: Path to icon file
 
 **Returns:** `Tuple[bool, str]` - (is_valid, message)
@@ -174,6 +178,7 @@ root.mainloop()
 A sophisticated three-pane window with detachable left and right panels.
 
 **Key Features:**
+
 - **Detachable Panels**: Left and right panels can be detached into separate windows
 - **Center Panel Expansion**: When side panels are detached, the center panel automatically expands to fill the available space
 - **Automatic Reattachment**: Detached panels can be reattached by closing their windows or using reattach buttons

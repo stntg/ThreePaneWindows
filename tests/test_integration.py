@@ -186,7 +186,7 @@ class TestPackageIntegration:
         assert isinstance(enhanced, tk.Widget)
 
     def test_cross_window_theming(self):
-        """Test theming works across different window types with shared global theme manager."""
+        """Test theming works across different window types with shared theme manager."""
 
         def dummy_builder(frame):
             tk.Label(frame, text="Test").pack()
