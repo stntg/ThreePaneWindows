@@ -212,6 +212,7 @@ dev_files/
 # Individual development and testing files (in case they're not moved)
 debug_demo.py
 example_cross_platform_theming.py
+.github/README.md
 
 # Legacy/deprecated files
 
