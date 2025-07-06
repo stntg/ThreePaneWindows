@@ -234,11 +234,6 @@ example_complete_theming.py
 example_cross_platform_theming.py
 example_macos_theming.py
 example_platform_demo.py
-test_button_text.py
-test_enhanced_theming.py
-test_theme_and_detach.py
-test_theme_switching.py
-test_widget_themining.py
 
 # Legacy/deprecated files
 DockableThreePaneWindow.py

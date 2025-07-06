@@ -1,3 +1,4 @@
+import logging
 import platform
 import tkinter as tk
 from dataclasses import dataclass, field
@@ -834,12 +835,16 @@ class ThemeManager:
                     # Skip theming for scrollbar buttons
                     parent = widget.master
                     is_scrollbar_button = False
-                    
+
                     # Check if this button belongs to a scrollbar
-                    if parent and hasattr(parent, 'apply_theme') and 'scrollbar' in str(type(parent)).lower():
+                    if (
+                        parent
+                        and hasattr(parent, "apply_theme")
+                        and "scrollbar" in str(type(parent)).lower()
+                    ):
                         # This is a scrollbar button - skip general button theming
                         is_scrollbar_button = True
-                    
+
                     if not is_scrollbar_button:
                         # Regular button - apply standard button styling
                         style = self.get_tk_widget_style("button")
@@ -848,19 +853,31 @@ class ThemeManager:
                     # Skip theming for custom scrollbar components and their children
                     parent = widget.master
                     is_scrollbar_component = False
-                    
+
                     # Check if this is a scrollbar or a child of a scrollbar
-                    if hasattr(widget, 'apply_theme') and 'scrollbar' in str(type(widget)).lower():
+                    if (
+                        hasattr(widget, "apply_theme")
+                        and "scrollbar" in str(type(widget)).lower()
+                    ):
                         # This is the scrollbar itself
                         widget.apply_theme(self.get_current_theme().colors)
                         is_scrollbar_component = True
-                    elif parent and hasattr(parent, 'apply_theme') and 'scrollbar' in str(type(parent)).lower():
+                    elif (
+                        parent
+                        and hasattr(parent, "apply_theme")
+                        and "scrollbar" in str(type(parent)).lower()
+                    ):
                         # This is a child of a scrollbar (trough, thumb) - skip theming
                         is_scrollbar_component = True
-                    elif parent and parent.master and hasattr(parent.master, 'apply_theme') and 'scrollbar' in str(type(parent.master)).lower():
+                    elif (
+                        parent
+                        and parent.master
+                        and hasattr(parent.master, "apply_theme")
+                        and "scrollbar" in str(type(parent.master)).lower()
+                    ):
                         # This is a grandchild of a scrollbar - skip theming
                         is_scrollbar_component = True
-                    
+
                     if not is_scrollbar_component:
                         # Regular frame - apply standard frame styling
                         style = self.get_tk_widget_style("frame")
@@ -877,12 +894,15 @@ class ThemeManager:
                 try:
                     for child in widget.winfo_children():
                         self.apply_theme_to_widget(child, recursive=True)
-                except Exception:
-                    pass  # Some widgets don't support winfo_children()
+                except Exception as e:
+                    # Some widgets don't support winfo_children() or have other issues
+                    logging.debug(
+                        f"Could not apply theme to child widgets of {widget}: {e}"
+                    )
 
-        except Exception:
-            # Silently ignore theming errors for individual widgets
-            pass
+        except Exception as e:
+            # Log theming errors for individual widgets but don't crash the application
+            logging.debug(f"Could not apply theme to widget {widget}: {e}")
 
     def apply_theme_to_window(self, window) -> None:
         """

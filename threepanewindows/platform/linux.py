@@ -6,6 +6,7 @@ titlebar customization, and other platform-specific features.
 """
 
 import os
+import shutil
 import tkinter as tk
 from typing import Any, List, Tuple
 
@@ -154,17 +155,20 @@ class LinuxPlatformHandler(PlatformHandler):
             try:
                 import subprocess
 
-                result = subprocess.run(
-                    ["pgrep", "-x", "compton"], capture_output=True, text=True
-                )
-                if result.returncode == 0:
-                    return True
+                # Use full path to pgrep for security
+                pgrep_path = shutil.which("pgrep")
+                if pgrep_path:
+                    result = subprocess.run(
+                        [pgrep_path, "-x", "compton"], capture_output=True, text=True
+                    )
+                    if result.returncode == 0:
+                        return True
 
-                result = subprocess.run(
-                    ["pgrep", "-x", "picom"], capture_output=True, text=True
-                )
-                if result.returncode == 0:
-                    return True
+                    result = subprocess.run(
+                        [pgrep_path, "-x", "picom"], capture_output=True, text=True
+                    )
+                    if result.returncode == 0:
+                        return True
             except (ImportError, OSError, Exception):
                 pass
 
@@ -186,14 +190,17 @@ class LinuxPlatformHandler(PlatformHandler):
             # Check GNOME settings
             import subprocess
 
-            result = subprocess.run(
-                ["gsettings", "get", "org.gnome.desktop.interface", "gtk-theme"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            theme_name = result.stdout.strip().strip("'\"").lower()
-            return "dark" in theme_name
+            # Use full path to gsettings for security
+            gsettings_path = shutil.which("gsettings")
+            if gsettings_path:
+                result = subprocess.run(
+                    [gsettings_path, "get", "org.gnome.desktop.interface", "gtk-theme"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
+                theme_name = result.stdout.strip().strip("'\"").lower()
+                return "dark" in theme_name
         except (
             subprocess.SubprocessError,
             subprocess.TimeoutExpired,
@@ -205,14 +212,17 @@ class LinuxPlatformHandler(PlatformHandler):
             # Check KDE settings
             import subprocess
 
-            result = subprocess.run(
-                ["kreadconfig5", "--group", "General", "--key", "ColorScheme"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            color_scheme = result.stdout.strip().lower()
-            return "dark" in color_scheme or "breeze dark" in color_scheme
+            # Use full path to kreadconfig5 for security
+            kreadconfig_path = shutil.which("kreadconfig5")
+            if kreadconfig_path:
+                result = subprocess.run(
+                    [kreadconfig_path, "--group", "General", "--key", "ColorScheme"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
+                color_scheme = result.stdout.strip().lower()
+                return "dark" in color_scheme or "breeze dark" in color_scheme
         except (
             subprocess.SubprocessError,
             subprocess.TimeoutExpired,
@@ -233,27 +243,35 @@ class LinuxPlatformHandler(PlatformHandler):
             # Try to get GNOME accent color
             import subprocess
 
-            result = subprocess.run(
-                ["gsettings", "get", "org.gnome.desktop.interface", "accent-color"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            if result.returncode == 0:
-                color = result.stdout.strip().strip("'\"")
-                if color and color != "blue":  # Default is blue
-                    # Map GNOME accent color names to hex
-                    gnome_colors = {
-                        "red": "#e01b24",
-                        "orange": "#ff7800",
-                        "yellow": "#f5c211",
-                        "green": "#33d17a",
-                        "blue": "#3584e4",
-                        "purple": "#9141ac",
-                        "pink": "#f66151",
-                        "slate": "#6f8396",
-                    }
-                    return gnome_colors.get(color, "#3584e4")
+            # Use full path to gsettings for security
+            gsettings_path = shutil.which("gsettings")
+            if gsettings_path:
+                result = subprocess.run(
+                    [
+                        gsettings_path,
+                        "get",
+                        "org.gnome.desktop.interface",
+                        "accent-color",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
+                if result.returncode == 0:
+                    color = result.stdout.strip().strip("'\"")
+                    if color and color != "blue":  # Default is blue
+                        # Map GNOME accent color names to hex
+                        gnome_colors = {
+                            "red": "#e01b24",
+                            "orange": "#ff7800",
+                            "yellow": "#f5c211",
+                            "green": "#33d17a",
+                            "blue": "#3584e4",
+                            "purple": "#9141ac",
+                            "pink": "#f66151",
+                            "slate": "#6f8396",
+                        }
+                        return gnome_colors.get(color, "#3584e4")
         except (
             subprocess.SubprocessError,
             subprocess.TimeoutExpired,
