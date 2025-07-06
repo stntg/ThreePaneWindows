@@ -127,6 +127,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.zencoder/
 
 # Spyder project settings
 .spyderproject
@@ -209,39 +210,10 @@ release/
 dev_files/
 
 # Individual development and testing files (in case they're not moved)
-debug_ttk_styles.py
-fixed_theming_example.py
-test_dramatic_theming.py
-test_theme_example.py
-test_theming_debug.py
-verify_theming_fix.py
-test_both_examples.py
-test_enhanced.py
-test_fixed_width_features.py
-test_reattach.py
-test_version_parsing.py
-test_cross_platform_icons.py
-test_final_fixes.py
-run_examples_demo.py
-interactive_demo.py
-test_fixes.py
-verify_fixed_width.py
-verify_package.py
-debug_toggle.py
-verify_positioning.py
 debug_demo.py
-example_complete_theming.py
 example_cross_platform_theming.py
-example_macos_theming.py
-example_platform_demo.py
 
 # Legacy/deprecated files
-DockableThreePaneWindow.py
-FixedThreePaneWindow.py
-enhanced_example.py
-example_usage.py
-simple_fixed_width_example.py
-window_utils.py
 
 # Development summaries and research
 research.md
