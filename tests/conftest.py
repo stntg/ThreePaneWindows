@@ -8,7 +8,7 @@ import pytest
 
 # Add the project root to the Python path only if package is not installed
 try:
-    import threepanewindows
+    import threepanewindows  # noqa: F401
 
     # Package is already installed, don't modify sys.path to avoid conflicts
 except ImportError:
