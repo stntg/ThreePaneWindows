@@ -170,6 +170,17 @@ jobs:
         echo "🧪 Installing package in development mode..."
         pip install -e .
 
+        echo "🧪 Verifying package installation..."
+        python -c "
+        import threepanewindows
+        print(f'✅ Package installed: {threepanewindows.__version__}')
+        print(f'✅ Package location: {threepanewindows.__file__}')
+
+        # Test basic imports
+        from threepanewindows import FixedThreePaneWindow, DockableThreePaneWindow
+        print('✅ Core classes imported successfully')
+        "
+
         echo "🧪 Running quick test suite..."
         python -m pytest tests/ -v --tb=short --maxfail=3 -x
 

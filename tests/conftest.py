@@ -6,8 +6,14 @@ import tkinter as tk
 
 import pytest
 
-# Add the project root to the Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# Add the project root to the Python path only if package is not installed
+try:
+    import threepanewindows
+
+    # Package is already installed, don't modify sys.path to avoid conflicts
+except ImportError:
+    # Package not installed, add project root to path for development
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # Check if Tkinter is available at import time
 try:
