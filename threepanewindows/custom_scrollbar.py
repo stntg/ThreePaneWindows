@@ -29,6 +29,9 @@ class ThemedScrollbar(tk.Frame):
         # Create the scrollbar components
         self._create_widgets()
         self._bind_events()
+        
+        # Schedule initial thumb positioning after widget is mapped
+        self.after_idle(self._update_thumb_position)
 
     def _create_widgets(self) -> None:
         """Create the scrollbar components."""
@@ -196,20 +199,46 @@ class ThemedScrollbar(tk.Frame):
         luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
         is_dark = luminance < 0.5
 
+        # Choose colors that ensure good contrast
         if is_dark:
-            # Dark theme colors
+            # Dark theme colors - ensure thumb is visible against trough
             bg_color = theme_colors.secondary_bg
-            trough_color = theme_colors.panel_content_bg
-            thumb_color = theme_colors.secondary_bg
+            trough_color = theme_colors.panel_content_bg  # Darker background
+            
+            # Try multiple color options for thumb to ensure visibility
+            thumb_candidates = [
+                theme_colors.separator,      # First choice
+                theme_colors.border,         # Second choice
+                theme_colors.secondary_text, # Third choice
+                theme_colors.accent_text,    # Fourth choice
+                "#606060",                   # Fallback gray
+            ]
+            
             button_color = theme_colors.secondary_bg
             text_color = theme_colors.secondary_text
         else:
-            # Light theme colors
+            # Light theme colors - ensure thumb is visible against trough
             bg_color = theme_colors.panel_content_bg
-            trough_color = theme_colors.accent_bg
-            thumb_color = theme_colors.panel_content_bg
+            trough_color = theme_colors.accent_bg  # Light blue background
+            
+            # Try multiple color options for thumb to ensure visibility
+            thumb_candidates = [
+                theme_colors.separator,      # First choice
+                theme_colors.border,         # Second choice
+                theme_colors.secondary_text, # Third choice
+                theme_colors.primary_text,   # Fourth choice
+                "#808080",                   # Fallback gray
+            ]
+            
             button_color = theme_colors.panel_content_bg
             text_color = theme_colors.primary_text
+        
+        # Select the first thumb color that's different from both bg and trough
+        thumb_color = thumb_candidates[0]  # Default
+        for candidate in thumb_candidates:
+            if candidate != bg_color and candidate != trough_color:
+                thumb_color = candidate
+                break
 
         # Apply colors to components
         self.configure(bg=bg_color)
@@ -232,6 +261,9 @@ class ThemedScrollbar(tk.Frame):
         else:
             self.left_button.configure(**button_style)
             self.right_button.configure(**button_style)
+            
+        # Force thumb position update after theme change
+        self.after_idle(self._update_thumb_position)
 
 
 def create_themed_scrollbar(
