@@ -1099,6 +1099,31 @@ def _build_enhanced_file_explorer(frame, panel_name):
             v_scrollbar.apply_theme(current_theme.colors)
             h_scrollbar.apply_theme(current_theme.colors)
 
+        # Update ttk widget styles by refreshing the style configuration
+        try:
+            style = ttk.Style()
+            # Force refresh of themed styles
+            theme_manager.apply_ttk_theme(style)
+
+            # Update specific widgets that might need manual refresh
+            for widget in [header_frame, tree_frame, status_frame]:
+                if hasattr(widget, "winfo_exists") and widget.winfo_exists():
+                    try:
+                        # Force style update by reconfiguring
+                        widget.configure(style="Themed.TFrame")
+                    except:
+                        pass
+
+            # Update treeview style
+            if hasattr(tree, "winfo_exists") and tree.winfo_exists():
+                try:
+                    tree.configure(style="Themed.Treeview")
+                except:
+                    pass
+
+        except Exception as e:
+            print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
+
         print(f"📁 {panel_name} updated to theme: {current_theme.name}")
 
     frame.update_theme = update_theme
@@ -1260,6 +1285,24 @@ if __name__ == "__main__":
             v_scrollbar.apply_theme(current_theme.colors)
             h_scrollbar.apply_theme(current_theme.colors)
 
+        # Update ttk widget styles by refreshing the style configuration
+        try:
+            style = ttk.Style()
+            # Force refresh of themed styles
+            theme_manager.apply_ttk_theme(style)
+
+            # Update specific widgets that might need manual refresh
+            for widget in [toolbar_frame, editor_frame, status_frame]:
+                if hasattr(widget, "winfo_exists") and widget.winfo_exists():
+                    try:
+                        # Force style update by reconfiguring
+                        widget.configure(style="Themed.TFrame")
+                    except:
+                        pass
+
+        except Exception as e:
+            print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
+
         print(f"📝 {panel_name} updated to theme: {current_theme.name}")
 
     frame.update_theme = update_theme
@@ -1373,6 +1416,24 @@ def _build_enhanced_properties(frame, panel_name):
         if hasattr(scrollbar, "apply_theme"):
             scrollbar.apply_theme(current_theme.colors)
 
+        # Update ttk widget styles by refreshing the style configuration
+        try:
+            style = ttk.Style()
+            # Force refresh of themed styles
+            theme_manager.apply_ttk_theme(style)
+
+            # Update specific widgets that might need manual refresh
+            for widget in [header_frame, props_frame]:
+                if hasattr(widget, "winfo_exists") and widget.winfo_exists():
+                    try:
+                        # Force style update by reconfiguring
+                        widget.configure(style="Themed.TFrame")
+                    except:
+                        pass
+
+        except Exception as e:
+            print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
+
         print(f"🔧 {panel_name} updated to theme: {current_theme.name}")
 
     frame.update_theme = update_theme
@@ -1400,37 +1461,40 @@ def _create_enhanced_demo_controls(root, window, initial_theme):
     theme_names = get_theme_manager().list_themes()
     theme_var = tk.StringVar(value=initial_theme)
 
-    def on_theme_change(*_):
-        selected = theme_var.get()
-        print(f"\n🎨 === Switching to {selected} theme ===")
+    def on_theme_change(selected_theme=None):
+        # Get the selected theme - either from parameter or from StringVar
+        if selected_theme is None:
+            selected_theme = theme_var.get()
 
-        # Show detached windows info
+        # Show detached windows info (only if there are any)
         detached_count = len(window.detached_windows)
-        print(f"📊 Currently detached: {detached_count} panels")
-        for pane_side in window.detached_windows:
-            titlebar_type = (
-                "custom"
-                if getattr(
-                    window.detached_windows[pane_side].config, "custom_titlebar", False
+        if detached_count > 0:
+            print(f"📊 Currently detached: {detached_count} panels")
+            for pane_side in window.detached_windows:
+                titlebar_type = (
+                    "custom"
+                    if getattr(
+                        window.detached_windows[pane_side].config,
+                        "custom_titlebar",
+                        False,
+                    )
+                    else "regular"
                 )
-                else "regular"
-            )
-            print(f"  🪟 {pane_side} panel (detached, {titlebar_type} titlebar)")
+                print(f"  🪟 {pane_side} panel (detached, {titlebar_type} titlebar)")
 
         # Use the enhanced theme switching
-        window.switch_theme(selected, update_status=True)
+        window.switch_theme(selected_theme, update_status=True)
 
         # Update main window titlebar
-        set_global_theme(selected, window=root)
+        set_global_theme(selected_theme, window=root)
 
-        print(f"✅ Theme switch to {selected} complete!\n")
-
+    # Create OptionMenu with proper callback
     theme_menu = ttk.OptionMenu(
         controls_frame,
         theme_var,
         initial_theme,
         *theme_names.keys(),
-        command=lambda _: on_theme_change(),
+        command=on_theme_change,  # Pass the function directly, OptionMenu will call it with the selected value
     )
     theme_menu.configure(style="Themed.TMenubutton")
     theme_menu.pack(side="left", padx=(0, 10))

@@ -9,24 +9,8 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
 if TYPE_CHECKING:
     from .custom_scrollbar import ThemedScrollbar
 
-if sys.platform == "win32":
-    import ctypes
-
-    def set_windows_titlebar_color(hwnd: int, color_hex: str) -> None:
-        color_hex = color_hex.lstrip("#")
-        r, g, b = [int(color_hex[i : i + 2], 16) for i in (0, 2, 4)]
-        colorref = r | (g << 8) | (b << 16)
-        DWMWA_CAPTION_COLOR = 35
-        try:
-            ctypes.windll.dwmapi.DwmSetWindowAttribute(
-                hwnd,
-                DWMWA_CAPTION_COLOR,
-                ctypes.byref(ctypes.c_int(colorref)),
-                ctypes.sizeof(ctypes.c_int),
-            )
-
-        except Exception as e:
-            print(f"Failed to set title bar color: {e}")
+# Import platform-specific functionality
+from .platform import platform_handler
 
 
 class ThemeType(Enum):
@@ -36,6 +20,10 @@ class ThemeType(Enum):
     GREEN = "green"
     PURPLE = "purple"
     CUSTOM = "custom"
+    SYSTEM = "system"
+    NATIVE = "native"
+    NATIVE_LIGHT = "native_light"
+    NATIVE_DARK = "native_dark"
 
 
 @dataclass
@@ -66,11 +54,14 @@ class ColorScheme:
 @dataclass
 class Typography:
     font_family: str = "Segoe UI"
+    font_family_fallback: str = "Arial"
     font_size_small: int = 9
     font_size_normal: int = 10
     font_size_large: int = 12
     font_size_title: int = 14
+    font_weight_light: str = "normal"
     font_weight_normal: str = "normal"
+    font_weight_medium: str = "bold"
     font_weight_bold: str = "bold"
 
 
@@ -263,6 +254,9 @@ class ThemeManager:
         # System Theme - dynamically follows OS theme
         self._initialize_system_theme()
 
+        # Platform Native Themes - use platform-specific styling
+        self._initialize_native_themes()
+
         # Set default theme
         self._current_theme = self._themes["light"]
 
@@ -317,6 +311,154 @@ class ThemeManager:
 
         return bool(is_dark)
 
+    def _initialize_native_themes(self) -> None:
+        """Initialize platform-native themes."""
+        try:
+            # Get platform-specific colors and typography
+            platform_colors = platform_handler.get_platform_native_colors()
+            platform_typography = platform_handler.get_platform_typography()
+
+            if platform_colors and platform_typography:
+                # Create native light theme
+                native_light_colors = self._create_native_color_scheme(
+                    platform_handler.get_platform_native_colors(is_dark=False)
+                )
+                native_light_typography = self._create_native_typography(
+                    platform_typography
+                )
+
+                self._themes["native_light"] = Theme(
+                    name="Native Light",
+                    colors=native_light_colors,
+                    typography=native_light_typography,
+                    spacing=Spacing(),
+                )
+
+                # Create native dark theme
+                native_dark_colors = self._create_native_color_scheme(
+                    platform_handler.get_platform_native_colors(is_dark=True)
+                )
+
+                self._themes["native_dark"] = Theme(
+                    name="Native Dark",
+                    colors=native_dark_colors,
+                    typography=native_light_typography,  # Same typography for both
+                    spacing=Spacing(),
+                )
+
+                # Create adaptive native theme that follows system
+                is_system_dark = platform_handler.is_dark_mode()
+                base_native_theme = (
+                    self._themes["native_dark"]
+                    if is_system_dark
+                    else self._themes["native_light"]
+                )
+
+                self._themes["native"] = Theme(
+                    name="Native",
+                    colors=base_native_theme.colors,
+                    typography=base_native_theme.typography,
+                    spacing=base_native_theme.spacing,
+                    animation_duration=base_native_theme.animation_duration,
+                    enable_animations=base_native_theme.enable_animations,
+                    enable_shadows=base_native_theme.enable_shadows,
+                    enable_gradients=base_native_theme.enable_gradients,
+                    corner_radius=base_native_theme.corner_radius,
+                )
+
+        except Exception as e:
+            print(f"Warning: Could not initialize native themes: {e}")
+            # Create fallback native themes based on existing themes
+            self._create_fallback_native_themes()
+
+    def _create_native_color_scheme(self, platform_colors: dict) -> ColorScheme:
+        """Create a ColorScheme from platform-specific colors."""
+        # Clean up selection_bg to remove alpha channel if present
+        selection_bg = platform_colors.get("selection_bg", "#e3f2fd")
+        if selection_bg and len(selection_bg) > 7:  # Has alpha channel
+            selection_bg = selection_bg[:7]  # Remove alpha part
+
+        # If selection_bg is still invalid, create a lighter version of accent color
+        accent_color = platform_colors.get("accent", "#0078d4")
+        if not selection_bg or selection_bg == accent_color + "40":
+            selection_bg = self._lighten_color(accent_color, 0.8)
+
+        return ColorScheme(
+            primary_bg=platform_colors.get("window_bg", "#ffffff"),
+            secondary_bg=platform_colors.get("sidebar_bg", "#f5f5f5"),
+            accent_bg=selection_bg,
+            primary_text=platform_colors.get("text_primary", "#000000"),
+            secondary_text=platform_colors.get("text_secondary", "#666666"),
+            accent_text=accent_color,
+            border=platform_colors.get("border", "#cccccc"),
+            separator=platform_colors.get("separator", "#cccccc"),
+            button_bg=platform_colors.get("button_bg", "#e6e6e6"),
+            button_fg=platform_colors.get("text_primary", "#000000"),
+            button_hover=platform_colors.get("button_hover", "#d9d9d9"),
+            button_active=accent_color,
+            success="#4caf50",
+            warning="#ff9800",
+            error="#f44336",
+            info=accent_color,
+            panel_header_bg=platform_colors.get("sidebar_bg", "#f5f5f5"),
+            panel_header_fg=platform_colors.get("text_primary", "#000000"),
+            panel_content_bg=platform_colors.get("content_bg", "#ffffff"),
+            drag_indicator=accent_color,
+            drop_zone=selection_bg,
+        )
+
+    def _create_native_typography(self, platform_typography: dict) -> Typography:
+        """Create a Typography from platform-specific typography."""
+        return Typography(
+            font_family=platform_typography.get("font_family", "Segoe UI"),
+            font_family_fallback=platform_typography.get(
+                "font_family_fallback", "Arial"
+            ),
+            font_size_small=platform_typography.get("font_size_small", 9),
+            font_size_normal=platform_typography.get("font_size_normal", 10),
+            font_size_large=platform_typography.get("font_size_large", 12),
+            font_size_title=platform_typography.get("font_size_title", 14),
+            font_weight_light=platform_typography.get("font_weight_light", "normal"),
+            font_weight_normal=platform_typography.get("font_weight_normal", "normal"),
+            font_weight_medium=platform_typography.get("font_weight_medium", "bold"),
+            font_weight_bold=platform_typography.get("font_weight_bold", "bold"),
+        )
+
+    def _create_fallback_native_themes(self) -> None:
+        """Create fallback native themes when platform detection fails."""
+        # Use existing themes as base for native themes
+        self._themes["native_light"] = Theme(
+            name="Native Light",
+            colors=self._themes["light"].colors,
+            typography=self._themes["light"].typography,
+            spacing=self._themes["light"].spacing,
+        )
+
+        self._themes["native_dark"] = Theme(
+            name="Native Dark",
+            colors=self._themes["dark"].colors,
+            typography=self._themes["dark"].typography,
+            spacing=self._themes["dark"].spacing,
+        )
+
+        # Adaptive native theme
+        try:
+            is_system_dark = platform_handler.is_dark_mode()
+            base_theme = (
+                self._themes["native_dark"]
+                if is_system_dark
+                else self._themes["native_light"]
+            )
+        except:
+            base_theme = self._themes["native_light"]
+
+        self._themes["native"] = Theme(
+            name="Native",
+            colors=base_theme.colors,
+            typography=base_theme.typography,
+            spacing=base_theme.spacing,
+        )
+
     def set_theme(
         self,
         name: Union[str, ThemeType],
@@ -331,100 +473,80 @@ class ThemeManager:
             self.register_theme(custom_theme)
             name = "custom"
 
+        # Handle native theme updates
+        theme_name = name.value if hasattr(name, "value") else str(name).lower()
+        if theme_name in ["native", "native_light", "native_dark"]:
+            self._update_native_themes()
+
         theme = self.get_theme(name)
         if theme:
             self._current_theme = theme
             self._style_cache.clear()
 
             if window:
-                if sys.platform == "win32":
-                    try:
-                        # Try to get the window handle
-                        hwnd = window.winfo_id()
-                        # If it's a child window, get the parent
-                        parent_hwnd = ctypes.windll.user32.GetParent(hwnd)
-                        if parent_hwnd:
-                            hwnd = parent_hwnd
-                        set_windows_titlebar_color(hwnd, theme.colors.primary_bg)
-                    except Exception as e:
-                        print(f"Could not set Windows titlebar color: {e}")
-                elif sys.platform == "darwin":
-                    self._apply_macos_custom_titlebar(window, theme.colors)
+                # Use platform-specific titlebar customization
+                platform_handler.apply_custom_titlebar(window, theme.colors)
+
+                # Apply platform-specific styling for native themes
+                if theme_name.startswith("native"):
+                    self._apply_platform_specific_styling(window, theme)
+
+                # Apply the theme to the entire window
+                self.apply_theme_to_window(window)
 
             return True
         return False
 
-    def _apply_macos_custom_titlebar(self, window: tk.Tk, colors: ColorScheme) -> None:
-        window.overrideredirect(True)
-        style = ttk.Style()
-        style.configure("CustomTitle.TFrame", background=colors.panel_header_bg)
+    def _update_native_themes(self) -> None:
+        """Update native themes to reflect current system settings."""
+        try:
+            # Re-initialize native themes with current system settings
+            self._initialize_native_themes()
+        except Exception as e:
+            print(f"Warning: Could not update native themes: {e}")
 
-        titlebar = ttk.Frame(window, style="CustomTitle.TFrame")
-        titlebar.pack(side="top", fill="x")
+    def _apply_platform_specific_styling(self, window: tk.Tk, theme: Theme) -> None:
+        """Apply platform-specific styling enhancements."""
+        try:
+            # Apply macOS-specific styling if available
+            if hasattr(platform_handler, "apply_macos_native_styling"):
+                platform_handler.apply_macos_native_styling(window, theme.colors)
+        except Exception as e:
+            print(f"Warning: Could not apply platform-specific styling: {e}")
 
-        def brighten(color_hex: str, factor: float = 1.2) -> str:
-            color_hex = color_hex.lstrip("#")
-            r, g, b = [
-                min(int(int(color_hex[i : i + 2], 16) * factor), 255) for i in (0, 2, 4)
-            ]
-            return f"#{r:02x}{g:02x}{b:02x}"
+    def refresh_system_theme(self) -> bool:
+        """
+        Refresh system and native themes to match current OS settings.
 
-        def create_circle_button(
-            base_color: str, command: Callable[[], None]
-        ) -> ttk.Label:
-            btn = ttk.Label(
-                titlebar,
-                text="",
-                background=base_color,
-                width=2,
-                anchor="center",
-                relief="flat",
+        Returns:
+            True if themes were updated successfully
+        """
+        try:
+            # Update system theme
+            self._update_system_theme()
+
+            # Update native themes
+            self._update_native_themes()
+
+            # If current theme is system or native, refresh it
+            current_name = (
+                self._current_theme.name.lower() if self._current_theme else ""
             )
-            btn.pack(side="left", padx=(6, 4), pady=4)
+            if current_name in ["system", "native", "native_light", "native_dark"]:
+                # Re-apply the current theme to pick up changes
+                theme_type = None
+                for theme_enum in ThemeType:
+                    if theme_enum.value == current_name:
+                        theme_type = theme_enum
+                        break
 
-            def on_enter(e: tk.Event) -> None:
-                btn.configure(background=brighten(base_color))
+                if theme_type:
+                    return self.set_theme(theme_type)
 
-            def on_leave(e: tk.Event) -> None:
-                btn.configure(background=base_color)
-
-            btn.bind("<Enter>", on_enter)
-            btn.bind("<Leave>", on_leave)
-            btn.bind("<Button-1>", lambda e: command())
-            return btn
-
-        create_circle_button("#ff5f57", window.destroy)
-        create_circle_button("#ffbd2e", lambda: window.iconify())
-
-        def toggle_fullscreen() -> None:
-            is_fullscreen = window.attributes("-fullscreen")
-            window.attributes("-fullscreen", not is_fullscreen)
-
-        create_circle_button("#28c840", toggle_fullscreen)
-
-        title_label = ttk.Label(
-            titlebar,
-            text=window.title(),
-            background=colors.panel_header_bg,
-            foreground=colors.panel_header_fg,
-            anchor="center",
-            font=("Segoe UI", 12, "bold"),
-        )
-        title_label.pack(side="left", padx=10)
-
-        def start_move(event: tk.Event) -> None:
-            window._drag_start_x = event.x  # type: ignore[attr-defined]
-            window._drag_start_y = event.y  # type: ignore[attr-defined]
-
-        def do_move(event: tk.Event) -> None:
-            x = window.winfo_pointerx() - window._drag_start_x
-            # type: ignore[attr-defined]
-            y = window.winfo_pointery() - window._drag_start_y
-            # type: ignore[attr-defined]
-            window.geometry(f"+{x}+{y}")
-
-        titlebar.bind("<ButtonPress-1>", start_move)
-        titlebar.bind("<B1-Motion>", do_move)
+            return True
+        except Exception as e:
+            print(f"Warning: Could not refresh system theme: {e}")
+            return False
 
     def get_theme(self, name: Union[str, ThemeType]) -> Optional[Theme]:
         if hasattr(name, "value"):
@@ -465,6 +587,48 @@ class ThemeManager:
     def register_theme(self, theme: Theme) -> None:
         self._themes[theme.name.lower()] = theme
 
+    def get_available_themes(self) -> List[str]:
+        """Get list of all available theme names."""
+        return list(self._themes.keys())
+
+    def get_available_theme_types(self) -> List[ThemeType]:
+        """Get list of available theme types as enums."""
+        available_types = []
+        for name in self._themes.keys():
+            try:
+                theme_type = ThemeType(name)
+                available_types.append(theme_type)
+            except ValueError:
+                # Custom themes that don't have enum values
+                if name == "custom":
+                    available_types.append(ThemeType.CUSTOM)
+        return available_types
+
+    def is_native_theme_available(self) -> bool:
+        """Check if native themes are available on this platform."""
+        return "native" in self._themes
+
+    def get_platform_info(self) -> dict:
+        """Get information about the current platform and theming capabilities."""
+        return {
+            "platform": platform.system(),
+            "supports_dark_mode_detection": hasattr(platform_handler, "is_dark_mode"),
+            "supports_accent_color_detection": hasattr(
+                platform_handler, "get_system_accent_color"
+            ),
+            "supports_native_theming": self.is_native_theme_available(),
+            "current_dark_mode": (
+                platform_handler.is_dark_mode()
+                if hasattr(platform_handler, "is_dark_mode")
+                else False
+            ),
+            "system_accent_color": (
+                platform_handler.get_system_accent_color()
+                if hasattr(platform_handler, "get_system_accent_color")
+                else None
+            ),
+        }
+
     def get_style(self, component: str, state: str = "normal") -> Dict[str, Any]:
         """Get styling for a component in a specific state."""
         cache_key = f"{component}_{state}"
@@ -484,8 +648,13 @@ class ThemeManager:
         typography = theme.typography
         spacing = theme.spacing
 
+        # Create font tuple with fallback
+        font_family = self._get_available_font(
+            typography.font_family, typography.font_family_fallback
+        )
+
         base_style = {
-            "font": (typography.font_family, typography.font_size_normal),
+            "font": (font_family, typography.font_size_normal),
             "relief": "flat",
             "borderwidth": 0,
         }
@@ -496,7 +665,7 @@ class ThemeManager:
                 "bg": colors.panel_header_bg,
                 "fg": colors.panel_header_fg,
                 "font": (
-                    typography.font_family,
+                    font_family,
                     typography.font_size_normal,
                     typography.font_weight_bold,
                 ),
@@ -550,6 +719,161 @@ class ThemeManager:
 
         return base_style
 
+    def _get_available_font(
+        self, primary_font: str, fallback_font: str = "Arial"
+    ) -> str:
+        """
+        Get an available font from the system, with fallback.
+
+        Args:
+            primary_font: Preferred font family
+            fallback_font: Fallback font family
+
+        Returns:
+            Available font family name
+        """
+        try:
+            import tkinter.font as tkfont
+
+            available_fonts = tkfont.families()
+
+            # Check if primary font is available
+            if primary_font in available_fonts:
+                return primary_font
+
+            # Check if fallback font is available
+            if fallback_font in available_fonts:
+                return fallback_font
+
+            # Platform-specific fallbacks
+            system = platform.system().lower()
+            if system == "darwin":  # macOS
+                macos_fonts = ["SF Pro Display", "Helvetica Neue", "Helvetica", "Arial"]
+                for font in macos_fonts:
+                    if font in available_fonts:
+                        return font
+            elif system == "windows":
+                windows_fonts = ["Segoe UI", "Tahoma", "Arial"]
+                for font in windows_fonts:
+                    if font in available_fonts:
+                        return font
+            else:  # Linux and others
+                linux_fonts = [
+                    "Ubuntu",
+                    "Cantarell",
+                    "DejaVu Sans",
+                    "Liberation Sans",
+                    "Arial",
+                ]
+                for font in linux_fonts:
+                    if font in available_fonts:
+                        return font
+
+            # Final fallback
+            return "TkDefaultFont"
+        except Exception:
+            return fallback_font
+
+    def _lighten_color(self, hex_color: str, factor: float) -> str:
+        """
+        Lighten a hex color by mixing it with white.
+
+        Args:
+            hex_color: Hex color string (e.g., '#ff0000')
+            factor: Lightening factor (0.0 = original, 1.0 = white)
+
+        Returns:
+            Lightened hex color string
+        """
+        hex_color = hex_color.lstrip("#")
+        if len(hex_color) != 6:
+            return hex_color
+
+        try:
+            r, g, b = [int(hex_color[i : i + 2], 16) for i in (0, 2, 4)]
+            # Mix with white
+            r = int(r + (255 - r) * factor)
+            g = int(g + (255 - g) * factor)
+            b = int(b + (255 - b) * factor)
+            return f"#{r:02x}{g:02x}{b:02x}"
+        except ValueError:
+            return hex_color
+
+    def apply_theme_to_widget(self, widget, recursive: bool = True) -> None:
+        """
+        Apply current theme to a widget and optionally its children.
+
+        Args:
+            widget: The widget to theme
+            recursive: Whether to theme child widgets as well
+        """
+        try:
+            widget_class = widget.winfo_class()
+
+            # Apply TTK widget theming (these are handled by apply_ttk_theme)
+            if widget_class.startswith("T"):
+                # TTK widgets are themed via style configuration
+                pass
+            else:
+                # Apply TK widget theming
+                if widget_class == "Text":
+                    style = self.get_tk_widget_style("text")
+                    widget.configure(**style)
+                elif widget_class == "Listbox":
+                    style = self.get_tk_widget_style("listbox")
+                    widget.configure(**style)
+                elif widget_class == "Canvas":
+                    style = self.get_tk_widget_style("canvas")
+                    widget.configure(**style)
+                elif widget_class == "Entry":
+                    style = self.get_tk_widget_style("entry")
+                    widget.configure(**style)
+                elif widget_class == "Label":
+                    style = self.get_tk_widget_style("label")
+                    widget.configure(**style)
+                elif widget_class == "Button":
+                    style = self.get_tk_widget_style("button")
+                    widget.configure(**style)
+                elif widget_class == "Frame":
+                    style = self.get_tk_widget_style("frame")
+                    widget.configure(**style)
+                elif widget_class == "Toplevel":
+                    theme = self.get_current_theme()
+                    widget.configure(bg=theme.colors.primary_bg)
+                elif widget_class == "Tk":
+                    theme = self.get_current_theme()
+                    widget.configure(bg=theme.colors.primary_bg)
+
+            # Recursively apply to children if requested
+            if recursive:
+                try:
+                    for child in widget.winfo_children():
+                        self.apply_theme_to_widget(child, recursive=True)
+                except Exception:
+                    pass  # Some widgets don't support winfo_children()
+
+        except Exception as e:
+            # Silently ignore theming errors for individual widgets
+            pass
+
+    def apply_theme_to_window(self, window) -> None:
+        """
+        Apply current theme to an entire window and all its widgets.
+
+        Args:
+            window: The root window or toplevel to theme
+        """
+        try:
+            # Apply TTK theme first
+            style = ttk.Style(window)
+            self.apply_ttk_theme(style)
+
+            # Apply theme to the window and all its widgets
+            self.apply_theme_to_widget(window, recursive=True)
+
+        except Exception as e:
+            print(f"Warning: Could not fully apply theme to window: {e}")
+
     def _is_dark_theme(self, colors: ColorScheme) -> bool:
         """Determine if a theme is dark based on its background color."""
         # Convert hex to RGB and check brightness
@@ -568,8 +892,13 @@ class ThemeManager:
         typography = theme.typography
         spacing = theme.spacing
 
+        # Create font tuple with fallback
+        font_family = self._get_available_font(
+            typography.font_family, typography.font_family_fallback
+        )
+
         base_style = {
-            "font": (typography.font_family, typography.font_size_normal),
+            "font": (font_family, typography.font_size_normal),
             "relief": "flat",
             "borderwidth": 0,
         }
@@ -789,24 +1118,273 @@ class ThemeManager:
         colors = theme.colors
         typography = theme.typography
 
+        # Get available font with fallback
+        font_family = self._get_available_font(
+            typography.font_family, typography.font_family_fallback
+        )
+
         # Configure ttk styles - choose base theme based on current theme
         base_theme = "clam"  # Default base theme
 
-        # On Windows, use vista or winnative for better integration
-        # import platform
-        # if platform.system() == "Windows":
-        #    try:
-        #        # Try vista first (better looking), fall back to winnative
-        #        available_themes = style.theme_names()
-        #        if "vista" in available_themes:
-        #            base_theme = "vista"
-        #        elif "winnative" in available_themes:
-        #            base_theme = "winnative"
-        #    except:
-        #        pass
+        # Choose better base theme based on platform and theme
+        # Use clam for better theming control across all platforms
+        try:
+            available_themes = style.theme_names()
+
+            # Always use clam for consistent theming
+            if "clam" in available_themes:
+                base_theme = "clam"
+            else:
+                # Fallback to default if clam is not available
+                base_theme = available_themes[0] if available_themes else "default"
+
+        except Exception:
+            base_theme = "clam"
 
         style.theme_use(base_theme)
 
+        # Configure default TTK widget styles
+        # These will apply to all TTK widgets unless overridden
+
+        # Default Label
+        style.configure(
+            "TLabel",
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            font=(font_family, typography.font_size_normal),
+        )
+
+        # Default Button
+        style.configure(
+            "TButton",
+            background=colors.button_bg,
+            foreground=colors.button_fg,
+            font=(font_family, typography.font_size_normal),
+            borderwidth=1,
+            focuscolor="none",
+            relief="raised",
+            padding=(8, 4),
+        )
+
+        style.map(
+            "TButton",
+            background=[
+                ("active", colors.button_hover),
+                ("pressed", colors.button_active),
+                ("disabled", colors.secondary_bg),
+            ],
+            foreground=[
+                ("active", colors.button_fg),
+                ("pressed", colors.button_fg),
+                ("disabled", colors.secondary_text),
+            ],
+            relief=[
+                ("pressed", "sunken"),
+                ("active", "raised"),
+            ],
+        )
+
+        # Default Entry
+        style.configure(
+            "TEntry",
+            fieldbackground=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+            font=(font_family, typography.font_size_normal),
+            borderwidth=1,
+        )
+
+        style.map(
+            "TEntry",
+            focuscolor=[("focus", colors.accent_text)],
+            bordercolor=[("focus", colors.accent_text)],
+        )
+
+        # Default Combobox
+        style.configure(
+            "TCombobox",
+            fieldbackground=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            background=colors.button_bg,
+            bordercolor=colors.border,
+            arrowcolor=colors.primary_text,
+            font=(font_family, typography.font_size_normal),
+            borderwidth=1,
+        )
+
+        style.map(
+            "TCombobox",
+            focuscolor=[("focus", colors.accent_text)],
+            bordercolor=[("focus", colors.accent_text)],
+            fieldbackground=[("readonly", colors.secondary_bg)],
+        )
+
+        # Default Checkbutton
+        style.configure(
+            "TCheckbutton",
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            focuscolor="none",
+            font=(font_family, typography.font_size_normal),
+        )
+
+        style.map(
+            "TCheckbutton",
+            background=[("active", colors.panel_content_bg)],
+            indicatorcolor=[
+                ("selected", colors.accent_text),
+                ("pressed", colors.button_active),
+            ],
+        )
+
+        # Default Radiobutton
+        style.configure(
+            "TRadiobutton",
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            focuscolor="none",
+            font=(font_family, typography.font_size_normal),
+        )
+
+        style.map(
+            "TRadiobutton",
+            background=[("active", colors.panel_content_bg)],
+            indicatorcolor=[
+                ("selected", colors.accent_text),
+                ("pressed", colors.button_active),
+            ],
+        )
+
+        # Default Frame
+        style.configure(
+            "TFrame",
+            background=colors.panel_content_bg,
+            borderwidth=0,
+        )
+
+        # Default LabelFrame
+        style.configure(
+            "TLabelframe",
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+            font=(font_family, typography.font_size_normal),
+            borderwidth=1,
+        )
+
+        style.configure(
+            "TLabelframe.Label",
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            font=(font_family, typography.font_size_normal),
+        )
+
+        # Default Notebook
+        style.configure(
+            "TNotebook",
+            background=colors.secondary_bg,
+            borderwidth=1,
+            tabmargins=[2, 5, 2, 0],
+        )
+
+        style.configure(
+            "TNotebook.Tab",
+            background=colors.secondary_bg,
+            foreground=colors.primary_text,
+            padding=[12, 8, 12, 8],
+            font=(font_family, typography.font_size_normal),
+        )
+
+        style.map(
+            "TNotebook.Tab",
+            background=[
+                ("selected", colors.panel_content_bg),
+                ("active", colors.accent_bg),
+            ],
+            foreground=[
+                ("selected", colors.primary_text),
+                ("active", colors.primary_text),
+            ],
+        )
+
+        # Default Progressbar
+        style.configure(
+            "TProgressbar",
+            background=colors.accent_text,
+            troughcolor=colors.secondary_bg,
+            borderwidth=1,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+        )
+
+        # Default Scale
+        style.configure(
+            "TScale",
+            background=colors.panel_content_bg,
+            troughcolor=colors.secondary_bg,
+            borderwidth=1,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+        )
+
+        # Default Scrollbar
+        style.configure(
+            "TScrollbar",
+            background=colors.secondary_bg,
+            troughcolor=colors.panel_content_bg,
+            bordercolor=colors.border,
+            arrowcolor=colors.primary_text,
+            darkcolor=colors.border,
+            lightcolor=colors.border,
+        )
+
+        style.map(
+            "TScrollbar",
+            background=[
+                ("active", colors.accent_bg),
+                ("pressed", colors.accent_text),
+            ],
+        )
+
+        # Default Treeview
+        style.configure(
+            "Treeview",
+            background=colors.panel_content_bg,
+            foreground=colors.primary_text,
+            fieldbackground=colors.panel_content_bg,
+            bordercolor=colors.border,
+            lightcolor=colors.border,
+            darkcolor=colors.border,
+            font=(font_family, typography.font_size_normal),
+        )
+
+        style.configure(
+            "Treeview.Heading",
+            background=colors.panel_header_bg,
+            foreground=colors.panel_header_fg,
+            font=(
+                font_family,
+                typography.font_size_normal,
+                typography.font_weight_bold,
+            ),
+        )
+
+        style.map(
+            "Treeview",
+            background=[("selected", colors.accent_bg)],
+            foreground=[("selected", colors.primary_text)],
+        )
+
+        style.map(
+            "Treeview.Heading",
+            background=[("active", colors.accent_bg)],
+        )
+
+        # Custom themed styles (for explicit theming)
         # PanedWindow
         style.configure(
             "Themed.TPanedwindow",
@@ -842,7 +1420,7 @@ class ThemeManager:
             "Themed.TLabel",
             background=colors.panel_content_bg,
             foreground=colors.primary_text,
-            font=(typography.font_family, typography.font_size_normal),
+            font=(font_family, typography.font_size_normal),
         )
 
         style.configure(
@@ -850,7 +1428,7 @@ class ThemeManager:
             background=colors.panel_header_bg,
             foreground=colors.panel_header_fg,
             font=(
-                typography.font_family,
+                font_family,
                 typography.font_size_normal,
                 typography.font_weight_bold,
             ),
@@ -1169,54 +1747,33 @@ class ThemeManager:
             ],
         )
 
-        # LabelFrame
-        style.configure(
-            "Themed.TLabelframe",
-            background=colors.panel_content_bg,
-            bordercolor=colors.border,
-            lightcolor=colors.border,
-            darkcolor=colors.border,
-        )
 
-        style.configure(
-            "Themed.TLabelframe.Label",
-            background=colors.panel_content_bg,
-            foreground=colors.primary_text,
-            font=(
-                typography.font_family,
-                typography.font_size_normal,
-                typography.font_weight_bold,
-            ),
-        )
+# Global theme manager instance
+_global_theme_manager: Optional[ThemeManager] = None
 
-        # Menubutton
-        style.configure(
-            "Themed.TMenubutton",
-            background=colors.button_bg,
-            foreground=colors.button_fg,
-            bordercolor=colors.border,
-            lightcolor=colors.border,
-            darkcolor=colors.border,
-            font=(typography.font_family, typography.font_size_normal),
-        )
 
-        style.map(
-            "Themed.TMenubutton",
-            background=[
-                ("active", colors.button_hover),
-                ("pressed", colors.button_active),
-            ],
-            foreground=[
-                ("active", colors.button_fg),
-                ("pressed", colors.button_fg),
-            ],
-        )
+def get_theme_manager() -> ThemeManager:
+    """Get the global theme manager instance."""
+    global _global_theme_manager
+    if _global_theme_manager is None:
+        _global_theme_manager = ThemeManager()
+    return _global_theme_manager
 
-        # Separator
-        style.configure(
-            "Themed.TSeparator",
-            background=colors.separator,
-        )
+
+def set_global_theme(
+    theme: Union[str, ThemeType],
+    custom_scheme: Optional[ColorScheme] = None,
+    window: Optional[tk.Tk] = None,
+) -> bool:
+    """Set the global theme for all ThreePaneWindows components."""
+    return get_theme_manager().set_theme(theme, custom_scheme, window)
+
+
+# Add missing methods to ThemeManager class
+def _add_missing_methods():
+    """Add missing methods to ThemeManager class."""
+    import platform
+    from typing import Any, Callable, Dict, List, Union
 
     def get_available_themes(self) -> List[str]:
         """Get list of available theme names."""
@@ -1292,22 +1849,13 @@ class ThemeManager:
         )
         return scrollbar  # type: ignore[no-any-return]
 
-
-# Global instance
-theme_manager = ThemeManager()
-
-
-def get_theme_manager() -> ThemeManager:
-    return theme_manager
-
-
-def set_global_theme(
-    theme_name: Union[str, ThemeType],
-    custom_scheme: Optional[ColorScheme] = None,
-    window: Optional[tk.Tk] = None,
-) -> bool:
-    return theme_manager.set_theme(theme_name, custom_scheme, window)
+    # Add methods to ThemeManager class
+    ThemeManager.get_available_themes = get_available_themes
+    ThemeManager.list_themes = list_themes
+    ThemeManager.should_use_custom_scrollbars = should_use_custom_scrollbars
+    ThemeManager.get_platform_info = get_platform_info
+    ThemeManager.create_themed_scrollbar_auto = create_themed_scrollbar_auto
 
 
-def get_current_theme() -> Theme:
-    return theme_manager.get_current_theme()
+# Call the function to add missing methods
+_add_missing_methods()

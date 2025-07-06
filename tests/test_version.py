@@ -36,9 +36,7 @@ class TestVersionInfo:
         version_matches = any(
             re.match(pattern, __version__) for pattern in version_patterns
         )
-        assert (
-            version_matches
-        ), f"Version '{__version__}' doesn't match expected format"
+        assert version_matches, f"Version '{__version__}' doesn't match expected format"
 
     def test_version_info_tuple(self):
         """Test that version_info is a proper tuple."""

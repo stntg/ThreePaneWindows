@@ -11,21 +11,13 @@ from dataclasses import dataclass
 from tkinter import ttk
 from typing import Callable, Dict, List, Optional, Tuple
 
+from .platform import platform_handler
 from .themes import ThemeManager, get_theme_manager
 
 
 def get_recommended_icon_formats() -> List[str]:
     """Get recommended icon formats for the current platform."""
-    import platform
-
-    system = platform.system()
-
-    if system == "Windows":
-        return [".ico", ".png", ".bmp", ".gif"]
-    elif system == "Darwin":  # macOS
-        return [".png", ".gif", ".bmp", ".ico"]
-    else:  # Linux and others
-        return [".png", ".xbm", ".gif", ".bmp", ".ico"]
+    return platform_handler.get_recommended_icon_formats()
 
 
 def validate_icon_path(icon_path: str) -> Tuple[bool, str]:
@@ -35,26 +27,7 @@ def validate_icon_path(icon_path: str) -> Tuple[bool, str]:
     Returns:
         tuple: (is_valid, message)
     """
-    import os
-    import platform
-
-    if not icon_path:
-        return True, "No icon specified"
-
-    if not os.path.exists(icon_path):
-        return False, f"Icon file not found: {icon_path}"
-
-    _, ext = os.path.splitext(icon_path.lower())
-    recommended = get_recommended_icon_formats()
-
-    if ext not in recommended:
-        return (
-            False,
-            f"Icon format {ext} not recommended for {platform.system()}. "
-            f"Recommended: {', '.join(recommended)}",
-        )
-
-    return True, f"Icon format {ext} is compatible with {platform.system()}"
+    return platform_handler.validate_icon_path(icon_path)
 
 
 @dataclass
@@ -244,15 +217,21 @@ class PaneHeader(tk.Frame):
         left_frame = tk.Frame(self, bg=style["bg"])
         left_frame.pack(side="left", fill="y", padx=8, pady=4)
 
-        if self.config.icon:
-            icon_label = tk.Label(
-                left_frame,
-                text=self.config.icon,
-                bg=style["bg"],
-                fg=style["fg"],
-                font=(theme.typography.font_family, theme.typography.font_size_normal),
-            )
-            icon_label.pack(side="left", padx=(0, 4))
+        # Check if title already includes the icon to avoid duplication
+        # For text icons (emojis), check if title starts with the icon
+        # For file icons, we'll always show them separately since titles won't contain image files
+        title_includes_icon = (
+            self.config.icon
+            and self.config.title
+            and not self._is_icon_file(self.config.icon)  # Only check for text icons
+            and self.config.title.startswith(self.config.icon)
+        )
+
+        # Only show separate icon if title doesn't already include it
+        if self.config.icon and not title_includes_icon:
+            icon_label = self._create_icon_label(left_frame, style, theme)
+            if icon_label:
+                icon_label.pack(side="left", padx=(0, 4))
 
         if self.config.title:
             title_label = tk.Label(
@@ -288,6 +267,66 @@ class PaneHeader(tk.Frame):
                 self, self.pane_side, self.on_detach, self.theme_manager, bg=style["bg"]
             )
             self.drag_handle.pack(fill="x", expand=True, padx=8)
+
+    def _is_icon_file(self, icon_path: str) -> bool:
+        """Check if the icon is a file path."""
+        if not icon_path:
+            return False
+
+        # Check if it looks like a file path
+        import os
+
+        if os.path.sep in icon_path or "/" in icon_path or "\\" in icon_path:
+            return True
+
+        # Check for common icon file extensions
+        icon_extensions = (".ico", ".png", ".gif", ".bmp", ".xbm", ".jpg", ".jpeg")
+        return any(icon_path.lower().endswith(ext) for ext in icon_extensions)
+
+    def _create_icon_label(self, parent, style, theme):
+        """Create an icon label (text or image)."""
+        if not self.config.icon:
+            return None
+
+        try:
+            if self._is_icon_file(self.config.icon):
+                # Try to load as image file
+                import os
+
+                if os.path.exists(self.config.icon):
+                    try:
+                        photo = tk.PhotoImage(file=self.config.icon)
+                        # Resize if too large (optional - you can adjust these values)
+                        if photo.width() > 16 or photo.height() > 16:
+                            # For now, just use the image as-is
+                            # You could add resizing logic here if needed
+                            pass
+
+                        icon_label = tk.Label(
+                            parent,
+                            image=photo,
+                            bg=style["bg"],
+                        )
+                        # Keep a reference to prevent garbage collection
+                        icon_label.image = photo
+                        return icon_label
+                    except tk.TclError:
+                        # If image loading fails, fall back to text
+                        pass
+
+            # Use as text icon (emoji or text)
+            icon_label = tk.Label(
+                parent,
+                text=self.config.icon,
+                bg=style["bg"],
+                fg=style["fg"],
+                font=(theme.typography.font_family, theme.typography.font_size_normal),
+            )
+            return icon_label
+
+        except Exception as e:
+            print(f"Warning: Failed to create icon label: {e}")
+            return None
 
     def _create_control_button(
         self, parent, text: str, command: Callable, tooltip: str
@@ -344,21 +383,7 @@ class DetachedWindow(tk.Toplevel):
 
     def _is_icon_file(self, path: str) -> bool:
         """Check if a string is likely an icon file path."""
-        import os
-
-        if not isinstance(path, str) or len(path) < 4:
-            return False
-
-        # Check for common icon file extensions (cross-platform)
-        icon_extensions = (".ico", ".png", ".gif", ".bmp", ".xbm")
-        path_lower = path.lower()
-
-        return (
-            os.path.sep in path
-            or "/" in path
-            or "\\" in path
-            or any(path_lower.endswith(ext) for ext in icon_extensions)
-        ) and os.path.exists(path)
+        return platform_handler._is_icon_file(path)
 
     def __init__(
         self,
@@ -462,47 +487,7 @@ class DetachedWindow(tk.Toplevel):
 
     def _set_window_icon(self, icon_path: str):
         """Set window icon with cross-platform compatibility."""
-        import os
-
-        if not os.path.exists(icon_path):
-            print(f"Warning: Icon file not found: {icon_path}")
-            return
-
-        try:
-            # Get file extension
-            _, ext = os.path.splitext(icon_path.lower())
-
-            # For .ico files, try iconbitmap first (works best on Windows)
-            if ext == ".ico":
-                try:
-                    self.iconbitmap(icon_path)
-                    return
-                except tk.TclError:
-                    # iconbitmap failed, fall through to iconphoto
-                    pass
-
-            # For other formats or if iconbitmap failed, use iconphoto
-            # This works cross-platform with PNG, GIF, BMP, XBM
-            if ext in (".png", ".gif", ".bmp", ".xbm"):
-                try:
-                    # Load image using PhotoImage
-                    photo = tk.PhotoImage(file=icon_path)
-                    self.iconphoto(True, photo)
-                    # Keep a reference to prevent garbage collection
-                    self._icon_photo = photo
-                    return
-                except tk.TclError as e:
-                    print(
-                        f"Warning: Could not load icon as PhotoImage '{icon_path}': {e}"
-                    )
-
-            # If we get here, try iconbitmap as last resort
-            self.iconbitmap(icon_path)
-
-        except (tk.TclError, FileNotFoundError) as e:
-            print(f"Warning: Could not set window icon '{icon_path}': {e}")
-        except Exception as e:
-            print(f"Unexpected error setting window icon: {e}")
+        platform_handler.set_window_icon(self, icon_path)
 
     def _setup_ui(self):
         """Setup the UI."""
@@ -535,15 +520,36 @@ class DetachedWindow(tk.Toplevel):
         if self.config.custom_titlebar:
             controls_frame = self._setup_custom_titlebar(header_frame, theme)
 
-        # Title
+        # Title and Icon
         if self.config.title:
+            # For detached windows, we'll create separate icon and title elements
+            # to handle both text and image icons properly
+
+            # Check if title already includes the icon to avoid duplication
+            # For text icons (emojis), check if title starts with the icon
+            # For file icons, we'll always show them separately since titles won't contain image files
+            title_includes_icon = (
+                self.config.icon
+                and not self._is_icon_file(
+                    self.config.icon
+                )  # Only check for text icons
+                and self.config.title.startswith(self.config.icon)
+            )
+
+            # Create a container for icon and title
+            title_container = tk.Frame(header_frame, bg=theme.colors.panel_header_bg)
+            title_container.pack(side="left", padx=8, pady=6, fill="x", expand=True)
+
+            # Add icon if present and not already in title
+            if self.config.icon and not title_includes_icon:
+                icon_label = self._create_detached_icon_label(title_container, theme)
+                if icon_label:
+                    icon_label.pack(side="left", padx=(0, 4))
+
+            # Add title
             title_label = tk.Label(
-                header_frame,
-                text=(
-                    f"{self.config.icon} {self.config.title}"
-                    if self.config.icon
-                    else self.config.title
-                ),
+                title_container,
+                text=self.config.title,
                 bg=theme.colors.panel_header_bg,
                 fg=theme.colors.panel_header_fg,
                 font=(
@@ -553,7 +559,7 @@ class DetachedWindow(tk.Toplevel):
                 ),
                 anchor="w",  # Left align to prevent truncation
             )
-            title_label.pack(side="left", padx=8, pady=6, fill="x", expand=True)
+            title_label.pack(side="left", fill="x", expand=True)
 
             # Make title label draggable too (for custom title bar)
             if self.config.custom_titlebar:
@@ -796,6 +802,51 @@ class DetachedWindow(tk.Toplevel):
             return self.layout_instance.get_platform_info()
         else:
             return self.theme_manager.get_platform_info()
+
+    def _create_detached_icon_label(self, parent, theme):
+        """Create an icon label for detached window (text or image)."""
+        if not self.config.icon:
+            return None
+
+        try:
+            if self._is_icon_file(self.config.icon):
+                # Try to load as image file
+                import os
+
+                if os.path.exists(self.config.icon):
+                    try:
+                        photo = tk.PhotoImage(file=self.config.icon)
+                        # Resize if too large (optional - you can adjust these values)
+                        if photo.width() > 16 or photo.height() > 16:
+                            # For now, just use the image as-is
+                            # You could add resizing logic here if needed
+                            pass
+
+                        icon_label = tk.Label(
+                            parent,
+                            image=photo,
+                            bg=theme.colors.panel_header_bg,
+                        )
+                        # Keep a reference to prevent garbage collection
+                        icon_label.image = photo
+                        return icon_label
+                    except tk.TclError:
+                        # If image loading fails, fall back to text
+                        pass
+
+            # Use as text icon (emoji or text)
+            icon_label = tk.Label(
+                parent,
+                text=self.config.icon,
+                bg=theme.colors.panel_header_bg,
+                fg=theme.colors.panel_header_fg,
+                font=(theme.typography.font_family, theme.typography.font_size_normal),
+            )
+            return icon_label
+
+        except Exception as e:
+            print(f"Warning: Failed to create detached icon label: {e}")
+            return None
 
 
 class EnhancedDockableThreePaneWindow(tk.Frame):
@@ -1864,13 +1915,16 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             return self.get_right_frame()
         return None
 
-    def switch_theme(self, theme_name: str, update_status: bool = True):
+    def switch_theme(self, theme_name: str, update_status: bool = True) -> bool:
         """
         Switch to a new theme and automatically update all widgets.
 
         Args:
             theme_name: Name of the theme to switch to
             update_status: Whether to update the status bar with theme info
+
+        Returns:
+            bool: True if theme was successfully switched, False otherwise
         """
         # Set the theme
         if self.theme_manager.set_theme(theme_name, window=self.master):
@@ -1885,8 +1939,11 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                     f"Scrollbars: {platform_info['scrollbar_type']}"
                 )
                 self.update_status(status_text)
+
+            return True
         else:
             print(f"Warning: Failed to set theme '{theme_name}'")
+            return False
 
     def create_themed_scrollbar(
         self, parent, orient="vertical", command=None, **kwargs
