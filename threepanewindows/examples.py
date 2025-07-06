@@ -9,8 +9,25 @@ from .dockable import DockableThreePaneWindow
 from .enhanced_dockable import EnhancedDockableThreePaneWindow, PaneConfig
 from .fixed import FixedThreePaneLayout
 
+# Global theme update coordination
+_theme_update_in_progress = False
 
-def run_demo_with_timeout(timeout_seconds=5, interactive=False):
+
+def _coordinate_theme_update(update_func, *args, **kwargs):
+    """Coordinate theme updates to prevent cascading updates."""
+    global _theme_update_in_progress
+
+    if _theme_update_in_progress:
+        return
+
+    _theme_update_in_progress = True
+    try:
+        return update_func(*args, **kwargs)
+    finally:
+        _theme_update_in_progress = False
+
+
+def run_demo_with_timeout(timeout_seconds: int = 5, interactive: bool = False) -> bool:
     """Run demo with automatic timeout for testing.
 
     Args:
@@ -35,7 +52,7 @@ def run_demo_with_timeout(timeout_seconds=5, interactive=False):
     success = False
     error = None
 
-    def run_demo_thread():
+    def run_demo_thread() -> None:
         nonlocal success, error
         try:
             run_demo(interactive=interactive, auto_close_delay=timeout_seconds * 1000)
@@ -58,7 +75,7 @@ def run_demo_with_timeout(timeout_seconds=5, interactive=False):
     return success
 
 
-def test_all_demo_components():
+def test_all_demo_components() -> dict:
     """Test that all demo components can be created without errors.
 
     Returns:
@@ -79,7 +96,7 @@ def test_all_demo_components():
         # Test DockableThreePaneWindow creation
         try:
 
-            def dummy_builder(frame):
+            def dummy_builder(frame) -> None:
                 tk.Label(frame, text="Test").pack()
 
             window = DockableThreePaneWindow(
@@ -157,7 +174,7 @@ def test_all_demo_components():
     return results
 
 
-def test_basic_demo_components():
+def test_basic_demo_components() -> dict:
     """Test basic demo components without enhanced features.
 
     Returns:
@@ -173,7 +190,7 @@ def test_basic_demo_components():
         # Test DockableThreePaneWindow creation
         try:
 
-            def dummy_builder(frame):
+            def dummy_builder(frame) -> None:
                 tk.Label(frame, text="Test").pack()
 
             window = DockableThreePaneWindow(
@@ -223,13 +240,13 @@ def test_basic_demo_components():
     return results
 
 
-def _build_dockable_left_panel(frame):
+def _build_dockable_left_panel(frame) -> None:
     """Build left panel for dockable demo."""
     tk.Label(frame, text="Left Panel Content").pack(pady=10)
     tk.Button(frame, text="Sample Button").pack(pady=5)
 
 
-def _build_dockable_center_panel(frame):
+def _build_dockable_center_panel(frame) -> None:
     """Build center panel for dockable demo."""
     tk.Label(frame, text="Center Panel Content").pack(pady=10)
     text = tk.Text(frame, height=10)
@@ -960,7 +977,7 @@ def show_enhanced_with_icons(interactive=True, auto_close_delay=None):
         custom_titlebar_shadow=True,
     )
 
-    # Create the enhanced window with all features enabled
+    # Create the enhanced window with all features enabled (including toolbar)
     window = EnhancedDockableThreePaneWindow(
         root,
         left_config=left_config,
@@ -973,6 +990,7 @@ def show_enhanced_with_icons(interactive=True, auto_close_delay=None):
         right_builder=lambda frame: _build_enhanced_properties(frame, "Properties"),
         theme_name=initial_theme,
         show_status_bar=True,
+        show_toolbar=True,  # Enable toolbar to hold demo controls
         enable_animations=True,
     )
     window.pack(fill="both", expand=True)
@@ -984,7 +1002,7 @@ def show_enhanced_with_icons(interactive=True, auto_close_delay=None):
     # Set titlebar theme to match
     set_global_theme(initial_theme, window=root)
 
-    # Create comprehensive theme switcher and demo controls
+    # Create comprehensive theme switcher and demo controls in toolbar
     _create_enhanced_demo_controls(root, window, initial_theme)
 
     # Show platform and feature information
@@ -999,13 +1017,8 @@ def show_enhanced_with_icons(interactive=True, auto_close_delay=None):
     return root, window
 
 
-def _build_enhanced_file_explorer(frame, panel_name):
-    """Build an enhanced file explorer panel with themed widgets."""
-    from tkinter import ttk
-
-    from .themes import get_theme_manager
-
-    # Get layout instance for scrollbar creation
+def _get_layout_instance(frame):
+    """Get layout instance for scrollbar creation."""
     layout = None
     parent = frame
     while parent and layout is None:
@@ -1013,8 +1026,13 @@ def _build_enhanced_file_explorer(frame, panel_name):
             layout = parent
             break
         parent = parent.master
+    return layout
 
-    # Header
+
+def _create_file_explorer_header(frame, panel_name):
+    """Create header section for file explorer."""
+    from tkinter import ttk
+
     header_frame = ttk.Frame(frame, style="Themed.TFrame")
     header_frame.pack(fill="x", padx=10, pady=(10, 5))
 
@@ -1029,7 +1047,13 @@ def _build_enhanced_file_explorer(frame, panel_name):
         side="right", padx=(5, 0)
     )
 
-    # File tree with themed scrollbars
+    return header_frame
+
+
+def _create_file_tree_with_scrollbars(frame, layout):
+    """Create file tree with scrollbars."""
+    from tkinter import ttk
+
     tree_frame = ttk.Frame(frame, style="Themed.TFrame")
     tree_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
@@ -1043,13 +1067,13 @@ def _build_enhanced_file_explorer(frame, panel_name):
 
     for folder in folders:
         folder_id = tree.insert("", "end", text=folder, open=True)
-        for i, file in enumerate(files[:2]):  # Add some files to folders
+        for file in files[:2]:  # Add some files to folders
             tree.insert(folder_id, "end", text=f"  {file}")
 
     for file in files:
         tree.insert("", "end", text=file)
 
-    # Create scrollbars using automatic platform detection
+    # Create scrollbars
     if layout:
         v_scrollbar = layout.create_themed_scrollbar(
             tree_frame, orient="vertical", command=tree.yview
@@ -1058,7 +1082,6 @@ def _build_enhanced_file_explorer(frame, panel_name):
             tree_frame, orient="horizontal", command=tree.xview
         )
     else:
-        # Fallback
         v_scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
         h_scrollbar = ttk.Scrollbar(tree_frame, orient="horizontal", command=tree.xview)
 
@@ -1072,7 +1095,13 @@ def _build_enhanced_file_explorer(frame, panel_name):
     tree_frame.grid_rowconfigure(0, weight=1)
     tree_frame.grid_columnconfigure(0, weight=1)
 
-    # Status info
+    return tree_frame, tree, v_scrollbar, h_scrollbar
+
+
+def _create_file_explorer_status(frame):
+    """Create status section for file explorer."""
+    from tkinter import ttk
+
     status_frame = ttk.Frame(frame, style="Themed.TFrame")
     status_frame.pack(fill="x", padx=10, pady=(5, 10))
 
@@ -1086,65 +1115,116 @@ def _build_enhanced_file_explorer(frame, panel_name):
         font=("Arial", 8),
     ).pack(side="right")
 
-    # Theme update function
+    return status_frame
+
+
+def _build_enhanced_file_explorer(frame, panel_name):
+    """Build an enhanced file explorer panel with themed widgets."""
+    from .themes import get_theme_manager
+
+    layout = _get_layout_instance(frame)
+    header_frame = _create_file_explorer_header(frame, panel_name)
+    tree_frame, tree, v_scrollbar, h_scrollbar = _create_file_tree_with_scrollbars(
+        frame, layout
+    )
+    status_frame = _create_file_explorer_status(frame)
+
+    # Theme update function with debouncing
+    _last_theme_update = [0]  # Use list to allow modification in nested function
+
     def update_theme(theme_name=None):
+        import time
+
+        global _theme_update_in_progress
+
+        # Skip if global theme update is in progress (prevents cascading updates)
+        if _theme_update_in_progress:
+            return
+
+        # Simple debouncing - ignore rapid updates
+        current_time = time.time()
+        if current_time - _last_theme_update[0] < 0.1:  # 100ms debounce
+            return
+        _last_theme_update[0] = current_time
+
         theme_manager = get_theme_manager()
         if theme_name:
             theme_manager.set_theme(theme_name)
 
         current_theme = theme_manager.get_current_theme()
 
-        # Update scrollbars
-        if hasattr(v_scrollbar, "apply_theme"):
-            v_scrollbar.apply_theme(current_theme.colors)
-            h_scrollbar.apply_theme(current_theme.colors)
+        # Batch all updates together to minimize layout recalculations
+        def _apply_updates():
+            # Temporarily disable geometry propagation to prevent jumping
+            frame.pack_propagate(False)
+            frame.grid_propagate(False)
 
-        # Update ttk widget styles by refreshing the style configuration
-        try:
-            style = ttk.Style()
-            # Force refresh of themed styles
-            theme_manager.apply_ttk_theme(style)
+            try:
+                # Update scrollbars
+                if hasattr(v_scrollbar, "apply_theme"):
+                    v_scrollbar.apply_theme(current_theme.colors)
+                    h_scrollbar.apply_theme(current_theme.colors)
 
-            # Update specific widgets that might need manual refresh
-            for widget in [header_frame, tree_frame, status_frame]:
-                if hasattr(widget, "winfo_exists") and widget.winfo_exists():
-                    try:
-                        # Force style update by reconfiguring
-                        widget.configure(style="Themed.TFrame")
-                    except:
-                        pass
+                # Update ttk widget styles
+                _update_file_explorer_styles(
+                    theme_manager,
+                    panel_name,
+                    [header_frame, tree_frame, status_frame],
+                    tree,
+                )
 
-            # Update treeview style
-            if hasattr(tree, "winfo_exists") and tree.winfo_exists():
-                try:
-                    tree.configure(style="Themed.Treeview")
-                except:
-                    pass
+                # Force update of pending geometry changes
+                frame.update_idletasks()
 
-        except Exception as e:
-            print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
+            finally:
+                # Re-enable geometry propagation
+                frame.pack_propagate(True)
+                frame.grid_propagate(True)
 
-        print(f"📁 {panel_name} updated to theme: {current_theme.name}")
+            print(f"📁 {panel_name} updated to theme: {current_theme.name}")
+
+        # Schedule the update to happen after current event processing
+        frame.after_idle(_apply_updates)
 
     frame.update_theme = update_theme
 
 
-def _build_enhanced_code_editor(frame, panel_name):
-    """Build an enhanced code editor panel with themed widgets."""
+def _update_file_explorer_styles(theme_manager, panel_name, frames, tree):
+    """Update styles for file explorer widgets."""
+    import tkinter as tk
     from tkinter import ttk
 
-    from .themes import get_theme_manager
+    try:
+        style = ttk.Style()
+        theme_manager.apply_ttk_theme(style)
 
-    # Get layout instance
-    layout = None
-    parent = frame
-    while parent and layout is None:
-        if hasattr(parent, "create_themed_scrollbar"):
-            layout = parent
-            break
-        parent = parent.master
+        # Only update widgets if they don't already have the correct style
+        for widget in frames:
+            if hasattr(widget, "winfo_exists") and widget.winfo_exists():
+                try:
+                    current_style = widget.cget("style")
+                    if current_style != "Themed.TFrame":
+                        widget.configure(style="Themed.TFrame")
+                except (tk.TclError, AttributeError):
+                    pass
 
-    # Toolbar
+        # Update treeview style only if needed
+        if hasattr(tree, "winfo_exists") and tree.winfo_exists():
+            try:
+                current_style = tree.cget("style")
+                if current_style != "Themed.Treeview":
+                    tree.configure(style="Themed.Treeview")
+            except (tk.TclError, AttributeError):
+                pass
+
+    except Exception as e:
+        print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
+
+
+def _create_code_editor_toolbar(frame, panel_name):
+    """Create toolbar for code editor."""
+    from tkinter import ttk
+
     toolbar_frame = ttk.Frame(frame, style="Themed.TFrame")
     toolbar_frame.pack(fill="x", padx=10, pady=(10, 5))
 
@@ -1159,30 +1239,65 @@ def _build_enhanced_code_editor(frame, panel_name):
     button_frame = ttk.Frame(toolbar_frame, style="Themed.TFrame")
     button_frame.pack(side="right")
 
-    ttk.Button(button_frame, text="💾", style="Themed.TButton", width=3).pack(
-        side="left", padx=1
-    )
-    ttk.Button(button_frame, text="🔍", style="Themed.TButton", width=3).pack(
-        side="left", padx=1
-    )
-    ttk.Button(button_frame, text="▶️", style="Themed.TButton", width=3).pack(
-        side="left", padx=1
-    )
+    for icon in ["💾", "🔍", "▶️"]:
+        ttk.Button(button_frame, text=icon, style="Themed.TButton", width=3).pack(
+            side="left", padx=1
+        )
 
-    # Editor area
+    return toolbar_frame
+
+
+def _create_code_editor_text_area(frame, layout):
+    """Create text area with scrollbars for code editor."""
+    import tkinter as tk
+    from tkinter import ttk
+
+    from .themes import get_theme_manager
+
     editor_frame = ttk.Frame(frame, style="Themed.TFrame")
     editor_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
     # Create text widget with theme styling
     theme_manager = get_theme_manager()
     text_style = theme_manager.get_tk_widget_style("text")
-    # Remove font from style to avoid conflict
     if "font" in text_style:
         del text_style["font"]
     text = tk.Text(editor_frame, wrap=tk.NONE, **text_style, font=("Consolas", 11))
 
     # Sample code content
-    sample_code = '''# 🎨 Enhanced Three-Pane Window Demo
+    sample_code = _get_sample_code()
+    text.insert("1.0", sample_code)
+
+    # Create scrollbars
+    if layout:
+        v_scrollbar = layout.create_themed_scrollbar(
+            editor_frame, orient="vertical", command=text.yview
+        )
+        h_scrollbar = layout.create_themed_scrollbar(
+            editor_frame, orient="horizontal", command=text.xview
+        )
+    else:
+        v_scrollbar = ttk.Scrollbar(editor_frame, orient="vertical", command=text.yview)
+        h_scrollbar = ttk.Scrollbar(
+            editor_frame, orient="horizontal", command=text.xview
+        )
+
+    text.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+
+    # Layout
+    text.grid(row=0, column=0, sticky="nsew")
+    v_scrollbar.grid(row=0, column=1, sticky="ns")
+    h_scrollbar.grid(row=1, column=0, sticky="ew")
+
+    editor_frame.grid_rowconfigure(0, weight=1)
+    editor_frame.grid_columnconfigure(0, weight=1)
+
+    return editor_frame, text, v_scrollbar, h_scrollbar
+
+
+def _get_sample_code():
+    """Get sample code content."""
+    return '''# 🎨 Enhanced Three-Pane Window Demo
 """
 This demo showcases all the improved features:
 
@@ -1227,33 +1342,11 @@ if __name__ == "__main__":
 # Notice how detached windows update perfectly now.
 '''
 
-    text.insert("1.0", sample_code)
 
-    # Create scrollbars
-    if layout:
-        v_scrollbar = layout.create_themed_scrollbar(
-            editor_frame, orient="vertical", command=text.yview
-        )
-        h_scrollbar = layout.create_themed_scrollbar(
-            editor_frame, orient="horizontal", command=text.xview
-        )
-    else:
-        v_scrollbar = ttk.Scrollbar(editor_frame, orient="vertical", command=text.yview)
-        h_scrollbar = ttk.Scrollbar(
-            editor_frame, orient="horizontal", command=text.xview
-        )
+def _create_code_editor_status(frame):
+    """Create status bar for code editor."""
+    from tkinter import ttk
 
-    text.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
-
-    # Layout
-    text.grid(row=0, column=0, sticky="nsew")
-    v_scrollbar.grid(row=0, column=1, sticky="ns")
-    h_scrollbar.grid(row=1, column=0, sticky="ew")
-
-    editor_frame.grid_rowconfigure(0, weight=1)
-    editor_frame.grid_columnconfigure(0, weight=1)
-
-    # Status bar
     status_frame = ttk.Frame(frame, style="Themed.TFrame")
     status_frame.pack(fill="x", padx=10, pady=(5, 10))
 
@@ -1267,45 +1360,103 @@ if __name__ == "__main__":
         font=("Arial", 8),
     ).pack(side="right")
 
-    # Theme update function
+    return status_frame
+
+
+def _build_enhanced_code_editor(frame, panel_name):
+    """Build an enhanced code editor panel with themed widgets."""
+    from .themes import get_theme_manager
+
+    layout = _get_layout_instance(frame)
+    toolbar_frame = _create_code_editor_toolbar(frame, panel_name)
+    editor_frame, text, v_scrollbar, h_scrollbar = _create_code_editor_text_area(
+        frame, layout
+    )
+    status_frame = _create_code_editor_status(frame)
+
+    # Theme update function with debouncing
+    _last_theme_update = [0]  # Use list to allow modification in nested function
+
     def update_theme(theme_name=None):
+        import time
+
+        # Simple debouncing - ignore rapid updates
+        current_time = time.time()
+        if current_time - _last_theme_update[0] < 0.1:  # 100ms debounce
+            return
+        _last_theme_update[0] = current_time
+
         theme_manager = get_theme_manager()
         if theme_name:
             theme_manager.set_theme(theme_name)
 
         current_theme = theme_manager.get_current_theme()
 
-        # Update text widget
-        text_style = theme_manager.get_tk_widget_style("text")
-        text.configure(**text_style)
-        text.configure(font=("Consolas", 11))
+        # Batch all updates together to minimize layout recalculations
+        def _apply_updates():
+            # Temporarily disable geometry propagation to prevent jumping
+            frame.pack_propagate(False)
+            frame.grid_propagate(False)
 
-        # Update scrollbars
-        if hasattr(v_scrollbar, "apply_theme"):
-            v_scrollbar.apply_theme(current_theme.colors)
-            h_scrollbar.apply_theme(current_theme.colors)
+            try:
+                # Update text widget only if style has changed
+                text_style = theme_manager.get_tk_widget_style("text")
+                current_bg = text.cget("bg")
+                new_bg = text_style.get("bg", current_bg)
 
-        # Update ttk widget styles by refreshing the style configuration
-        try:
-            style = ttk.Style()
-            # Force refresh of themed styles
-            theme_manager.apply_ttk_theme(style)
+                if current_bg != new_bg:
+                    text.configure(**text_style)
+                    text.configure(font=("Consolas", 11))
 
-            # Update specific widgets that might need manual refresh
-            for widget in [toolbar_frame, editor_frame, status_frame]:
-                if hasattr(widget, "winfo_exists") and widget.winfo_exists():
-                    try:
-                        # Force style update by reconfiguring
-                        widget.configure(style="Themed.TFrame")
-                    except:
-                        pass
+                # Update scrollbars
+                if hasattr(v_scrollbar, "apply_theme"):
+                    v_scrollbar.apply_theme(current_theme.colors)
+                    h_scrollbar.apply_theme(current_theme.colors)
 
-        except Exception as e:
-            print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
+                # Update ttk widget styles
+                _update_code_editor_styles(
+                    theme_manager,
+                    panel_name,
+                    [toolbar_frame, editor_frame, status_frame],
+                )
 
-        print(f"📝 {panel_name} updated to theme: {current_theme.name}")
+                # Force update of pending geometry changes
+                frame.update_idletasks()
+
+            finally:
+                # Re-enable geometry propagation
+                frame.pack_propagate(True)
+                frame.grid_propagate(True)
+
+            print(f"📝 {panel_name} updated to theme: {current_theme.name}")
+
+        # Schedule the update to happen after current event processing
+        frame.after_idle(_apply_updates)
 
     frame.update_theme = update_theme
+
+
+def _update_code_editor_styles(theme_manager, panel_name, frames):
+    """Update styles for code editor widgets."""
+    import tkinter as tk
+    from tkinter import ttk
+
+    try:
+        style = ttk.Style()
+        theme_manager.apply_ttk_theme(style)
+
+        # Only update widgets if they don't already have the correct style
+        for widget in frames:
+            if hasattr(widget, "winfo_exists") and widget.winfo_exists():
+                try:
+                    current_style = widget.cget("style")
+                    if current_style != "Themed.TFrame":
+                        widget.configure(style="Themed.TFrame")
+                except (tk.TclError, AttributeError):
+                    pass
+
+    except Exception as e:
+        print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
 
 
 def _build_enhanced_properties(frame, panel_name):
@@ -1399,72 +1550,96 @@ def _build_enhanced_properties(frame, panel_name):
     props_frame.grid_rowconfigure(0, weight=1)
     props_frame.grid_columnconfigure(0, weight=1)
 
-    # Theme update function
+    # Theme update function with debouncing
+    _last_theme_update = [0]  # Use list to allow modification in nested function
+
     def update_theme(theme_name=None):
+        import time
+
+        # Simple debouncing - ignore rapid updates
+        current_time = time.time()
+        if current_time - _last_theme_update[0] < 0.1:  # 100ms debounce
+            return
+        _last_theme_update[0] = current_time
+
         theme_manager = get_theme_manager()
         if theme_name:
             theme_manager.set_theme(theme_name)
 
         current_theme = theme_manager.get_current_theme()
 
-        # Update listbox
-        listbox_style = theme_manager.get_tk_widget_style("listbox")
-        listbox.configure(**listbox_style)
-        listbox.configure(font=("Arial", 9))
+        # Batch all updates together to minimize layout recalculations
+        def _apply_updates():
+            # Temporarily disable geometry propagation to prevent jumping
+            frame.pack_propagate(False)
+            frame.grid_propagate(False)
 
-        # Update scrollbar
-        if hasattr(scrollbar, "apply_theme"):
-            scrollbar.apply_theme(current_theme.colors)
+            try:
+                # Update listbox only if style has changed
+                listbox_style = theme_manager.get_tk_widget_style("listbox")
+                current_bg = listbox.cget("bg")
+                new_bg = listbox_style.get("bg", current_bg)
 
-        # Update ttk widget styles by refreshing the style configuration
-        try:
-            style = ttk.Style()
-            # Force refresh of themed styles
-            theme_manager.apply_ttk_theme(style)
+                if current_bg != new_bg:
+                    listbox.configure(**listbox_style)
+                    listbox.configure(font=("Arial", 9))
 
-            # Update specific widgets that might need manual refresh
-            for widget in [header_frame, props_frame]:
-                if hasattr(widget, "winfo_exists") and widget.winfo_exists():
-                    try:
-                        # Force style update by reconfiguring
-                        widget.configure(style="Themed.TFrame")
-                    except:
-                        pass
+                # Update scrollbar
+                if hasattr(scrollbar, "apply_theme"):
+                    scrollbar.apply_theme(current_theme.colors)
 
-        except Exception as e:
-            print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
+                # Update ttk widget styles by refreshing the style configuration
+                try:
+                    style = ttk.Style()
+                    # Force refresh of themed styles
+                    theme_manager.apply_ttk_theme(style)
 
-        print(f"🔧 {panel_name} updated to theme: {current_theme.name}")
+                    # Update specific widgets only if needed
+                    for widget in [header_frame, props_frame]:
+                        if hasattr(widget, "winfo_exists") and widget.winfo_exists():
+                            try:
+                                current_style = widget.cget("style")
+                                if current_style != "Themed.TFrame":
+                                    widget.configure(style="Themed.TFrame")
+                            except (tk.TclError, AttributeError):
+                                pass
+
+                except Exception as e:
+                    print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
+
+                # Force update of pending geometry changes
+                frame.update_idletasks()
+
+            finally:
+                # Re-enable geometry propagation
+                frame.pack_propagate(True)
+                frame.grid_propagate(True)
+
+            print(f"🔧 {panel_name} updated to theme: {current_theme.name}")
+
+        # Schedule the update to happen after current event processing
+        frame.after_idle(_apply_updates)
 
     frame.update_theme = update_theme
 
 
 def _create_enhanced_demo_controls(root, window, initial_theme):
-    """Create comprehensive demo controls."""
-    from tkinter import ttk
-
+    """Create comprehensive demo controls in the toolbar."""
     from .themes import get_theme_manager, set_global_theme
 
-    # Main controls frame
-    controls_frame = ttk.Frame(root, style="Themed.TFrame")
-    controls_frame.place(x=10, y=10)
-
-    # Theme switcher
-    theme_label = ttk.Label(
-        controls_frame,
-        text="🎨 Theme:",
-        style="Themed.TLabel",
-        font=("Arial", 10, "bold"),
-    )
-    theme_label.pack(side="left", padx=(0, 5))
-
     theme_names = get_theme_manager().list_themes()
-    theme_var = tk.StringVar(value=initial_theme)
+    current_theme = [
+        initial_theme
+    ]  # Use list to allow modification in nested functions
+    theme_button = [None]  # Store reference to theme button for updating
 
-    def on_theme_change(selected_theme=None):
-        # Get the selected theme - either from parameter or from StringVar
-        if selected_theme is None:
-            selected_theme = theme_var.get()
+    def on_theme_change():
+        # Cycle through available themes
+        theme_list = list(theme_names.keys())
+        current_index = theme_list.index(current_theme[0])
+        next_index = (current_index + 1) % len(theme_list)
+        selected_theme = theme_list[next_index]
+        current_theme[0] = selected_theme
 
         # Show detached windows info (only if there are any)
         detached_count = len(window.detached_windows)
@@ -1482,24 +1657,21 @@ def _create_enhanced_demo_controls(root, window, initial_theme):
                 )
                 print(f"  🪟 {pane_side} panel (detached, {titlebar_type} titlebar)")
 
-        # Use the enhanced theme switching
-        window.switch_theme(selected_theme, update_status=True)
+        # Use coordinated theme switching to prevent cascading updates
+        def _do_theme_switch():
+            # Use the enhanced theme switching
+            window.switch_theme(selected_theme, update_status=True)
 
-        # Update main window titlebar
-        set_global_theme(selected_theme, window=root)
+            # Update main window titlebar
+            set_global_theme(selected_theme, window=root)
 
-    # Create OptionMenu with proper callback
-    theme_menu = ttk.OptionMenu(
-        controls_frame,
-        theme_var,
-        initial_theme,
-        *theme_names.keys(),
-        command=on_theme_change,  # Pass the function directly, OptionMenu will call it with the selected value
-    )
-    theme_menu.configure(style="Themed.TMenubutton")
-    theme_menu.pack(side="left", padx=(0, 10))
+            # Update theme button text
+            if theme_button[0]:
+                theme_button[0].configure(text=f"🎨 Theme: {selected_theme.title()}")
 
-    # Demo info button
+        _coordinate_theme_update(_do_theme_switch)
+
+    # Demo info function
     def show_demo_info():
         info_text = """🎨 Enhanced Three-Pane Demo Features:
 
@@ -1521,13 +1693,15 @@ def _create_enhanced_demo_controls(root, window, initial_theme):
 
         msgbox.showinfo("🎨 Enhanced Demo Info", info_text)
 
-    info_btn = ttk.Button(
-        controls_frame,
-        text="ℹ️ Demo Info",
-        style="Themed.TButton",
-        command=show_demo_info,
+    # Add controls to toolbar
+    theme_button[0] = window.add_toolbar_button(
+        f"🎨 Theme: {current_theme[0].title()}",
+        on_theme_change,
+        "Click to cycle through themes",
     )
-    info_btn.pack(side="left")
+    window.add_toolbar_button(
+        "ℹ️ Demo Info", show_demo_info, "Show demo information and test instructions"
+    )
 
 
 def _show_enhanced_demo_info(window, initial_theme):

@@ -10,7 +10,7 @@ import argparse
 from .examples import run_demo
 
 
-def main():
+def main() -> None:
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
         description="ThreePaneWindows - Tkinter three-pane layouts", prog="threepane"
@@ -43,7 +43,7 @@ def main():
         parser.print_help()
 
 
-def show_info():
+def show_info() -> None:
     """Show package information."""
     info_text = """
 ThreePaneWindows v1.0.0

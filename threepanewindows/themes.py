@@ -1,10 +1,9 @@
 import platform
-import sys
 import tkinter as tk
 from dataclasses import dataclass, field
 from enum import Enum
 from tkinter import ttk
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 if TYPE_CHECKING:
     from .custom_scrollbar import ThemedScrollbar
@@ -449,7 +448,7 @@ class ThemeManager:
                 if is_system_dark
                 else self._themes["native_light"]
             )
-        except:
+        except (ImportError, AttributeError, KeyError):
             base_theme = self._themes["native_light"]
 
         self._themes["native"] = Theme(
@@ -852,7 +851,7 @@ class ThemeManager:
                 except Exception:
                     pass  # Some widgets don't support winfo_children()
 
-        except Exception as e:
+        except Exception:
             # Silently ignore theming errors for individual widgets
             pass
 
@@ -1772,7 +1771,6 @@ def set_global_theme(
 # Add missing methods to ThemeManager class
 def _add_missing_methods():
     """Add missing methods to ThemeManager class."""
-    import platform
     from typing import Any, Callable, Dict, List, Union
 
     def get_available_themes(self) -> List[str]:

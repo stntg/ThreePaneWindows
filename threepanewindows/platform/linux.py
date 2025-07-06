@@ -102,7 +102,7 @@ class LinuxPlatformHandler(PlatformHandler):
             try:
                 # Try to set window class for better integration with window managers
                 window.wm_class("ThreePaneWindows", "ThreePaneWindows")
-            except:
+            except (tk.TclError, AttributeError):
                 pass
 
             return True
@@ -117,8 +117,6 @@ class LinuxPlatformHandler(PlatformHandler):
         Returns:
             String identifying the desktop environment (e.g., 'gnome', 'kde', 'xfce')
         """
-        import subprocess
-
         try:
             # Try to detect desktop environment
             desktop = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
@@ -134,7 +132,7 @@ class LinuxPlatformHandler(PlatformHandler):
                 return os.environ.get("DESKTOP_SESSION", "").lower()
 
             return "unknown"
-        except:
+        except (OSError, KeyError):
             return "unknown"
 
     def supports_transparency(self) -> bool:
@@ -167,11 +165,11 @@ class LinuxPlatformHandler(PlatformHandler):
                 )
                 if result.returncode == 0:
                     return True
-            except:
+            except (ImportError, OSError, Exception):
                 pass
 
             return False
-        except:
+        except (ImportError, OSError, Exception):
             return False
 
     def is_dark_mode(self) -> bool:
