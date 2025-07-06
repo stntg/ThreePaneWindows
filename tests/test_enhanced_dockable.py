@@ -35,10 +35,15 @@ class TestIconUtilities:
         common_formats = {".png", ".ico", ".gif", ".bmp"}
         assert any(fmt in common_formats for fmt in formats)
 
-    @patch("platform.system")
-    def test_get_recommended_icon_formats_windows(self, mock_system):
+    @patch("threepanewindows.enhanced_dockable.platform_handler")
+    def test_get_recommended_icon_formats_windows(self, mock_handler):
         """Test Windows-specific icon format recommendations."""
-        mock_system.return_value = "Windows"
+        mock_handler.get_recommended_icon_formats.return_value = [
+            ".ico",
+            ".png",
+            ".bmp",
+            ".gif",
+        ]
         formats = get_recommended_icon_formats()
 
         # Windows should prefer .ico first
@@ -46,58 +51,77 @@ class TestIconUtilities:
         assert formats[0] == ".ico"
         assert ".png" in formats
 
-    @patch("platform.system")
-    def test_get_recommended_icon_formats_macos(self, mock_system):
+    @patch("threepanewindows.enhanced_dockable.platform_handler")
+    def test_get_recommended_icon_formats_macos(self, mock_handler):
         """Test macOS-specific icon format recommendations."""
-        mock_system.return_value = "Darwin"
+        mock_handler.get_recommended_icon_formats.return_value = [
+            ".png",
+            ".gif",
+            ".bmp",
+            ".ico",
+        ]
         formats = get_recommended_icon_formats()
 
         # macOS should prefer .png first
         assert ".png" in formats
         assert formats[0] == ".png"
 
-    @patch("platform.system")
-    def test_get_recommended_icon_formats_linux(self, mock_system):
+    @patch("threepanewindows.enhanced_dockable.platform_handler")
+    def test_get_recommended_icon_formats_linux(self, mock_handler):
         """Test Linux-specific icon format recommendations."""
-        mock_system.return_value = "Linux"
+        mock_handler.get_recommended_icon_formats.return_value = [
+            ".png",
+            ".xbm",
+            ".gif",
+            ".bmp",
+            ".ico",
+        ]
         formats = get_recommended_icon_formats()
 
         # Linux should prefer .png and .xbm
         assert ".png" in formats
         assert ".xbm" in formats
 
-    def test_validate_icon_path_empty(self):
+    @patch("threepanewindows.enhanced_dockable.platform_handler")
+    def test_validate_icon_path_empty(self, mock_handler):
         """Test validate_icon_path with empty path."""
+        mock_handler.validate_icon_path.return_value = (True, "No icon specified")
+
         is_valid, message = validate_icon_path("")
         assert is_valid is True
         assert "No icon specified" in message
 
-    @patch("os.path.exists")
-    def test_validate_icon_path_missing_file(self, mock_exists):
+    @patch("threepanewindows.enhanced_dockable.platform_handler")
+    def test_validate_icon_path_missing_file(self, mock_handler):
         """Test validate_icon_path with missing file."""
-        mock_exists.return_value = False
+        mock_handler.validate_icon_path.return_value = (
+            False,
+            "Icon file not found: missing.png",
+        )
 
         is_valid, message = validate_icon_path("missing.png")
         assert is_valid is False
         assert "not found" in message
 
-    @patch("os.path.exists")
-    @patch("platform.system")
-    def test_validate_icon_path_valid_format(self, mock_system, mock_exists):
+    @patch("threepanewindows.enhanced_dockable.platform_handler")
+    def test_validate_icon_path_valid_format(self, mock_handler):
         """Test validate_icon_path with valid format."""
-        mock_exists.return_value = True
-        mock_system.return_value = "Windows"
+        mock_handler.validate_icon_path.return_value = (
+            True,
+            "ICO format is optimal for Windows",
+        )
 
         is_valid, message = validate_icon_path("test.ico")
         assert is_valid is True
-        assert "compatible" in message
+        assert "optimal" in message
 
-    @patch("os.path.exists")
-    @patch("platform.system")
-    def test_validate_icon_path_invalid_format(self, mock_system, mock_exists):
+    @patch("threepanewindows.enhanced_dockable.platform_handler")
+    def test_validate_icon_path_invalid_format(self, mock_handler):
         """Test validate_icon_path with invalid format."""
-        mock_exists.return_value = True
-        mock_system.return_value = "Windows"
+        mock_handler.validate_icon_path.return_value = (
+            False,
+            "Icon format '.xyz' not recommended for Windows. Recommended formats: .ico, .png, .bmp, .gif",
+        )
 
         is_valid, message = validate_icon_path("test.xyz")
         assert is_valid is False
