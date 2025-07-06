@@ -1,6 +1,4 @@
-"""
-Tests for EnhancedDockableThreePaneWindow functionality.
-"""
+"""Tests for EnhancedDockableThreePaneWindow functionality."""
 
 import tkinter as tk
 from unittest.mock import Mock, patch
@@ -120,7 +118,8 @@ class TestIconUtilities:
         """Test validate_icon_path with invalid format."""
         mock_handler.validate_icon_path.return_value = (
             False,
-            "Icon format '.xyz' not recommended for Windows. Recommended formats: .ico, .png, .bmp, .gif",
+            "Icon format '.xyz' not recommended for Windows. "
+            "Recommended formats: .ico, .png, .bmp, .gif",
         )
 
         is_valid, message = validate_icon_path("test.xyz")

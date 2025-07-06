@@ -67,11 +67,26 @@ class TestThemeType:
         assert ThemeType.GREEN.value == "green"
         assert ThemeType.PURPLE.value == "purple"
         assert ThemeType.CUSTOM.value == "custom"
+        assert ThemeType.SYSTEM.value == "system"
+        assert ThemeType.NATIVE.value == "native"
+        assert ThemeType.NATIVE_LIGHT.value == "native_light"
+        assert ThemeType.NATIVE_DARK.value == "native_dark"
 
     def test_theme_type_iteration(self):
         """Test iterating over ThemeType values."""
         theme_values = [theme.value for theme in ThemeType]
-        expected_values = ["light", "dark", "blue", "green", "purple", "custom"]
+        expected_values = [
+            "light",
+            "dark",
+            "blue",
+            "green",
+            "purple",
+            "custom",
+            "system",
+            "native",
+            "native_light",
+            "native_dark",
+        ]
         assert set(theme_values) == set(expected_values)
 
 
