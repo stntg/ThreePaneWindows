@@ -312,3 +312,8 @@ desktop.ini
 # Additional temporary file patterns
 *.tmp
 *.temp
+
+# Prevent duplicate package files in root directory
+# (These should only exist in threepanewindows/ directory)
+/__init__.py
+/_version.py

@@ -167,6 +167,9 @@ jobs:
         echo "🧪 Installing test dependencies..."
         pip install pytest pytest-cov pytest-xvfb pytest-timeout darkdetect
 
+        echo "🧪 Installing package in development mode..."
+        pip install -e .
+
         echo "🧪 Running quick test suite..."
         python -m pytest tests/ -v --tb=short --maxfail=3 -x
 
