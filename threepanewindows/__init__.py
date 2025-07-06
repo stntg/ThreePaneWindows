@@ -71,4 +71,4 @@ __all__ = [
 ]
 
 # Note: FixedThreePaneWindow is the modern name, FixedThreePaneLayout is legacy
-# Trigger workflow to test import fixes
+# Trigger workflow to test platform-specific icon format fixes
