@@ -1,0 +1,30 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 1%
+        if_not_found: success
+    patch:
+      default:
+        target: 70%
+        threshold: 5%
+        if_not_found: success
+        
+  ignore:
+    - "tests/"
+    - "docs/"
+    - "scripts/"
+    - "dev_files/"
+    - "setup.py"
+    - "**/__init__.py"
+
+comment:
+  layout: "reach,diff,flags,tree"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+
+github_checks:
+  annotations: true
