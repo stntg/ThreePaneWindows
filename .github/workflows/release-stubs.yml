@@ -29,9 +29,46 @@ jobs:
         working-directory: ./stubs-package  # Adjust this path if your package lives elsewhere
         run: python -m build
 
+      - name: Check PyPI token availability
+        id: check-token
+        run: |
+          if [ -z "${{ secrets.PYPI_API_TOKEN }}" ]; then
+            echo "PyPI token not available. Skipping PyPI upload."
+            echo "token-available=false" >> $GITHUB_OUTPUT
+          else
+            echo "PyPI token available. Proceeding with upload."
+            echo "token-available=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Publish to PyPI
+        if: steps.check-token.outputs.token-available == 'true'
         working-directory: ./stubs-package
         env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: twine upload dist/*
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          echo "🚀 Publishing package to PyPI..."
+          python -m twine upload dist/* --verbose
+          echo "✅ Package successfully published to PyPI!"
+
+      - name: PyPI upload skipped
+        if: steps.check-token.outputs.token-available == 'false'
+        run: |
+          echo "⚠️ PyPI upload was skipped because PYPI_API_TOKEN secret is not configured."
+          echo ""
+          echo "To enable PyPI publishing:"
+          echo "1. Go to your repository Settings > Secrets and variables > Actions"
+          echo "2. Add a new repository secret named 'PYPI_API_TOKEN'"
+          echo "3. Set the value to your PyPI API token"
+          echo "4. Re-run this workflow"
+
+      - name: Verify PyPI publication
+        if: steps.check-token.outputs.token-available == 'true'
+        timeout-minutes: 10
+        run: |
+          echo "⏳ Waiting for package to be available on PyPI..."
+          sleep 60
+          echo "📥 Installing from PyPI..."
+          python -m pip install threepanewindows-stubs
+          echo "✅ Verifying installation..."
+          python -c "import threepanewindows-stubs; print(f'✅ Successfully installed threepanewindows-stubs v{threepanewindows-stubs.__version__} from PyPI')"
