@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.0] - 2025-01-20
+## [1.1.0] - 2025-01-27
 
 ### Added
 
@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Platform-Specific Optimizations**: Automatic icon format selection and fallback mechanisms for Windows, macOS, and Linux
 - **Native Theme Detection**: Automatic system theme detection and integration across platforms
 - **Professional Color Schemes**: Multiple professionally designed color schemes with proper contrast ratios
+- **Security Tests**: New comprehensive test suite for security-related functionality
+- **Codecov Configuration**: Added codecov.yml with appropriate coverage thresholds for better CI/CD
 
 ### Changed
 
@@ -38,8 +40,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Icon Display Issues**: Fixed icon display problems on Linux and macOS platforms
 - **Format Compatibility**: Resolved .ico file compatibility issues on non-Windows platforms
 - **Theme Application**: Fixed theme application consistency across different UI components
+- **CI/CD Improvements**: Fixed codecov/patch coverage issues with proper authentication and configuration
+- **Code Quality**: Resolved flake8 F824 error by removing unnecessary global statement
+- **Documentation**: Added markdownlint configuration to fix MD024 duplicate heading warnings
 
 ### Security
+
+- **Fixed All Bandit Security Issues**: Resolved 18 security vulnerabilities identified by Bandit static analysis
+  - Fixed try-except-pass blocks with specific exception handling (B110)
+  - Secured subprocess calls with hardcoded paths and validation (B603/B404)
+  - Added proper timeout protection for system commands
+  - Enhanced exception handling in enhanced_dockable.py
+  - Secured macOS and Linux system command execution
 
 ## [1.0.4] - 2025-01-20
 
