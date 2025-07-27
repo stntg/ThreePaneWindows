@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Custom scrollbar implementation for better theming control
-"""
+"""Custom scrollbar implementation for better theming control."""
 
 import tkinter as tk
 from tkinter import ttk
@@ -18,6 +16,7 @@ class ThemedScrollbar(tk.Frame):
         command: Optional[Callable] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize custom scrollbar with parent, orientation, and command."""
         super().__init__(parent, **kwargs)
 
         self.orient = orient

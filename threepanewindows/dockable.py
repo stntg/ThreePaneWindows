@@ -1,10 +1,17 @@
+"""
+Dockable three-pane window implementation.
+
+This module provides a dockable three-pane window layout with detachable
+left and right frames for flexible UI arrangements.
+"""
+
 import tkinter as tk
 from tkinter import ttk
 
 
 class DockableThreePaneWindow(tk.Frame):
-    """
-    A dockable three-pane window with detachable left and right frames.
+    """A dockable three-pane window with detachable left and right frames.
+    
     Usage:
         window = DockableThreePaneWindow(parent, left_builder=...,
                                          center_builder=..., right_builder=...)
@@ -22,6 +29,7 @@ class DockableThreePaneWindow(tk.Frame):
         menu_bar=None,
         **kwargs,
     ):
+        """Initialize dockable three-pane window with configuration options."""
         super().__init__(master, **kwargs)
         self.side_width = side_width
         self.left_builder = left_builder
@@ -220,12 +228,15 @@ class DockableThreePaneWindow(tk.Frame):
 
     # Optionally, provide accessors for the panes
     def get_left_frame(self):
+        """Get the left frame widget."""
         return self.left_content
 
     def get_center_frame(self):
+        """Get the center frame widget."""
         return self.center_frame
 
     def get_right_frame(self):
+        """Get the right frame widget."""
         return self.right_content
 
     def set_left_fixed_width(self, width: int):

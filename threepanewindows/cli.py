@@ -11,7 +11,7 @@ from .examples import run_demo
 
 
 def main() -> None:
-    """Main CLI entry point."""
+    """Provide main CLI entry point."""
     parser = argparse.ArgumentParser(
         description="ThreePaneWindows - Tkinter three-pane layouts", prog="threepane"
     )
