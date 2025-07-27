@@ -2,7 +2,7 @@
 
 from typing import Tuple
 
-__version__ = "1.0.4"
+__version__ = "1.1.0"
 
 
 def _parse_version(version_string: str) -> Tuple[int, int, int]:
@@ -44,7 +44,7 @@ MINOR = __version_info__[1]
 PATCH = __version_info__[2]
 
 # Development status
-DEV_STATUS = "beta"
+DEV_STATUS = ""  # Stable release
 
 # Full version string with development status
 FULL_VERSION = f"{__version__}-{DEV_STATUS}" if DEV_STATUS else __version__

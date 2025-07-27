@@ -8,9 +8,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="threepanewindows",
-    version="1.0.4",
-    author="ThreePaneWindows Team",
-    author_email="contact@example.com",
+    version="1.1.0",
+    author="Stan Griffiths",
+    author_email="stantgriffiths@gmail.com",
     description=(
         "A Python library for creating dockable and fixed three-pane window "
         "layouts in Tkinter with cross-platform icon support"
@@ -20,21 +20,20 @@ setup(
     url="https://github.com/stntg/threepanewindows",
     packages=find_packages(),
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: User Interfaces",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.9",
     install_requires=[
         # tkinter is part of Python standard library
     ],

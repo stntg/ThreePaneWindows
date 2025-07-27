@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "threepanewindows"
-version = "1.0.4"
+version = "1.1.0"
 description = "Professional three-pane window layouts for Tkinter applications with docking, theming, and advanced UI components"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
     {name = "Stan Griffiths", email = "stantgriffiths@gmail.com"},
@@ -17,16 +17,17 @@ maintainers = [
 ]
 keywords = ["tkinter", "gui", "layout", "three-pane", "dockable", "ui", "desktop", "application", "framework"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
+
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: User Interfaces",
     "Topic :: Desktop Environment",
@@ -117,7 +118,7 @@ line_length = 88
 known_first_party = ["threepanewindows"]
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

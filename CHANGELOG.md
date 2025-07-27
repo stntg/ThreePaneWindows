@@ -7,22 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-01-20
+
 ### Added
 
+- **Enhanced Cross-Platform Theming System**: Complete theme management with multiple theme types (light, dark, blue, green, purple, system, native)
+- **Platform Utilities Framework**: New `utils` package with Windows, macOS, and Linux platform handlers
+- **Professional Type Stubs Package**: Complete type annotations with separate stubs distribution for enhanced IDE support
+- **Comprehensive Documentation**: Professional docstring coverage across all modules, classes, and methods
 - **Cross-Platform Icon Support**: Enhanced detached windows now support multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic platform optimization
 - **Icon Utility Functions**: Added `get_recommended_icon_formats()` and `validate_icon_path()` for better icon management
 - **Platform-Specific Optimizations**: Automatic icon format selection and fallback mechanisms for Windows, macOS, and Linux
+- **Native Theme Detection**: Automatic system theme detection and integration across platforms
+- **Professional Color Schemes**: Multiple professionally designed color schemes with proper contrast ratios
 
 ### Changed
 
+- **Development Status**: Promoted from Beta to Production/Stable release
+- **Python Support**: Updated minimum Python version from 3.7 to 3.9, added Python 3.13 support (now supports 3.9-3.13)
+- **Theme Management**: Completely redesigned theming system with platform-specific theme detection
+- **Code Quality**: Enhanced code quality with comprehensive docstrings following imperative mood conventions
 - **Enhanced Icon Handling**: Improved icon loading with better error handling and cross-platform compatibility
 - **PaneConfig Documentation**: Updated window_icon field to reflect multi-format support
 - **Platform Behavior**: Added platform-specific window behavior optimizations for detached windows
+- **Developer Experience**: Improved IDE support with complete type annotations and stubs
 
 ### Fixed
 
+- **Docstring Compliance**: Fixed all docstring formatting issues and missing documentation
 - **Icon Display Issues**: Fixed icon display problems on Linux and macOS platforms
 - **Format Compatibility**: Resolved .ico file compatibility issues on non-Windows platforms
+- **Theme Application**: Fixed theme application consistency across different UI components
 
 ### Security
 
