@@ -153,23 +153,36 @@ class LinuxPlatformHandler(PlatformHandler):
 
             # Check for common compositors
             try:
-                import subprocess
+                import subprocess  # nosec B404
 
                 # Use full path to pgrep for security
                 pgrep_path = shutil.which("pgrep")
                 if pgrep_path:
-                    result = subprocess.run(
-                        [pgrep_path, "-x", "compton"], capture_output=True, text=True
+                    result = subprocess.run(  # nosec B603
+                        [pgrep_path, "-x", "compton"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5,
+                        check=False,  # Don't raise exception on non-zero exit
                     )
                     if result.returncode == 0:
                         return True
 
-                    result = subprocess.run(
-                        [pgrep_path, "-x", "picom"], capture_output=True, text=True
+                    result = subprocess.run(  # nosec B603
+                        [pgrep_path, "-x", "picom"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5,
+                        check=False,  # Don't raise exception on non-zero exit
                     )
                     if result.returncode == 0:
                         return True
-            except (ImportError, OSError, Exception):
+            except (
+                ImportError,
+                OSError,
+                subprocess.SubprocessError,
+                subprocess.TimeoutExpired,
+            ):
                 pass
 
             return False
@@ -188,16 +201,17 @@ class LinuxPlatformHandler(PlatformHandler):
 
         try:
             # Check GNOME settings
-            import subprocess
+            import subprocess  # nosec B404
 
             # Use full path to gsettings for security
             gsettings_path = shutil.which("gsettings")
             if gsettings_path:
-                result = subprocess.run(
+                result = subprocess.run(  # nosec B603
                     [gsettings_path, "get", "org.gnome.desktop.interface", "gtk-theme"],
                     capture_output=True,
                     text=True,
                     timeout=5,
+                    check=False,  # Don't raise exception on non-zero exit
                 )
                 theme_name = result.stdout.strip().strip("'\"").lower()
                 return "dark" in theme_name
@@ -210,16 +224,17 @@ class LinuxPlatformHandler(PlatformHandler):
 
         try:
             # Check KDE settings
-            import subprocess
+            import subprocess  # nosec B404
 
             # Use full path to kreadconfig5 for security
             kreadconfig_path = shutil.which("kreadconfig5")
             if kreadconfig_path:
-                result = subprocess.run(
+                result = subprocess.run(  # nosec B603
                     [kreadconfig_path, "--group", "General", "--key", "ColorScheme"],
                     capture_output=True,
                     text=True,
                     timeout=5,
+                    check=False,  # Don't raise exception on non-zero exit
                 )
                 color_scheme = result.stdout.strip().lower()
                 return "dark" in color_scheme or "breeze dark" in color_scheme
@@ -241,12 +256,12 @@ class LinuxPlatformHandler(PlatformHandler):
         """Get Linux system accent color."""
         try:
             # Try to get GNOME accent color
-            import subprocess
+            import subprocess  # nosec B404
 
             # Use full path to gsettings for security
             gsettings_path = shutil.which("gsettings")
             if gsettings_path:
-                result = subprocess.run(
+                result = subprocess.run(  # nosec B603
                     [
                         gsettings_path,
                         "get",
@@ -256,6 +271,7 @@ class LinuxPlatformHandler(PlatformHandler):
                     capture_output=True,
                     text=True,
                     timeout=5,
+                    check=False,  # Don't raise exception on non-zero exit
                 )
                 if result.returncode == 0:
                     color = result.stdout.strip().strip("'\"")

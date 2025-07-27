@@ -10,7 +10,7 @@ The platform-specific code has been extracted from the main modules and organize
 
 ### Platform Package Structure
 
-```
+```text
 threepanewindows/platform/
 ├── __init__.py          # Main platform detection and handler selection
 ├── base.py              # Abstract base class for platform handlers

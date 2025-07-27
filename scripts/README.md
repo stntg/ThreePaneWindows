@@ -84,7 +84,6 @@ check_markdown.bat --verbose
 
 #### Linux/macOS: `check_markdown.sh`
 
-
 ```bash
 # Make executable (first time only)
 chmod +x scripts/check_markdown.sh
@@ -105,18 +104,21 @@ chmod +x scripts/check_markdown.sh
 ## Issue Types Detected
 
 ### Critical Issues (Errors)
+
 - **Broken links** - Relative links to non-existent files
 - **Malformed code blocks** - Unclosed or improperly formatted code blocks
 - **Invalid table structure** - Tables with incorrect formatting
 - **File encoding issues** - Files that cannot be read properly
 
 ### Warnings
+
 - **Heading hierarchy problems** - Skipping heading levels (h1 → h3)
 - **Missing language tags** - Code blocks without language specification
 - **Inconsistent formatting** - Mixed emphasis styles, inconsistent lists
 - **Potential typos** - Common misspellings detected
 
 ### Info/Style Issues
+
 - **Trailing whitespace** - Extra spaces at end of lines
 - **Tab characters** - Tabs instead of spaces
 - **Multiple blank lines** - More than 2 consecutive empty lines
@@ -128,6 +130,7 @@ chmod +x scripts/check_markdown.sh
 ### Typo Detection
 
 The scripts include common typo patterns:
+
 - `their` → `their`
 - `receive` → `receive`
 - `occurred` → `occurred`
@@ -137,6 +140,7 @@ The scripts include common typo patterns:
 ### Emoji Standardization
 
 Common emoji codes are converted to Unicode:
+
 - `✅` → `✅`
 - `❌` → `❌`
 - `⚠️` → `⚠️`
@@ -145,6 +149,7 @@ Common emoji codes are converted to Unicode:
 ### Exclusion Patterns
 
 By default, these directories are excluded:
+
 - `.git`
 - `node_modules`
 - `**pycache**`
@@ -188,6 +193,7 @@ jobs:
 ### VS Code Integration
 
 Add to `.vscode/tasks.json`:
+
 ```json
 {
     "version": "2.0.0",
@@ -265,6 +271,7 @@ python scripts/check_fix_markdown.py --verbose
 ```
 
 ### Check Specific File
+
 ```bash
 python scripts/check_fix_markdown.py --file README.md
 python scripts/quick_md_check.py --file docs/API.md
@@ -273,7 +280,8 @@ python scripts/quick_md_check.py --file docs/API.md
 ## Output Examples
 
 ### Successful Check
-```
+
+```text
 ✅ No issues found in Markdown files!
 
 📋 Summary:
@@ -283,7 +291,8 @@ Total issues found: 0
 ```
 
 ### Issues Found
-```
+
+```text
 📄 README.md
   ⚠️  Line 23: Trailing whitespace
   ⚠️  Line 45: Missing space after heading #
@@ -313,10 +322,13 @@ chmod +x scripts/check_markdown.sh
 ```
 
 ### Encoding Issues
+
 The scripts handle both UTF-8 and Latin-1 encodings automatically.
 
 ### Large Files
+
 For very large Markdown files, use the quick checker for better performance:
+
 ```bash
 python scripts/quick_md_check.py --file large_file.md
 ```
@@ -332,6 +344,7 @@ To add new checks:
 5. **Update documentation** - Add to this README
 
 Example new check:
+
 ```python
 def check_custom_issue(self, file_path: str, lines: List[str]) -> List[MarkdownIssue]:
     """Check for custom issue."""

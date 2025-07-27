@@ -77,7 +77,6 @@ We use a Git Flow-inspired branching model:
 
 ### Creating a Feature Branch
 
-
 ```bash
 # Switch to develop branch
 git checkout develop
@@ -120,7 +119,6 @@ This project supports Python 3.8 and above. When developing, be aware of:
 
 Before submitting, ensure your code passes all checks:
 
-
 ```bash
 # Format code
 black .
@@ -141,7 +139,6 @@ tox -e lint
 ## Testing
 
 ### Running Tests
-
 
 ```bash
 # Run all tests
@@ -203,7 +200,6 @@ class TestFixedThreePaneWindow:
 
 For GUI components, we have visual tests marked with `@pytest.mark.visual`:
 
-
 ```bash
 # Run visual tests (requires display)
 pytest -m visual
@@ -215,7 +211,6 @@ pytest -m "not visual"
 ## Documentation
 
 ### Building Documentation
-
 
 ```bash
 # Install documentation dependencies
@@ -280,7 +275,6 @@ docs/
     - Respond to reviewer comments
 
 ### Pull Request Template
-
 
 ```markdown
 ## Description

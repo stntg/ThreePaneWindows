@@ -766,8 +766,10 @@ class DetachedWindow(tk.Toplevel):
                 # Temporarily set topmost to ensure it comes to front, then remove it
                 self.attributes("-topmost", True)
                 self.after_idle(lambda: self.attributes("-topmost", False))
-            except Exception:
-                pass  # Ignore any errors in focus management
+            except (tk.TclError, AttributeError):
+                # Ignore specific errors in focus management (window may be destroyed)
+                # Log could be added here if needed for debugging
+                pass  # nosec B110
 
         def bind_focus_recursively(widget):
             """Recursively bind focus events to all child widgets."""
@@ -779,8 +781,10 @@ class DetachedWindow(tk.Toplevel):
                 # Recursively bind to all children
                 for child in widget.winfo_children():
                     bind_focus_recursively(child)
-            except Exception:
-                pass  # Ignore binding errors for widgets that don't support events
+            except (tk.TclError, AttributeError):
+                # Ignore specific binding errors for widgets that don't support events
+                # Log could be added here if needed for debugging
+                pass  # nosec B110
 
         # Bind to the main window
         self.bind("<Button-1>", lambda e: bring_to_front(), add=True)

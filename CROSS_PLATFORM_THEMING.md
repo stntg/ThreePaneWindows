@@ -54,18 +54,21 @@ class ThemeType(Enum):
 ### 🔧 Platform-Specific Implementations
 
 #### Windows Platform Handler
+
 - Registry-based dark mode detection
 - DWM accent color extraction
 - Windows-specific color schemes
 - Segoe UI typography with fallbacks
 
 #### macOS Platform Handler
+
 - NSUserDefaults integration for appearance
 - System accent color detection
 - SF Pro Display font support
 - macOS-specific color palettes
 
 #### Linux Platform Handler
+
 - Desktop environment detection
 - gsettings/kreadconfig integration
 - Font detection per DE (GNOME, KDE, etc.)
@@ -151,18 +154,21 @@ listbox.configure(**listbox_style)
 ## Platform-Specific Features
 
 ### Windows
+
 - **Accent Color**: Extracted from `HKEY_CURRENT_USER\Software\Microsoft\Windows\DWM\AccentColor`
 - **Dark Mode**: Detected via `AppsUseLightTheme` registry value
 - **Typography**: Segoe UI with Tahoma fallback
 - **Colors**: Fluent Design-inspired color schemes
 
 ### macOS
+
 - **Appearance**: NSUserDefaults `AppleInterfaceStyle` detection
 - **Accent Color**: System accent color via NSUserDefaults
 - **Typography**: SF Pro Display with Helvetica fallbacks
 - **Colors**: macOS Human Interface Guidelines colors
 
 ### Linux
+
 - **Desktop Environment**: XDG_CURRENT_DESKTOP detection
 - **Theme Detection**: gsettings (GNOME) and kreadconfig (KDE)
 - **Typography**: DE-specific fonts (Cantarell, Noto Sans, Ubuntu)
@@ -180,10 +186,12 @@ The system includes comprehensive error handling:
 ## Dependencies
 
 ### Required
+
 - `tkinter` (Python standard library)
 - `platform` (Python standard library)
 
 ### Optional (for enhanced features)
+
 - `darkdetect` - Cross-platform dark mode detection
 - Platform-specific modules for advanced features
 
@@ -203,7 +211,7 @@ python test_enhanced_theming.py
 
 ## File Structure
 
-```
+```text
 threepanewindows/
 ├── themes.py                    # Enhanced theme management
 ├── platform/
@@ -236,12 +244,14 @@ theme_manager.apply_theme_to_widget(widget, recursive=True)  # Themes specific w
 ### Supported Widget Types
 
 **TTK Widgets** (automatically themed):
+
 - TLabel, TButton, TEntry, TCombobox
 - TCheckbutton, TRadiobutton, TFrame, TLabelFrame
 - TNotebook, TProgressbar, TScale, TScrollbar
 - Treeview with headers and selection
 
 **TK Widgets** (automatically themed):
+
 - Text, Listbox, Canvas, Entry
 - Label, Button, Frame
 - Root windows and Toplevel windows
@@ -249,22 +259,26 @@ theme_manager.apply_theme_to_widget(widget, recursive=True)  # Themes specific w
 ### Theme Application Methods
 
 1. **Comprehensive Window Theming**:
+
    ```python
    theme_manager.apply_theme_to_window(window)
    ```
 
 2. **Individual Widget Theming**:
+
    ```python
    theme_manager.apply_theme_to_widget(widget, recursive=True)
    ```
 
 3. **TTK Style Configuration**:
+
    ```python
    style = ttk.Style()
    theme_manager.apply_ttk_theme(style)
    ```
 
 4. **TK Widget Styling**:
+
    ```python
    text_style = theme_manager.get_tk_widget_style("text")
    text_widget.configure(**text_style)

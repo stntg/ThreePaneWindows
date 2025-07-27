@@ -6,7 +6,7 @@ titlebar customization, theming, and other platform-specific features.
 """
 
 import os
-import subprocess
+import subprocess  # nosec B404
 import tkinter as tk
 from tkinter import ttk
 from typing import Any, List, Optional, Tuple
@@ -31,9 +31,10 @@ def detect_macos_dark_mode() -> bool:
 
     try:
         # Fallback: Use AppleScript to check system appearance
-        result = subprocess.run(
+        # Using hardcoded path to osascript for security
+        result = subprocess.run(  # nosec B603
             [
-                "osascript",
+                "/usr/bin/osascript",
                 "-e",
                 (
                     'tell application "System Events" to tell appearance '
@@ -43,6 +44,7 @@ def detect_macos_dark_mode() -> bool:
             capture_output=True,
             text=True,
             timeout=5,
+            check=False,  # Don't raise exception on non-zero exit
         )
         return result.stdout.strip().lower() == "true"
     except (subprocess.SubprocessError, subprocess.TimeoutExpired, FileNotFoundError):
@@ -50,11 +52,13 @@ def detect_macos_dark_mode() -> bool:
 
     try:
         # Another fallback: Check system defaults
-        result = subprocess.run(
-            ["defaults", "read", "-g", "AppleInterfaceStyle"],
+        # Using hardcoded path to defaults command for security
+        result = subprocess.run(  # nosec B603
+            ["/usr/bin/defaults", "read", "-g", "AppleInterfaceStyle"],
             capture_output=True,
             text=True,
             timeout=5,
+            check=False,  # Don't raise exception on non-zero exit
         )
         return result.stdout.strip().lower() == "dark"
     except (subprocess.SubprocessError, subprocess.TimeoutExpired, FileNotFoundError):
@@ -73,11 +77,13 @@ def get_macos_accent_color() -> Optional[str]:
     """
     try:
         # Try to get the accent color from system preferences
-        result = subprocess.run(
-            ["defaults", "read", "-g", "AppleAccentColor"],
+        # Using hardcoded path to defaults command for security
+        result = subprocess.run(  # nosec B603
+            ["/usr/bin/defaults", "read", "-g", "AppleAccentColor"],
             capture_output=True,
             text=True,
             timeout=5,
+            check=False,  # Don't raise exception on non-zero exit
         )
 
         accent_id = result.stdout.strip()
