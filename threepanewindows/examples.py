@@ -1135,8 +1135,6 @@ def _build_enhanced_file_explorer(frame, panel_name):
     def update_theme(theme_name=None):
         import time
 
-        global _theme_update_in_progress
-
         # Skip if global theme update is in progress (prevents cascading updates)
         if _theme_update_in_progress:
             return
