@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from .custom_scrollbar import ThemedScrollbar
 
 # Import platform-specific functionality
-from .platform import platform_handler
+from .utils import platform_handler
 
 
 class ThemeType(Enum):

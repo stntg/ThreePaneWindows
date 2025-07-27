@@ -11,8 +11,8 @@ from dataclasses import dataclass
 from tkinter import ttk
 from typing import Callable, Dict, List, Optional, Tuple
 
-from .platform import platform_handler
 from .themes import ThemeManager, get_theme_manager
+from .utils import platform_handler
 
 
 def get_recommended_icon_formats() -> List[str]:
@@ -96,8 +96,8 @@ class DragHandle(tk.Frame):
             for j in range(2):
                 dot = tk.Frame(
                     self.grip_frame,
-                    width=2,
-                    height=2,
+                    width=3,
+                    height=3,
                     bg=theme.colors.secondary_text,
                     relief="flat",
                 )
@@ -219,11 +219,11 @@ class PaneHeader(tk.Frame):
 
         # Check if title already includes the icon to avoid duplication
         # For text icons (emojis), check if title starts with the icon
-        # For file icons, we'll always show them separately since titles won't contain image files
+        # For file icons, show them separately since titles won't contain images
         title_includes_icon = (
             self.config.icon
             and self.config.title
-            and not self._is_icon_file(self.config.icon)  # Only check for text icons
+            and not self._is_icon_file(self.config.icon)  # Only check for text
             and self.config.title.startswith(self.config.icon)
         )
 
@@ -445,6 +445,9 @@ class DetachedWindow(tk.Toplevel):
         if icon_path:
             self._set_window_icon(icon_path)
 
+        # Setup focus management for better user experience
+        self._setup_focus_management()
+
         # Handle window close
         self.protocol("WM_DELETE_WINDOW", self._on_window_close)
 
@@ -527,12 +530,10 @@ class DetachedWindow(tk.Toplevel):
 
             # Check if title already includes the icon to avoid duplication
             # For text icons (emojis), check if title starts with the icon
-            # For file icons, we'll always show them separately since titles won't contain image files
+            # For file icons, show them separately since titles won't contain images
             title_includes_icon = (
                 self.config.icon
-                and not self._is_icon_file(
-                    self.config.icon
-                )  # Only check for text icons
+                and not self._is_icon_file(self.config.icon)  # Only check for text
                 and self.config.title.startswith(self.config.icon)
             )
 
@@ -736,7 +737,12 @@ class DetachedWindow(tk.Toplevel):
         self._scrollbar_h = scrollbar_h
 
     def _start_drag(self, event):
-        """Start dragging the window."""
+        """Start dragging the window and bring it to front."""
+        # Bring window to front and give it focus when clicked
+        self.lift()
+        self.focus_set()
+
+        # Store drag data for dragging functionality
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y
 
@@ -745,6 +751,40 @@ class DetachedWindow(tk.Toplevel):
         x = self.winfo_x() + (event.x - self._drag_data["x"])
         y = self.winfo_y() + (event.y - self._drag_data["y"])
         self.geometry(f"+{x}+{y}")
+
+    def _setup_focus_management(self):
+        """Setup comprehensive focus management for the detached window."""
+
+        def bring_to_front(event=None):
+            """Bring the window to front and give it focus."""
+            try:
+                self.lift()
+                self.focus_set()
+                # Temporarily set topmost to ensure it comes to front, then remove it
+                self.attributes("-topmost", True)
+                self.after_idle(lambda: self.attributes("-topmost", False))
+            except Exception:
+                pass  # Ignore any errors in focus management
+
+        def bind_focus_recursively(widget):
+            """Recursively bind focus events to all child widgets."""
+            try:
+                # Bind click events to bring window to front
+                widget.bind("<Button-1>", lambda e: bring_to_front(), add=True)
+                widget.bind("<FocusIn>", bring_to_front, add=True)
+
+                # Recursively bind to all children
+                for child in widget.winfo_children():
+                    bind_focus_recursively(child)
+            except Exception:
+                pass  # Ignore binding errors for widgets that don't support events
+
+        # Bind to the main window
+        self.bind("<Button-1>", lambda e: bring_to_front(), add=True)
+        self.bind("<FocusIn>", bring_to_front, add=True)
+
+        # Bind to all child widgets
+        bind_focus_recursively(self)
 
     def _on_window_close(self):
         """Handle window close."""

@@ -10,7 +10,7 @@ import sys
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .base import PlatformHandler
+    from .base import PlatformHandler as BasePlatformHandler
 
 # Determine the current platform and import the appropriate handler
 _system = platform.system().lower()
@@ -25,7 +25,7 @@ else:
     from .linux import LinuxPlatformHandler as PlatformHandler
 
 # Create the global platform handler instance
-platform_handler: "PlatformHandler" = PlatformHandler()
+platform_handler: "BasePlatformHandler" = PlatformHandler()
 
 # Export the handler and common functions
 __all__ = [

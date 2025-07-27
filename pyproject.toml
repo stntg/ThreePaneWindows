@@ -130,6 +130,10 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+exclude = [
+    "stubs-package/",
+    "threepanewindows-stubs/",
+]
 
 [[tool.mypy.overrides]]
 module = "tkinter.*"

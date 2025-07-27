@@ -35,7 +35,10 @@ def detect_macos_dark_mode() -> bool:
             [
                 "osascript",
                 "-e",
-                'tell application "System Events" to tell appearance preferences to get dark mode',
+                (
+                    'tell application "System Events" to tell appearance '
+                    "preferences to get dark mode"
+                ),
             ],
             capture_output=True,
             text=True,

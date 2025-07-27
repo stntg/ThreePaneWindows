@@ -1,0 +1,3 @@
+include threepanewindows-stubs/py.typed
+include threepanewindows-stubs/README.md
+recursive-include threepanewindows-stubs *.pyi

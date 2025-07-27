@@ -1,0 +1,2 @@
+include threepanewindows/py.typed
+recursive-include threepanewindows *.pyi
