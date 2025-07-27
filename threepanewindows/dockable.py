@@ -11,7 +11,7 @@ from tkinter import ttk
 
 class DockableThreePaneWindow(tk.Frame):
     """A dockable three-pane window with detachable left and right frames.
-    
+
     Usage:
         window = DockableThreePaneWindow(parent, left_builder=...,
                                          center_builder=..., right_builder=...)
