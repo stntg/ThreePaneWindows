@@ -232,7 +232,7 @@ python -m threepanewindows.examples
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.9+
 - tkinter (included with Python)
 
 ## License

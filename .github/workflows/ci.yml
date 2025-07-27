@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
 
     steps:
     - uses: actions/checkout@v4
@@ -57,16 +57,7 @@ jobs:
       run: |
         mypy threepanewindows --ignore-missing-imports
 
-    - name: Test with pytest (Python 3.8)
-      if: matrix.python-version == '3.8'
-      timeout-minutes: 15
-      env:
-        DISPLAY: ${{ runner.os == 'Linux' && ':99' || '' }}
-      run: |
-        pytest -c pytest_py38.ini tests/ -m "not gui" -k "not test_demo_integration_with_mainloop and not test_run_demo_creates_window and not test_examples_no_longer_hang" --cov=threepanewindows --cov-report=xml --cov-report=html -v
-
-    - name: Test with pytest (Python 3.9+)
-      if: matrix.python-version != '3.8'
+    - name: Test with pytest
       timeout-minutes: 15
       env:
         DISPLAY: ${{ runner.os == 'Linux' && ':99' || '' }}
