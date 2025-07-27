@@ -1,3 +1,10 @@
+"""
+Professional theming system for ThreePaneWindows.
+
+This module provides comprehensive theming capabilities including color schemes,
+typography, spacing, and platform-specific theme detection and management.
+"""
+
 import logging
 import platform
 import tkinter as tk
@@ -14,6 +21,8 @@ from .utils import platform_handler
 
 
 class ThemeType(Enum):
+    """Enumeration of available theme types."""
+
     LIGHT = "light"
     DARK = "dark"
     BLUE = "blue"
@@ -28,6 +37,8 @@ class ThemeType(Enum):
 
 @dataclass
 class ColorScheme:
+    """Color scheme configuration for themes."""
+
     primary_bg: str = "#ffffff"
     secondary_bg: str = "#f5f5f5"
     accent_bg: str = "#e3f2fd"
@@ -53,6 +64,8 @@ class ColorScheme:
 
 @dataclass
 class Typography:
+    """Typography configuration for themes."""
+
     font_family: str = "Segoe UI"
     font_family_fallback: str = "Arial"
     font_size_small: int = 9
@@ -67,6 +80,8 @@ class Typography:
 
 @dataclass
 class Spacing:
+    """Spacing configuration for themes."""
+
     padding_small: int = 4
     padding_normal: int = 8
     padding_large: int = 16
@@ -79,6 +94,8 @@ class Spacing:
 
 @dataclass
 class Theme:
+    """Complete theme configuration including colors, typography, and spacing."""
+
     name: str
     colors: ColorScheme = field(default_factory=ColorScheme)
     typography: Typography = field(default_factory=Typography)
@@ -91,11 +108,14 @@ class Theme:
 
 
 class ThemeManager:
+    """Manages theme application and platform-specific theme detection."""
+
     def __init__(
         self,
         theme: Optional[Union[str, ThemeType]] = None,
         custom_scheme: Optional[ColorScheme] = None,
     ) -> None:
+        """Initialize theme manager with optional theme and custom color scheme."""
         self._themes: Dict[str, Theme] = {}
         self._current_theme: Optional[Theme] = None
         self._style_cache: Dict[str, Dict[str, Any]] = {}
@@ -110,7 +130,6 @@ class ThemeManager:
     # original
     def _initialize_default_themes(self) -> None:
         """Initialize default themes."""
-
         # Light Theme
         light_colors = ColorScheme(
             primary_bg="#ffffff",
@@ -465,6 +484,7 @@ class ThemeManager:
         custom_scheme: Optional[ColorScheme] = None,
         window: Optional[tk.Tk] = None,
     ) -> bool:
+        """Set the active theme by name or type."""
         if custom_scheme and (
             name == ThemeType.CUSTOM
             or (hasattr(name, "value") and name.value == "custom")
@@ -549,11 +569,13 @@ class ThemeManager:
             return False
 
     def get_theme(self, name: Union[str, ThemeType]) -> Optional[Theme]:
+        """Get a theme by name or type."""
         if hasattr(name, "value"):
             name = name.value
         return self._themes.get(str(name).lower())
 
     def get_current_theme(self) -> Theme:
+        """Get the currently active theme."""
         return self._current_theme or self._themes["light"]
 
     @property
@@ -585,6 +607,7 @@ class ThemeManager:
             return None
 
     def register_theme(self, theme: Theme) -> None:
+        """Register a new theme."""
         self._themes[theme.name.lower()] = theme
 
     def get_available_themes(self) -> List[str]:

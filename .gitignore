@@ -269,12 +269,7 @@ pytest_robust.ini
 # Local test cache
 .pytest_cache_local/
 __pycache__/test_*
-tests/__pycache__/test_enhanced_*
-tests/__pycache__/test_themes*
-tests/__pycache__/test_cli*
-tests/__pycache__/test_examples*
-tests/__pycache__/test_version*
-tests/__pycache__/test_integration*
+tests/__pycache__/
 
 # Tox configuration (if not needed)
 tox.ini
@@ -290,3 +285,4 @@ desktop.ini
 # (These should only exist in threepanewindows/ directory)
 /__init__.py
 /_version.py
+ThreePaneWindows.code-workspace

@@ -67,6 +67,7 @@ class DragHandle(tk.Frame):
         theme_manager: ThemeManager,
         **kwargs,
     ):
+        """Initialize drag handle with parent, pane side, detach callback, and theme."""
         super().__init__(parent, **kwargs)
         self.pane_side = pane_side
         self.on_detach = on_detach
@@ -80,7 +81,7 @@ class DragHandle(tk.Frame):
         self._bind_events()
 
     def _setup_ui(self):
-        """Setup the drag handle UI."""
+        """Set up the drag handle UI."""
         theme = self.theme_manager.get_current_theme()
         # Configure the handle
         self.configure(
@@ -197,6 +198,7 @@ class PaneHeader(tk.Frame):
         theme_manager: ThemeManager,
         **kwargs,
     ):
+        """Initialize pane header with configuration and callbacks."""
         super().__init__(parent, **kwargs)
         self.config = config
         self.pane_side = pane_side
@@ -207,7 +209,7 @@ class PaneHeader(tk.Frame):
         self._setup_ui()
 
     def _setup_ui(self):
-        """Setup the header UI."""
+        """Set up the header UI."""
         theme = self.theme_manager.get_current_theme()
         style = self.theme_manager.get_style("panel_header")
 
@@ -396,6 +398,7 @@ class DetachedWindow(tk.Toplevel):
         layout_instance=None,
         **kwargs,
     ):
+        """Initialize detached window with configuration and callbacks."""
         super().__init__(parent, **kwargs)
         self.pane_side = pane_side
         self.config = config
@@ -408,7 +411,7 @@ class DetachedWindow(tk.Toplevel):
         self._setup_ui()
 
     def _setup_window(self):
-        """Setup the detached window."""
+        """Set up the detached window."""
         theme = self.theme_manager.get_current_theme()
 
         # Window properties
@@ -460,7 +463,7 @@ class DetachedWindow(tk.Toplevel):
         self.focus_set()
 
     def _setup_platform_specific_behavior(self):
-        """Setup platform-specific window behavior."""
+        """Set up platform-specific window behavior."""
         import platform
 
         system = platform.system()
@@ -493,7 +496,7 @@ class DetachedWindow(tk.Toplevel):
         platform_handler.set_window_icon(self, icon_path)
 
     def _setup_ui(self):
-        """Setup the UI."""
+        """Set up the UI."""
         theme = self.theme_manager.get_current_theme()
 
         # Determine the parent container (border frame if using Windows border,
@@ -640,7 +643,7 @@ class DetachedWindow(tk.Toplevel):
             self.content_builder(self.content_frame)
 
     def _setup_custom_titlebar(self, header_frame, theme):
-        """Setup custom title bar with window controls."""
+        """Set up custom title bar with window controls."""
         # Make the header draggable
         self._drag_data = {"x": 0, "y": 0}
         header_frame.bind("<Button-1>", self._start_drag)
@@ -657,7 +660,7 @@ class DetachedWindow(tk.Toplevel):
         return controls_frame
 
     def _setup_windows_border(self, theme):
-        """Setup Windows-style border for custom title bar windows."""
+        """Set up Windows-style border for custom title bar windows."""
         if self.config.custom_titlebar_shadow:
             # Windows-style border with shadow effect
             border_bg = "#2d2d30"  # Slightly darker for shadow effect
@@ -685,7 +688,7 @@ class DetachedWindow(tk.Toplevel):
         self._content_parent = self._border_frame
 
     def _setup_scrollable_content(self, theme, parent=None):
-        """Setup scrollable content area for detached windows."""
+        """Set up scrollable content area for detached windows."""
         if parent is None:
             parent = self
 
@@ -753,7 +756,7 @@ class DetachedWindow(tk.Toplevel):
         self.geometry(f"+{x}+{y}")
 
     def _setup_focus_management(self):
-        """Setup comprehensive focus management for the detached window."""
+        """Set up comprehensive focus management for the detached window."""
 
         def bring_to_front(event=None):
             """Bring the window to front and give it focus."""
@@ -822,8 +825,8 @@ class DetachedWindow(tk.Toplevel):
     def create_themed_scrollbar(
         self, parent, orient="vertical", command=None, **kwargs
     ):
-        """
-        Create a platform-appropriate themed scrollbar for detached window.
+        """Create a platform-appropriate themed scrollbar for detached window.
+
         Delegates to the main layout instance if available.
         """
         if self.layout_instance:
@@ -918,7 +921,7 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         show_toolbar: bool = False,
         **kwargs,
     ):
-
+        """Initialize enhanced dockable three-pane window with configuration options."""
         super().__init__(master, **kwargs)
 
         # Configuration
@@ -973,7 +976,7 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self._create_widgets()
 
     def _setup_styles(self):
-        """Setup TTK styles."""
+        """Set up TTK styles."""
         self.style = ttk.Style()
         self.theme_manager.apply_ttk_theme(self.style)
 
