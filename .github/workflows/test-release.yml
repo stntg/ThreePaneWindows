@@ -79,6 +79,9 @@ jobs:
     needs: test-build
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write  # Required for trusted publishing to PyPI
     steps:
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -180,6 +183,9 @@ jobs:
     needs: test-pypi-upload
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write  # Required for trusted publishing to PyPI
     steps:
     - name: Set up Python
       uses: actions/setup-python@v5
