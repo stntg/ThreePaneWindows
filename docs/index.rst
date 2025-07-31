@@ -23,10 +23,18 @@ ThreePaneWindows Documentation
 
 **ThreePaneWindows** is a professional Python library for creating sophisticated three-pane window layouts in Tkinter applications. It provides ready-to-use, customizable components with advanced features like docking, theming, and modern UI elements.
 
+Requirements
+------------
+
+* **Python**: 3.9 to 3.13
+* **Dependencies**: None (uses Python standard library only)
+* **Platforms**: Windows, macOS, Linux
+
 Features
 --------
 
 * **Multiple Layout Types**: Fixed-width and dockable three-pane layouts
+* **Smart Layout System (v1.2.0)**: Automatic detection of fixed vs. resizable panes for optimal sash behavior
 * **Professional Theming**: Built-in light and dark themes with customization options
 * **Cross-Platform Icon Support**: Multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic platform optimization
 * **Advanced Docking**: Drag-and-drop pane reordering and detachment

@@ -3,52 +3,114 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.2.0] - 2025-07-31
+
+### Added
+
+- Smart layout detection system that automatically chooses between custom
+  layout and TTK PanedWindow based on pane configuration.
+- Custom layout manager for windows with fixed panes that eliminates
+  interactive sash handles.
+- Visual sash separators for custom layout that provide visual feedback
+  without resize functionality.
+- Enhanced detach/reattach functionality that properly handles both
+  layout types.
+
+### Changed
+
+- **BREAKING BEHAVIOR**: Fixed panes (`fixed_width` or `resizable=False`)
+  now use custom layout without interactive sash handles.
+- Center pane now properly expands to fill remaining space when other
+  panes are detached.
+- Improved pane reattachment to restore original positions correctly.
+- Updated type stubs to reflect new internal architecture and methods.
+
+### Fixed
+
+- Sash handles no longer appear for fixed-width panes, preventing
+  unwanted resizing.
+- Fixed issue where fixed panes could still be resized via sash dragging.
+- Improved layout calculations to handle detached panes correctly.
+- Enhanced window resize behavior for mixed resizable/fixed pane
+  configurations.
 
 ## [1.1.0] - 2025-01-27
 
 ### Added
 
-- **Enhanced Cross-Platform Theming System**: Complete theme management with multiple theme types (light, dark, blue, green, purple, system, native)
-- **Platform Utilities Framework**: New `utils` package with Windows, macOS, and Linux platform handlers
-- **Professional Type Stubs Package**: Complete type annotations with separate stubs distribution for enhanced IDE support
-- **Comprehensive Documentation**: Professional docstring coverage across all modules, classes, and methods
-- **Cross-Platform Icon Support**: Enhanced detached windows now support multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic platform optimization
-- **Icon Utility Functions**: Added `get_recommended_icon_formats()` and `validate_icon_path()` for better icon management
-- **Platform-Specific Optimizations**: Automatic icon format selection and fallback mechanisms for Windows, macOS, and Linux
-- **Native Theme Detection**: Automatic system theme detection and integration across platforms
-- **Professional Color Schemes**: Multiple professionally designed color schemes with proper contrast ratios
-- **Security Tests**: New comprehensive test suite for security-related functionality
-- **Codecov Configuration**: Added codecov.yml with appropriate coverage thresholds for better CI/CD
+- **Enhanced Cross-Platform Theming System**: Complete theme management
+  with multiple theme types (light, dark, blue, green, purple, system,
+  native)
+- **Platform Utilities Framework**: New `utils` package with Windows,
+  macOS, and Linux platform handlers
+- **Professional Type Stubs Package**: Complete type annotations with
+  separate stubs distribution for enhanced IDE support
+- **Comprehensive Documentation**: Professional docstring coverage across
+  all modules, classes, and methods
+- **Cross-Platform Icon Support**: Enhanced detached windows now support
+  multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic
+  platform optimization
+- **Icon Utility Functions**: Added `get_recommended_icon_formats()` and
+  `validate_icon_path()` for better icon management
+- **Platform-Specific Optimizations**: Automatic icon format selection
+  and fallback mechanisms for Windows, macOS, and Linux
+- **Native Theme Detection**: Automatic system theme detection and
+  integration across platforms
+- **Professional Color Schemes**: Multiple professionally designed color
+  schemes with proper contrast ratios
+- **Security Tests**: New comprehensive test suite for security-related
+  functionality
+- **Codecov Configuration**: Added codecov.yml with appropriate coverage
+  thresholds for better CI/CD
 
 ### Changed
 
 - **Development Status**: Promoted from Beta to Production/Stable release
-- **Python Support**: Updated minimum Python version from 3.7 to 3.9, added Python 3.13 support (now supports 3.9-3.13)
-- **Theme Management**: Completely redesigned theming system with platform-specific theme detection
-- **Code Quality**: Enhanced code quality with comprehensive docstrings following imperative mood conventions
-- **Enhanced Icon Handling**: Improved icon loading with better error handling and cross-platform compatibility
-- **PaneConfig Documentation**: Updated window_icon field to reflect multi-format support
-- **Platform Behavior**: Added platform-specific window behavior optimizations for detached windows
-- **Developer Experience**: Improved IDE support with complete type annotations and stubs
+- **Python Support**: Updated minimum Python version from 3.7 to 3.9,
+  added Python 3.13 support (now supports 3.9-3.13)
+- **Theme Management**: Completely redesigned theming system with
+  platform-specific theme detection
+- **Code Quality**: Enhanced code quality with comprehensive docstrings
+  following imperative mood conventions
+- **Enhanced Icon Handling**: Improved icon loading with better error
+  handling and cross-platform compatibility
+- **PaneConfig Documentation**: Updated window_icon field to reflect
+  multi-format support
+- **Platform Behavior**: Added platform-specific window behavior
+  optimizations for detached windows
+- **Developer Experience**: Improved IDE support with complete type
+  annotations and stubs
 
 ### Fixed
 
-- **Docstring Compliance**: Fixed all docstring formatting issues and missing documentation
-- **Icon Display Issues**: Fixed icon display problems on Linux and macOS platforms
-- **Format Compatibility**: Resolved .ico file compatibility issues on non-Windows platforms
-- **Theme Application**: Fixed theme application consistency across different UI components
-- **CI/CD Improvements**: Fixed codecov/patch coverage issues with proper authentication and configuration
-- **Code Quality**: Resolved flake8 F824 error by removing unnecessary global statement
-- **Documentation**: Added markdownlint configuration to fix MD024 duplicate heading warnings
+- **Docstring Compliance**: Fixed all docstring formatting issues and
+  missing documentation
+- **Icon Display Issues**: Fixed icon display problems on Linux and
+  macOS platforms
+- **Format Compatibility**: Resolved .ico file compatibility issues on
+  non-Windows platforms
+- **Theme Application**: Fixed theme application consistency across
+  different UI components
+- **CI/CD Improvements**: Fixed codecov/patch coverage issues with
+  proper authentication and configuration
+- **Code Quality**: Resolved flake8 F824 error by removing unnecessary
+  global statement
+- **Documentation**: Added markdownlint configuration to fix MD024
+  duplicate heading warnings
 
 ### Security
 
-- **Fixed All Bandit Security Issues**: Resolved 18 security vulnerabilities identified by Bandit static analysis
-  - Fixed try-except-pass blocks with specific exception handling (B110)
-  - Secured subprocess calls with hardcoded paths and validation (B603/B404)
+- **Fixed All Bandit Security Issues**: Resolved 18 security
+  vulnerabilities identified by Bandit static analysis
+  - Fixed try-except-pass blocks with specific exception handling
+    (B110)
+  - Secured subprocess calls with hardcoded paths and validation
+    (B603/B404)
   - Added proper timeout protection for system commands
   - Enhanced exception handling in enhanced_dockable.py
   - Secured macOS and Linux system command execution
@@ -57,18 +119,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Critical Fix**: Center panel now properly expands when side panels are detached
-- Removed placeholder frames that were preventing center panel expansion in DockableThreePaneWindow
-- Fixed layout issue where detached panels left empty spaces instead of allowing center panel to fill available area
+- **Critical Fix**: Center panel now properly expands when side panels
+  are detached
+- Removed placeholder frames that were preventing center panel expansion
+  in DockableThreePaneWindow
+- Fixed layout issue where detached panels left empty spaces instead of
+  allowing center panel to fill available area
 
 ### Added
 
 - Comprehensive test suite for DockableThreePaneWindow functionality
-- New test cases covering detach/reattach behavior and center panel expansion
+- New test cases covering detach/reattach behavior and center panel
+  expansion
 
 ### Changed
 
-- Improved DockableThreePaneWindow detach mechanism for better space utilization
+- Improved DockableThreePaneWindow detach mechanism for better space
+  utilization
 - Enhanced layout behavior when panels are detached/reattached
 
 ## [1.0.3] - 2025-01-20
@@ -88,19 +155,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed broken documentation links in PyPI package description
-- Documentation files now included in package distribution via MANIFEST.in
+- Documentation files now included in package distribution via
+  MANIFEST.in
 - README links now use absolute GitHub URLs instead of relative paths
 
 ### Changed
 
-- Updated package manifest to include ENHANCED_FEATURES.md and FIXED_WIDTH_FEATURES.md
+- Updated package manifest to include ENHANCED_FEATURES.md and
+  FIXED_WIDTH_FEATURES.md
 - Improved PyPI package metadata and description
 
 ## [1.0.1] - 2025-01-20
 
 ### Fixed
 
-- Fixed detach button bug where detached windows incorrectly showed "Detach" buttons instead of "Reattach" buttons
+- Fixed detach button bug where detached windows incorrectly showed
+  "Detach" buttons instead of "Reattach" buttons
 - Improved panel sizing consistency for fixed-width panels
 
 ### Added
@@ -117,22 +187,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **✨ NEW: EnhancedDockableThreePaneWindow**: Professional-grade interface with advanced features
-- **🔒 NEW: Fixed Width Panes**: Optional fixed-width panes that don't resize with the window
-- **📋 NEW: Menu Bar Integration**: Built-in support for menu bars across all window types
-- **Professional Theming System**: Light, Dark, and Blue Professional themes
-- **Drag & Drop Interface**: Intuitive panel detaching by dragging headers
-- **Advanced Customization**: Configurable panel properties, icons, and constraints
-- **PaneConfig class**: Professional configuration system for panel settings
+- **✨ NEW: EnhancedDockableThreePaneWindow**: Professional-grade
+  interface with advanced features
+- **🔒 NEW: Fixed Width Panes**: Optional fixed-width panes that don't
+  resize with the window
+- **📋 NEW: Menu Bar Integration**: Built-in support for menu bars
+  across all window types
+- **Professional Theming System**: Light, Dark, and Blue Professional
+  themes
+- **Drag & Drop Interface**: Intuitive panel detaching by dragging
+  headers
+- **Advanced Customization**: Configurable panel properties, icons, and
+  constraints
+- **PaneConfig class**: Professional configuration system for panel
+  settings
 - **Smart Positioning**: Intelligent window placement and sizing
 - **Visual Feedback**: Professional hover effects and drag indicators
 
 ### Enhanced Features
 
-- **Professional UI**: Modern, professional appearance with smooth interactions
-- **Theme Support**: Multiple built-in themes (light, dark, blue professional)
-- **Fixed Width Control**: Panes can be set to fixed widths or remain resizable
-- **Menu Integration**: Seamless menu bar support across all window types
+- **Professional UI**: Modern, professional appearance with smooth
+  interactions
+- **Theme Support**: Multiple built-in themes (light, dark, blue
+  professional)
+- **Fixed Width Control**: Panes can be set to fixed widths or remain
+  resizable
+- **Menu Integration**: Seamless menu bar support across all window
+  types
 - **Enhanced Examples**: Comprehensive demonstration applications
 - **Improved Documentation**: Complete feature documentation and guides
 

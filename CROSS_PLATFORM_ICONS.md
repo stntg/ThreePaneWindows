@@ -1,10 +1,17 @@
 # Cross-Platform Icon Support in Enhanced Dockable
 
-This document explains the cross-platform icon support in the Enhanced Dockable Three-Pane Window system.
+This document explains the cross-platform icon support in the Enhanced
+Dockable Three-Pane Window system.
+
+## Requirements
+
+- **Python**: 3.9 to 3.13
+- **Platforms**: Windows, macOS, Linux
 
 ## Overview
 
-The enhanced_dockable module now supports cross-platform icon display for detached windows, with automatic format detection and fallback mechanisms.
+The enhanced_dockable module now supports cross-platform icon display for
+detached windows, with automatic format detection and fallback mechanisms.
 
 ## Supported Icon Formats
 
@@ -78,7 +85,6 @@ The system uses the following strategy for setting window icons:
 
 ### 1. Use PNG for Cross-Platform Compatibility
 
-
 ```python
 # Recommended - works everywhere
 config = PaneConfig(window_icon="icons/my_icon.png")
@@ -106,13 +112,16 @@ config = PaneConfig(window_icon=get_platform_icon())
 
 ### 3. Handle Icon Errors Gracefully
 
-The system automatically handles icon loading errors and continues without icons if they fail to load. You can monitor the console for warning messages.
+The system automatically handles icon loading errors and continues without
+icons if they fail to load. You can monitor the console for warning
+messages.
 
 ### 4. Icon Size Recommendations
 
 - **Windows .ico**: Include multiple sizes (16x16, 32x32, 48x48)
 - **PNG files**: Use 32x32 or 48x48 for best results
-- **Avoid very large icons**: They may not display properly in title bars
+- **Avoid very large icons**: They may not display properly in title
+  bars
 
 ## Unicode Icons
 
@@ -130,10 +139,12 @@ config = PaneConfig(
 
 ### Icons Not Appearing
 
-1. **Check file path**: Ensure the icon file exists and path is correct
+1. **Check file path**: Ensure the icon file exists and path is
+   correct
 2. **Check format**: Use recommended formats for your platform
 3. **Check console**: Look for warning messages about icon loading
-4. **Test with PNG**: Try a simple PNG file to verify basic functionality
+4. **Test with PNG**: Try a simple PNG file to verify basic
+   functionality
 
 ### Platform-Specific Issues
 
@@ -212,7 +223,6 @@ config = PaneConfig(window_icon="app.ico")
 
 ### After (Cross-platform)
 
-
 ```python
 # Option 1: Use PNG for universal compatibility
 config = PaneConfig(window_icon="app.png")
@@ -223,7 +233,9 @@ icon = "app.ico" if platform.system() == "Windows" else "app.png"
 config = PaneConfig(window_icon=icon)
 
 # Option 3: Let the system handle it
-config = PaneConfig(window_icon="app.ico")  # Will fallback gracefully
+config = PaneConfig(window_icon="app.ico")  # Will fallback
+# gracefully
 ```
 
-The enhanced system will automatically handle format compatibility and provide appropriate fallbacks.
+The enhanced system will automatically handle format compatibility and
+provide appropriate fallbacks.

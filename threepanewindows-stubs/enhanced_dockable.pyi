@@ -111,16 +111,25 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
 
     # UI Components
     main_container: tk.Frame
-    paned_window: ttk.PanedWindow
+    paned: Optional[ttk.PanedWindow]  # Only used for fully resizable layouts
+    layout_frame: Optional[tk.Frame]  # Only used for fixed pane layouts
+    left_sash: Optional[tk.Frame]  # Visual sash for custom layout
+    right_sash: Optional[tk.Frame]  # Visual sash for custom layout
     left_pane: tk.Frame
     center_pane: tk.Frame
     right_pane: tk.Frame
     status_bar: Optional[tk.Frame]
     toolbar: Optional[tk.Frame]
 
+    # Layout management
+    _has_fixed_panes: bool
+    pane_frames: Dict[str, tk.Widget]
+    pane_headers: Dict[str, PaneHeader]
+    pane_positions: Dict[str, int]
+    pane_visibility: Dict[str, bool]
+
     # Detached windows
-    left_detached_window: Optional[DetachedWindow]
-    right_detached_window: Optional[DetachedWindow]
+    detached_windows: Dict[str, DetachedWindow]
 
     def __init__(
         self,
@@ -150,6 +159,17 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
     def reattach_right_pane(self) -> None: ...
     def is_left_detached(self) -> bool: ...
     def is_right_detached(self) -> bool: ...
+
+    # Internal layout management (private methods)
+    def _create_custom_layout(self) -> None: ...
+    def _create_visual_sashes(self) -> None: ...
+    def _handle_custom_resize(self, event: Optional[tk.Event] = ...) -> None: ...
+    def _trigger_custom_layout(self) -> None: ...
+    def _detach_pane(self, pane_side: str) -> None: ...
+    def _reattach_pane(self, pane_side: str) -> None: ...
+    def _reattach_left_pane(self, position: int) -> None: ...
+    def _reattach_right_pane(self, position: int) -> None: ...
+    def _reattach_center_pane(self, position: int) -> None: ...
 
     # Width management
     def set_left_width(self, width: int) -> None: ...

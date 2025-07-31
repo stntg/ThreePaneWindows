@@ -984,6 +984,24 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self.style = ttk.Style()
         self.theme_manager.apply_ttk_theme(self.style)
 
+        # Try to create a custom style for non-resizable paned windows
+        try:
+            # Create a style that makes sashes less visible/interactive
+            self.style.configure(
+                "FixedSash.TPanedwindow", sashwidth=1, sashrelief="flat"
+            )
+            self.style.map(
+                "FixedSash.TPanedwindow",
+                background=[
+                    (
+                        "active",
+                        self.theme_manager.get_current_theme().colors.secondary_bg,
+                    )
+                ],
+            )
+        except tk.TclError:
+            pass
+
     def _create_widgets(self):
         """Create the main widget structure."""
         theme = self.theme_manager.get_current_theme()
@@ -1006,11 +1024,32 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         if self.show_toolbar:
             self._create_toolbar()
 
-        # Create paned window
-        self.paned = ttk.PanedWindow(
-            self, orient=tk.HORIZONTAL, style="Themed.TPanedwindow"
+        # Determine if we need custom layout for fixed panes
+        # Only use custom layout if we have truly fixed panes
+        # (fixed_width or resizable=False)
+        self._has_fixed_panes = (
+            self.left_builder
+            and (
+                self.left_config.fixed_width is not None
+                or not self.left_config.resizable
+            )
+        ) or (
+            self.right_builder
+            and (
+                self.right_config.fixed_width is not None
+                or not self.right_config.resizable
+            )
         )
-        self.paned.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        if self._has_fixed_panes:
+            # Use custom layout for fixed panes
+            self._create_custom_layout()
+        else:
+            # Use standard TTK PanedWindow for fully resizable layout
+            self.paned = ttk.PanedWindow(
+                self, orient=tk.HORIZONTAL, style="Themed.TPanedwindow"
+            )
+            self.paned.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
         # Create panes
         self._create_left_pane()
@@ -1021,12 +1060,20 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         if self.show_status_bar:
             self._create_status_bar()
 
+        # Configure behavior after everything is created
+        if self._has_fixed_panes:
+            self.after_idle(self._trigger_custom_layout)
+        else:
+            self.after_idle(self._setup_fixed_pane_behavior)
+
     def _create_left_pane(self):
         """Create the left pane."""
         if not self.left_builder:
             return
 
-        container = ttk.Frame(self.paned, style="Themed.TFrame")
+        # Choose parent based on layout type
+        parent = self.layout_frame if self._has_fixed_panes else self.paned
+        container = ttk.Frame(parent, style="Themed.TFrame")
 
         # Configure width based on settings
         width = self.left_config.fixed_width or self.left_config.default_width
@@ -1062,12 +1109,18 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self.pane_positions["left"] = 0  # Left pane is always at position 0
         self.pane_visibility["left"] = True
 
-        # Add to paned window with appropriate weight
-        weight = 0 if self.left_config.fixed_width is not None else 1
-        self.paned.add(container, weight=weight)
+        # Add to layout
+        if self._has_fixed_panes:
+            # Custom layout - pane will be positioned by _handle_custom_resize
+            pass
+        else:
+            # Add to paned window with appropriate weight
+            weight = 0 if self.left_config.fixed_width is not None else 1
+            self.paned.add(container, weight=weight)
 
         # Configure pane width constraints if fixed width is set
-        if self.left_config.fixed_width is not None:
+        # (only for TTK PanedWindow)
+        if not self._has_fixed_panes and self.left_config.fixed_width is not None:
             self.paned.after_idle(
                 lambda: self._configure_fixed_pane_width(
                     "left", self.left_config.fixed_width
@@ -1079,7 +1132,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         if not self.center_builder:
             return
 
-        container = ttk.Frame(self.paned, style="Themed.TFrame")
+        # Choose parent based on layout type
+        parent = self.layout_frame if self._has_fixed_panes else self.paned
+        container = ttk.Frame(parent, style="Themed.TFrame")
 
         # Header (if title is provided)
         if self.center_config.title:
@@ -1115,15 +1170,22 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self.pane_positions["center"] = center_position
         self.pane_visibility["center"] = True
 
-        # Add to paned window
-        self.paned.add(container, weight=3)
+        # Add to layout
+        if self._has_fixed_panes:
+            # Custom layout - pane will be positioned by _handle_custom_resize
+            pass
+        else:
+            # Add to paned window
+            self.paned.add(container, weight=3)
 
     def _create_right_pane(self):
         """Create the right pane."""
         if not self.right_builder:
             return
 
-        container = ttk.Frame(self.paned, style="Themed.TFrame")
+        # Choose parent based on layout type
+        parent = self.layout_frame if self._has_fixed_panes else self.paned
+        container = ttk.Frame(parent, style="Themed.TFrame")
 
         # Configure width based on settings
         width = self.right_config.fixed_width or self.right_config.default_width
@@ -1161,12 +1223,18 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self.pane_positions["right"] = right_position
         self.pane_visibility["right"] = True
 
-        # Add to paned window with appropriate weight
-        weight = 0 if self.right_config.fixed_width is not None else 1
-        self.paned.add(container, weight=weight)
+        # Add to layout
+        if self._has_fixed_panes:
+            # Custom layout - pane will be positioned by _handle_custom_resize
+            pass
+        else:
+            # Add to paned window with appropriate weight
+            weight = 0 if self.right_config.fixed_width is not None else 1
+            self.paned.add(container, weight=weight)
 
         # Configure pane width constraints if fixed width is set
-        if self.right_config.fixed_width is not None:
+        # (only for TTK PanedWindow)
+        if not self._has_fixed_panes and self.right_config.fixed_width is not None:
             self.paned.after_idle(
                 lambda: self._configure_fixed_pane_width(
                     "right", self.right_config.fixed_width
@@ -1249,6 +1317,384 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                 # Fallback: just set the width
                 container.configure(width=fixed_width)
 
+    def _setup_fixed_pane_behavior(self):
+        """Set up behavior for fixed-width and non-resizable panes."""
+        try:
+            # Force layout update
+            self.paned.update_idletasks()
+
+            # Configure each pane and store sash positions for fixed panes
+            pane_configs = [
+                ("left", self.left_config),
+                ("center", self.center_config),
+                ("right", self.right_config),
+            ]
+
+            for i, (pane_side, config) in enumerate(pane_configs):
+                if pane_side not in self.pane_frames:
+                    continue
+
+                container = self.pane_frames[pane_side]
+
+                # Find pane index in the PanedWindow
+                pane_index = None
+                for j, child in enumerate(self.paned.winfo_children()):
+                    if child == container:
+                        pane_index = j
+                        break
+
+                if pane_index is None:
+                    continue
+
+                # Configure pane constraints
+                if config.fixed_width is not None:
+                    # Fixed width pane
+                    self.paned.paneconfig(
+                        pane_index, minsize=config.fixed_width, width=config.fixed_width
+                    )
+                    try:
+                        self.paned.paneconfig(pane_index, maxsize=config.fixed_width)
+                    except tk.TclError:
+                        pass
+
+                elif not config.resizable:
+                    # Non-resizable pane (use default width as fixed)
+                    fixed_width = config.default_width
+                    self.paned.paneconfig(
+                        pane_index, minsize=fixed_width, width=fixed_width
+                    )
+                    try:
+                        self.paned.paneconfig(pane_index, maxsize=fixed_width)
+                    except tk.TclError:
+                        pass
+
+                else:
+                    # Resizable pane - set reasonable constraints
+                    self.paned.paneconfig(
+                        pane_index, minsize=config.min_width, width=config.default_width
+                    )
+
+            # More aggressive approach: continuously monitor and reset sash positions
+            self._monitor_sash_positions()
+
+        except (tk.TclError, AttributeError):
+            # Layout might not be ready yet
+            pass
+
+    def _monitor_sash_positions(self):
+        """Continuously monitor and reset sash positions for fixed panes."""
+        try:
+            # Calculate expected sash positions based on fixed pane widths
+            expected_positions = self._calculate_expected_sash_positions()
+
+            # Check and reset sash positions if they've moved
+            num_panes = len(self.paned.winfo_children())
+            for i in range(num_panes - 1):  # Number of sashes = number of panes - 1
+                try:
+                    current_pos = self.paned.sashpos(i)
+                    expected_pos = expected_positions.get(i)
+
+                    if expected_pos is not None and abs(current_pos - expected_pos) > 2:
+                        # Sash has moved from expected position, reset it
+                        self.paned.sashpos(i, expected_pos)
+
+                except tk.TclError:
+                    pass
+
+            # Schedule next check
+            self.after(50, self._monitor_sash_positions)
+
+        except (tk.TclError, AttributeError):
+            # Widget might be destroyed, stop monitoring
+            pass
+
+    def _calculate_expected_sash_positions(self):
+        """Calculate where sashes should be positioned based on fixed pane widths."""
+        expected_positions = {}
+
+        try:
+            pane_configs = [
+                ("left", self.left_config),
+                ("center", self.center_config),
+                ("right", self.right_config),
+            ]
+
+            # Get visible panes in order
+            visible_panes = []
+            for pane_side, config in pane_configs:
+                if pane_side in self.pane_frames:
+                    visible_panes.append((pane_side, config))
+
+            # Calculate cumulative widths to determine sash positions
+            cumulative_width = 0
+
+            for i, (pane_side, config) in enumerate(
+                visible_panes[:-1]
+            ):  # Exclude last pane
+                # Determine width for this pane
+                if config.fixed_width is not None:
+                    pane_width = config.fixed_width
+                elif not config.resizable:
+                    pane_width = config.default_width
+                else:
+                    # For resizable panes, get current width from the paned window
+                    try:
+                        container = self.pane_frames[pane_side]
+                        pane_index = None
+                        for j, child in enumerate(self.paned.winfo_children()):
+                            if child == container:
+                                pane_index = j
+                                break
+                        if pane_index is not None:
+                            pane_width = container.winfo_width()
+                        else:
+                            pane_width = config.default_width
+                    except (tk.TclError, AttributeError):
+                        pane_width = config.default_width
+
+                cumulative_width += pane_width
+                expected_positions[i] = cumulative_width
+
+        except (AttributeError, IndexError):
+            pass
+
+        return expected_positions
+
+    def _setup_sash_disabling(self):
+        """Try to disable sash interaction using various methods."""
+        try:
+            # Method 1: Override the sash cursor to indicate non-resizable
+            self.paned.configure(cursor="arrow")  # Instead of resize cursor
+
+            # Method 2: Bind to all mouse events on the paned window to
+            # intercept sash interactions
+            self.paned.bind("<Button-1>", self._intercept_sash_click, add=True)
+            self.paned.bind("<B1-Motion>", self._intercept_sash_drag, add=True)
+            self.paned.bind(
+                "<Double-Button-1>", self._intercept_sash_double_click, add=True
+            )
+
+        except tk.TclError:
+            pass
+
+    def _intercept_sash_click(self, event):
+        """Intercept sash clicks and prevent them for fixed panes."""
+        try:
+            # Check if click is on a sash that should be disabled
+            if self._is_click_on_disabled_sash(event):
+                return "break"  # Prevent the event from propagating
+        except (tk.TclError, AttributeError):
+            pass
+
+    def _intercept_sash_drag(self, event):
+        """Intercept sash drags and prevent them for fixed panes."""
+        try:
+            # Check if drag is on a sash that should be disabled
+            if self._is_click_on_disabled_sash(event):
+                return "break"  # Prevent the event from propagating
+        except (tk.TclError, AttributeError):
+            pass
+
+    def _intercept_sash_double_click(self, event):
+        """Intercept sash double-clicks and prevent them for fixed panes."""
+        try:
+            # Check if double-click is on a sash that should be disabled
+            if self._is_click_on_disabled_sash(event):
+                return "break"  # Prevent the event from propagating
+        except (tk.TclError, AttributeError):
+            pass
+
+    def _is_click_on_disabled_sash(self, event):
+        """Check if a click/drag event is on a sash that should be disabled."""
+        try:
+            num_panes = len(self.paned.winfo_children())
+
+            for i in range(num_panes - 1):
+                try:
+                    sash_pos = self.paned.sashpos(i)
+                    # Check if click is near this sash (within 5 pixels)
+                    if abs(event.x - sash_pos) <= 5:
+                        # Check if either adjacent pane is fixed
+                        left_pane_fixed = self._is_pane_at_index_fixed(i)
+                        right_pane_fixed = self._is_pane_at_index_fixed(i + 1)
+
+                        if left_pane_fixed or right_pane_fixed:
+                            return True  # This sash should be disabled
+
+                except tk.TclError:
+                    pass
+
+        except (tk.TclError, AttributeError):
+            pass
+
+        return False
+
+    def _is_pane_at_index_fixed(self, pane_index):
+        """Check if a pane at the given index is fixed (non-resizable)."""
+        try:
+            pane_configs = [
+                ("left", self.left_config),
+                ("center", self.center_config),
+                ("right", self.right_config),
+            ]
+
+            # Map pane index to config
+            visible_panes = []
+            for pane_side, config in pane_configs:
+                if pane_side in self.pane_frames:
+                    visible_panes.append((pane_side, config))
+
+            if 0 <= pane_index < len(visible_panes):
+                _, config = visible_panes[pane_index]
+                return config.fixed_width is not None or not config.resizable
+
+        except (AttributeError, IndexError):
+            pass
+
+        return False
+
+    def _create_custom_layout(self):
+        """Create custom layout for windows with fixed panes."""
+        # Create a main container frame
+        self.layout_frame = tk.Frame(
+            self, bg=self.theme_manager.get_current_theme().colors.secondary_bg
+        )
+        self.layout_frame.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        # Bind to resize events to handle layout
+        self.layout_frame.bind("<Configure>", self._handle_custom_resize)
+
+        # Create visual sashes (non-interactive)
+        self._create_visual_sashes()
+
+    def _create_visual_sashes(self):
+        """Create visual sashes that look like PanedWindow sashes but aren't
+        interactive."""
+        theme = self.theme_manager.get_current_theme()
+
+        # Left sash (between left and center)
+        if self.left_builder and self.center_builder:
+            self.left_sash = tk.Frame(
+                self.layout_frame,
+                bg=theme.colors.border,
+                width=2,
+                cursor="arrow",  # Non-resize cursor
+            )
+
+        # Right sash (between center and right)
+        if self.center_builder and self.right_builder:
+            self.right_sash = tk.Frame(
+                self.layout_frame,
+                bg=theme.colors.border,
+                width=2,
+                cursor="arrow",  # Non-resize cursor
+            )
+
+    def _handle_custom_resize(self, event=None):
+        """Handle resize events for custom layout."""
+        if not hasattr(self, "layout_frame"):
+            return
+
+        try:
+            # Get container dimensions
+            container_width = self.layout_frame.winfo_width()
+            container_height = self.layout_frame.winfo_height()
+
+            if container_width <= 1 or container_height <= 1:
+                return  # Not ready yet
+
+            # Calculate pane widths based on what's currently attached
+            left_width = 0
+            center_width = 0
+            right_width = 0
+            sash_width = 2
+
+            # Check which panes are currently attached (not detached)
+            left_attached = self.left_builder and "left" in self.pane_frames
+            center_attached = self.center_builder and "center" in self.pane_frames
+            right_attached = self.right_builder and "right" in self.pane_frames
+
+            # Left pane width (only if attached)
+            if left_attached:
+                if self.left_config.fixed_width is not None:
+                    left_width = self.left_config.fixed_width
+                elif not self.left_config.resizable:
+                    left_width = self.left_config.default_width
+                else:
+                    left_width = self.left_config.default_width
+
+            # Right pane width (only if attached)
+            if right_attached:
+                if self.right_config.fixed_width is not None:
+                    right_width = self.right_config.fixed_width
+                elif not self.right_config.resizable:
+                    right_width = self.right_config.default_width
+                else:
+                    right_width = self.right_config.default_width
+
+            # Calculate center width (remaining space)
+            sashes_width = 0
+            if left_attached and center_attached:
+                sashes_width += sash_width
+            if center_attached and right_attached:
+                sashes_width += sash_width
+
+            center_width = container_width - left_width - right_width - sashes_width
+
+            # Ensure minimum widths
+            if center_width < 50:
+                center_width = 50
+
+            # Position panes
+            x_pos = 0
+
+            # Left pane
+            if left_attached:
+                self.pane_frames["left"].place(
+                    x=x_pos, y=0, width=left_width, height=container_height
+                )
+                x_pos += left_width
+
+                # Left sash (only if center is also attached)
+                if center_attached and hasattr(self, "left_sash"):
+                    self.left_sash.place(
+                        x=x_pos, y=0, width=sash_width, height=container_height
+                    )
+                    x_pos += sash_width
+                elif hasattr(self, "left_sash"):
+                    self.left_sash.place_forget()  # Hide sash if center is detached
+
+            # Center pane
+            if center_attached:
+                self.pane_frames["center"].place(
+                    x=x_pos, y=0, width=center_width, height=container_height
+                )
+                x_pos += center_width
+
+                # Right sash (only if right is also attached)
+                if right_attached and hasattr(self, "right_sash"):
+                    self.right_sash.place(
+                        x=x_pos, y=0, width=sash_width, height=container_height
+                    )
+                    x_pos += sash_width
+                elif hasattr(self, "right_sash"):
+                    self.right_sash.place_forget()  # Hide sash if right is detached
+
+            # Right pane
+            if right_attached:
+                self.pane_frames["right"].place(
+                    x=x_pos, y=0, width=right_width, height=container_height
+                )
+
+        except (tk.TclError, AttributeError):
+            # Layout not ready or widget destroyed
+            pass
+
+    def _trigger_custom_layout(self):
+        """Trigger the initial custom layout."""
+        if hasattr(self, "layout_frame"):
+            self._handle_custom_resize()
+
     def _detach_pane(self, pane_side: str):
         """Detach a pane to a separate window."""
         if pane_side in self.detached_windows:
@@ -1264,13 +1710,23 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         # Store the original position before removing
         original_position = self.pane_positions.get(pane_side, 0)
 
-        # Remove from paned window
+        # Remove from layout
         if pane_side in self.pane_frames:
-            self.paned.forget(self.pane_frames[pane_side])
+            if self._has_fixed_panes:
+                # Custom layout - just hide the pane
+                self.pane_frames[pane_side].place_forget()
+            else:
+                # TTK PanedWindow layout
+                self.paned.forget(self.pane_frames[pane_side])
+
             self.pane_frames[pane_side].destroy()
             del self.pane_frames[pane_side]
             # Keep the position info for reattaching
             self.pane_positions[f"{pane_side}_detached"] = original_position
+
+            # Trigger layout update for custom layout
+            if self._has_fixed_panes:
+                self.after_idle(self._handle_custom_resize)
 
         # Create detached window
         detached_window = DetachedWindow(
@@ -1353,7 +1809,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         if not self.left_builder:
             return
 
-        container = ttk.Frame(self.paned, style="Themed.TFrame")
+        # Choose parent based on layout type
+        parent = self.layout_frame if self._has_fixed_panes else self.paned
+        container = ttk.Frame(parent, style="Themed.TFrame")
 
         # Configure width based on settings
         width = self.left_config.fixed_width or self.left_config.default_width
@@ -1388,31 +1846,38 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self.pane_headers["left"] = header
         self.pane_positions["left"] = position
 
-        # Insert at the correct position (left should always be at position 0)
-        weight = 0 if self.left_config.fixed_width is not None else 1
-        self.paned.insert(0, container, weight=weight)
-
-        # Configure pane width constraints
-        if self.left_config.fixed_width is not None:
-            self.paned.after_idle(
-                lambda: self._configure_fixed_pane_width(
-                    "left", self.left_config.fixed_width
-                )
-            )
+        # Add to layout
+        if self._has_fixed_panes:
+            # Custom layout - trigger resize to position pane
+            self.after_idle(self._handle_custom_resize)
         else:
-            # Configure default width for non-fixed panes
-            self.paned.after_idle(
-                lambda: self._configure_pane_width(
-                    "left", self.left_config.default_width
+            # Insert at the correct position (left should always be at position 0)
+            weight = 0 if self.left_config.fixed_width is not None else 1
+            self.paned.insert(0, container, weight=weight)
+
+            # Configure pane width constraints
+            if self.left_config.fixed_width is not None:
+                self.paned.after_idle(
+                    lambda: self._configure_fixed_pane_width(
+                        "left", self.left_config.fixed_width
+                    )
                 )
-            )
+            else:
+                # Configure default width for non-fixed panes
+                self.paned.after_idle(
+                    lambda: self._configure_pane_width(
+                        "left", self.left_config.default_width
+                    )
+                )
 
     def _reattach_right_pane(self, position: int):
         """Reattach the right pane at the correct position."""
         if not self.right_builder:
             return
 
-        container = ttk.Frame(self.paned, style="Themed.TFrame")
+        # Choose parent based on layout type
+        parent = self.layout_frame if self._has_fixed_panes else self.paned
+        container = ttk.Frame(parent, style="Themed.TFrame")
 
         # Configure width based on settings
         width = self.right_config.fixed_width or self.right_config.default_width
@@ -1447,31 +1912,38 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self.pane_headers["right"] = header
         self.pane_positions["right"] = position
 
-        # Insert at the end (right pane should be last)
-        weight = 0 if self.right_config.fixed_width is not None else 1
-        self.paned.add(container, weight=weight)
-
-        # Configure pane width constraints
-        if self.right_config.fixed_width is not None:
-            self.paned.after_idle(
-                lambda: self._configure_fixed_pane_width(
-                    "right", self.right_config.fixed_width
-                )
-            )
+        # Add to layout
+        if self._has_fixed_panes:
+            # Custom layout - trigger resize to position pane
+            self.after_idle(self._handle_custom_resize)
         else:
-            # Configure default width for non-fixed panes
-            self.paned.after_idle(
-                lambda: self._configure_pane_width(
-                    "right", self.right_config.default_width
+            # Insert at the end (right pane should be last)
+            weight = 0 if self.right_config.fixed_width is not None else 1
+            self.paned.add(container, weight=weight)
+
+            # Configure pane width constraints
+            if self.right_config.fixed_width is not None:
+                self.paned.after_idle(
+                    lambda: self._configure_fixed_pane_width(
+                        "right", self.right_config.fixed_width
+                    )
                 )
-            )
+            else:
+                # Configure default width for non-fixed panes
+                self.paned.after_idle(
+                    lambda: self._configure_pane_width(
+                        "right", self.right_config.default_width
+                    )
+                )
 
     def _reattach_center_pane(self, position: int):
         """Reattach the center pane at the correct position."""
         if not self.center_builder:
             return
 
-        container = ttk.Frame(self.paned, style="Themed.TFrame")
+        # Choose parent based on layout type
+        parent = self.layout_frame if self._has_fixed_panes else self.paned
+        container = ttk.Frame(parent, style="Themed.TFrame")
 
         # Header (if title is provided)
         if self.center_config.title:
@@ -1503,12 +1975,17 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self.pane_frames["center"] = container
         self.pane_positions["center"] = position
 
-        # Insert at the correct position (center should be between left and right)
-        insert_position = 0
-        if "left" in self.pane_frames:
-            insert_position = 1
+        # Add to layout
+        if self._has_fixed_panes:
+            # Custom layout - trigger resize to position pane
+            self.after_idle(self._handle_custom_resize)
+        else:
+            # Insert at the correct position (center should be between left and right)
+            insert_position = 0
+            if "left" in self.pane_frames:
+                insert_position = 1
 
-        self.paned.insert(insert_position, container, weight=3)
+            self.paned.insert(insert_position, container, weight=3)
 
     def set_theme(self, theme_name):
         """Change the theme."""

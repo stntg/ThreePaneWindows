@@ -1,10 +1,19 @@
 # Cross-Platform Theming System
 
-This document describes the enhanced cross-platform theming system implemented in ThreePaneWindows.
+This document describes the enhanced cross-platform theming system
+implemented in ThreePaneWindows.
+
+## Requirements
+
+- **Python**: 3.9 to 3.13
+- **Platforms**: Windows, macOS, Linux
 
 ## Overview
 
-The enhanced theming system provides comprehensive cross-platform support with native appearance integration for Windows, macOS, and Linux. It includes automatic system theme detection, platform-specific color schemes, typography handling, and real-time theme updates.
+The enhanced theming system provides comprehensive cross-platform support
+with native appearance integration for Windows, macOS, and Linux. It
+includes automatic system theme detection, platform-specific color schemes,
+typography handling, and real-time theme updates.
 
 ## Features
 
@@ -155,7 +164,8 @@ listbox.configure(**listbox_style)
 
 ### Windows
 
-- **Accent Color**: Extracted from `HKEY_CURRENT_USER\Software\Microsoft\Windows\DWM\AccentColor`
+- **Accent Color**: Extracted from
+  `HKEY_CURRENT_USER\Software\Microsoft\Windows\DWM\AccentColor`
 - **Dark Mode**: Detected via `AppsUseLightTheme` registry value
 - **Typography**: Segoe UI with Tahoma fallback
 - **Colors**: Fluent Design-inspired color schemes
@@ -178,7 +188,8 @@ listbox.configure(**listbox_style)
 
 The system includes comprehensive error handling:
 
-- **Graceful Degradation**: Falls back to standard themes if native detection fails
+- **Graceful Degradation**: Falls back to standard themes if native
+  detection fails
 - **Color Validation**: Ensures Tkinter-compatible color formats
 - **Font Fallbacks**: Multiple fallback fonts per platform
 - **Exception Handling**: Catches and logs platform-specific errors
@@ -238,7 +249,8 @@ theme_manager.set_theme(ThemeType.NATIVE, window=root)  # Themes entire window
 
 # Manual theming
 theme_manager.apply_theme_to_window(root)  # Themes all widgets in window
-theme_manager.apply_theme_to_widget(widget, recursive=True)  # Themes specific widget
+theme_manager.apply_theme_to_widget(widget, recursive=True)  # Themes
+# specific widget
 ```
 
 ### Supported Widget Types
@@ -286,14 +298,17 @@ theme_manager.apply_theme_to_widget(widget, recursive=True)  # Themes specific w
 
 ## Benefits
 
-1. **Complete Widget Coverage**: Both TTK and TK widgets are automatically themed
+1. **Complete Widget Coverage**: Both TTK and TK widgets are
+   automatically themed
 2. **Native Integration**: Themes match the host OS appearance
 3. **Automatic Adaptation**: Follows system theme changes
 4. **Cross-Platform Consistency**: Unified API across platforms
 5. **Enhanced UX**: Professional, native-looking applications
 6. **Developer Friendly**: Simple API with powerful features
-7. **Robust Fallbacks**: Works even when platform features unavailable
-8. **Real-time Updates**: Themes can be changed dynamically without restart
+7. **Robust Fallbacks**: Works even when platform features
+   unavailable
+8. **Real-time Updates**: Themes can be changed dynamically without
+   restart
 
 ## Future Enhancements
 
@@ -303,4 +318,6 @@ theme_manager.apply_theme_to_widget(widget, recursive=True)  # Themes specific w
 - More granular typography control
 - Additional platform integrations
 
-This enhanced theming system provides a professional, cross-platform solution for creating native-looking Tkinter applications that adapt to their environment while maintaining consistency across platforms.
+This enhanced theming system provides a professional, cross-platform
+solution for creating native-looking Tkinter applications that adapt to
+their environment while maintaining consistency across platforms.

@@ -7,15 +7,23 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Professional three-pane window layouts for Tkinter applications with docking, theming, and advanced UI components.**
+**Professional three-pane window layouts for Tkinter applications with
+docking, theming, and advanced UI components.**
 
 ## Features
 
-- **DockableThreePaneWindow**: A sophisticated three-pane layout with detachable side panels and automatic center panel expansion
-- **FixedThreePaneLayout**: A simple fixed three-pane layout with customizable panels
-- **✨ NEW: EnhancedDockableThreePaneWindow**: Professional-grade interface with advanced features
-- **🔒 NEW: Fixed Width Panes**: Optional fixed-width panes that don't resize with the window
-- **📋 NEW: Menu Bar Integration**: Built-in support for menu bars across all window types
+- **DockableThreePaneWindow**: A sophisticated three-pane layout with
+  detachable side panels and automatic center panel expansion
+- **FixedThreePaneLayout**: A simple fixed three-pane layout with
+  customizable panels
+- **✨ NEW: EnhancedDockableThreePaneWindow**: Professional-grade
+  interface with advanced features
+- **🔒 NEW: Fixed Width Panes**: Optional fixed-width panes that don't
+  resize with the window
+- **📋 NEW: Menu Bar Integration**: Built-in support for menu bars
+  across all window types
+- **🎯 NEW v1.2.0: Smart Layout System**: Automatic layout detection
+  for optimal sash behavior
 - Easy-to-use builder pattern for content creation
 - Fully customizable panel sizes and colors
 - Dynamic width control and constraint management
@@ -23,30 +31,55 @@
 
 ### 🎨 Enhanced Professional Features (NEW!)
 
-- **Professional Theming System**: Light, Dark, and Blue Professional themes
-- **Cross-Platform Icon Support**: Multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic platform optimization
-- **Drag & Drop Interface**: Intuitive panel detaching by dragging headers
-- **Advanced Customization**: Configurable panel properties, icons, and constraints
-- **Fixed Width Control**: Panes can be set to fixed widths or remain resizable
-- **Menu Bar Integration**: Seamless menu bar support across all window types
-- **Beautiful UI**: Modern, professional appearance with smooth interactions
+- **Professional Theming System**: Light, Dark, and Blue Professional
+  themes
+- **Cross-Platform Icon Support**: Multiple icon formats (.ico, .png,
+  .gif, .bmp, .xbm) with automatic platform optimization
+- **Drag & Drop Interface**: Intuitive panel detaching by dragging
+  headers
+- **Advanced Customization**: Configurable panel properties, icons, and
+  constraints
+- **Fixed Width Control**: Panes can be set to fixed widths or remain
+  resizable
+- **Smart Sash Behavior**: Fixed panes use custom layout without
+  interactive sash handles
+- **Menu Bar Integration**: Seamless menu bar support across all window
+  types
+- **Beautiful UI**: Modern, professional appearance with smooth
+  interactions
 - **Smart Positioning**: Intelligent window placement and sizing
 - **Visual Feedback**: Professional hover effects and drag indicators
 
-> 📖 **See [ENHANCED_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/ENHANCED_FEATURES.md) for complete documentation of the new professional features.**
+> 📖 **See [ENHANCED_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/ENHANCED_FEATURES.md)
+> for complete documentation of the new professional features.**
 >
-> 🖼️ **See [CROSS_PLATFORM_ICONS.md](https://github.com/stntg/threepanewindows/blob/main/CROSS_PLATFORM_ICONS.md) for detailed cross-platform icon support documentation.**
+> 🖼️ **See [CROSS_PLATFORM_ICONS.md](https://github.com/stntg/threepanewindows/blob/main/CROSS_PLATFORM_ICONS.md)
+> for detailed cross-platform icon support documentation.**
+
+## Requirements
+
+- **Python**: 3.9 to 3.13
+- **Dependencies**: None (uses Python standard library only)
+- **Platforms**: Windows, macOS, Linux
 
 ## Installation
 
-### From Source
+### From PyPI (Recommended)
+
 ```bash
-git clone <repository-url>
+pip install threepanewindows
+```
+
+### From Source
+
+```bash
+git clone https://github.com/stntg/threepanewindows.git
 cd threepanewindows
 pip install -e .
 ```
 
 ### Development Installation
+
 ```bash
 pip install -e ".[dev]"
 ```
@@ -172,7 +205,8 @@ root.mainloop()
 
 ### 🔒 Fixed Width Panes (NEW!)
 
-All window types now support fixed width panes that don't resize with the window:
+All window types now support fixed width panes that don't resize with the
+window:
 
 ```python
 import tkinter as tk
@@ -214,7 +248,8 @@ window.clear_right_fixed_width()     # Make right pane resizable
 root.mainloop()
 ```
 
-> 📖 **See [FIXED_WIDTH_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/FIXED_WIDTH_FEATURES.md) for complete documentation of the fixed width and menu bar features.**
+> 📖 **See [FIXED_WIDTH_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/FIXED_WIDTH_FEATURES.md)
+> for complete documentation of the fixed width and menu bar features.**
 
 ## Demo Application
 
@@ -230,7 +265,7 @@ Or run directly with Python:
 python -m threepanewindows.examples
 ```
 
-## Requirements
+## System Requirements
 
 - Python 3.9+
 - tkinter (included with Python)

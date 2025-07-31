@@ -46,7 +46,7 @@ def main() -> None:
 def show_info() -> None:
     """Show package information."""
     info_text = """
-ThreePaneWindows v1.1.0
+ThreePaneWindows v1.2.0
 
 A Python library for creating dockable and fixed three-pane window layouts in Tkinter.
 

@@ -2,9 +2,16 @@
 
 This document explains how to use the type stubs for the `threepanewindows` library.
 
+## Requirements
+
+- **Python**: 3.9 to 3.13
+- **Compatible with**: threepanewindows >= 1.0.0
+
 ## Overview
 
-The type stubs provide complete type annotations for the threepanewindows library, enabling:
+The type stubs provide complete type annotations for the
+threepanewindows library, enabling:
+
 - Better IDE support with autocompletion and error detection
 - Static type checking with tools like mypy
 - Improved code documentation and maintainability
@@ -12,12 +19,14 @@ The type stubs provide complete type annotations for the threepanewindows librar
 ## Installation
 
 ### Option 1: Install from the stubs package directory
+
 ```bash
 cd stubs-package
 pip install -e .
 ```
 
 ### Option 2: Build and install the stub package
+
 ```bash
 cd stubs-package
 python setup.py sdist bdist_wheel
@@ -164,6 +173,7 @@ disallow_untyped_defs = True
 ```
 
 Run type checking:
+
 ```bash
 mypy your_application.py
 ```
@@ -171,7 +181,9 @@ mypy your_application.py
 ## IDE Configuration
 
 ### VS Code
+
 Install the Python extension and ensure these settings in `settings.json`:
+
 ```json
 {
     "python.analysis.typeCheckingMode": "basic",
@@ -180,17 +192,21 @@ Install the Python extension and ensure these settings in `settings.json`:
 ```
 
 ### PyCharm
+
 The stubs will be automatically detected. Enable type checking in:
+
 - Settings → Editor → Inspections → Python → Type checker
 
 ## Available Types
 
 ### Main Classes
+
 - `FixedThreePaneWindow` / `FixedThreePaneLayout`
 - `DockableThreePaneWindow`
 - `EnhancedDockableThreePaneWindow`
 
 ### Configuration
+
 - `PaneConfig` - Complete pane configuration
 - `ColorScheme` - Theme color definitions
 - `Typography` - Font and text styling
@@ -198,9 +214,11 @@ The stubs will be automatically detected. Enable type checking in:
 - `Theme` - Complete theme definition
 
 ### Enums
+
 - `ThemeType` - Available theme types
 
 ### Utility Functions
+
 - `get_recommended_icon_formats() -> List[str]`
 - `validate_icon_path(icon_path: str) -> Tuple[bool, str]`
 - `get_theme_manager() -> ThemeManager`
@@ -217,19 +235,25 @@ The stubs will be automatically detected. Enable type checking in:
 ## Troubleshooting
 
 ### Stubs Not Found
+
 If your IDE doesn't recognize the stubs:
+
 1. Ensure the stubs package is installed in the same environment
 2. Restart your IDE
 3. Check that `py.typed` file exists in the stubs directory
 
 ### Type Errors
+
 If you encounter type errors:
+
 1. Verify you're using the correct parameter types
 2. Check the stub definitions for the expected signatures
 3. Use `# type: ignore` comments for known false positives
 
 ### Missing Types
+
 If some types are missing:
+
 1. Check if you're using a newer version of the library
 2. The stubs may need updating for new features
 3. Consider contributing improvements to the stubs
@@ -237,9 +261,11 @@ If some types are missing:
 ## Contributing
 
 To improve the stubs:
+
 1. Identify missing or incorrect type annotations
 2. Update the relevant `.pyi` files
 3. Run `python verify_stubs.py` to validate changes
 4. Test with your IDE and mypy
 
-The stubs are designed to be comprehensive and accurate, covering all public APIs of the threepanewindows library.
+The stubs are designed to be comprehensive and accurate, covering all public APIs
+of the threepanewindows library.

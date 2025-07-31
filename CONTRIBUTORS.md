@@ -10,11 +10,13 @@ Thank you to all the people who have contributed to ThreePaneWindows!
 
 This project exists thanks to all the people who contribute.
 
-<!-- Contributors will be automatically added here when they make their first contribution -->
+<!-- Contributors will be automatically added here when they make their
+     first contribution -->
 
 ## How to Contribute
 
-We welcome contributions from everyone! Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to get started.
+We welcome contributions from everyone! Please see our
+[Contributing Guide](CONTRIBUTING.md) for details on how to get started.
 
 ### Types of Contributions
 
@@ -32,8 +34,10 @@ Contributors are recognized in several ways:
 
 1. **Listed in this file** - All contributors are acknowledged here
 2. **GitHub contributors page** - Automatic recognition by GitHub
-3. **Release notes** - Significant contributions are highlighted in releases
-4. **Special thanks** - Outstanding contributions may receive special recognition
+3. **Release notes** - Significant contributions are highlighted in
+   releases
+4. **Special thanks** - Outstanding contributions may receive special
+   recognition
 
 ## Acknowledgments
 
@@ -41,8 +45,10 @@ Special thanks to:
 
 - The **Python community** for creating an amazing ecosystem
 - **Tkinter developers** for providing the foundation GUI toolkit
-- **Open source contributors** everywhere who make projects like this possible
+- **Open source contributors** everywhere who make projects like this
+  possible
 
 ---
 
-*Want to see your name here? Check out our [Contributing Guide](CONTRIBUTING.md) and make your first contribution!*
+*Want to see your name here? Check out our [Contributing Guide](CONTRIBUTING.md)
+and make your first contribution!*

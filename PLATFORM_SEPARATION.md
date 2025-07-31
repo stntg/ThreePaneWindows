@@ -1,10 +1,14 @@
 # Platform Separation Implementation
 
-This document describes the platform-specific functionality separation implemented in ThreePaneWindows.
+This document describes the platform-specific functionality separation
+implemented in ThreePaneWindows.
 
 ## Overview
 
-The platform-specific code has been extracted from the main modules and organized into a dedicated `platform` package. This provides better maintainability, testability, and extensibility for platform-specific features.
+The platform-specific code has been extracted from the main modules and
+organized into a dedicated `platform` package. This provides better
+maintainability, testability, and extensibility for platform-specific
+features.
 
 ## Architecture
 
@@ -21,41 +25,54 @@ threepanewindows/platform/
 
 ### Platform Handler Interface
 
-All platform handlers implement the `PlatformHandler` abstract base class with these methods:
+All platform handlers implement the `PlatformHandler` abstract base class
+with these methods:
 
-- `get_recommended_icon_formats()` - Returns platform-specific icon format preferences
-- `validate_icon_path(icon_path)` - Validates icon files for the platform
-- `set_window_icon(window, icon_path)` - Sets window icons using platform-optimal methods
-- `apply_custom_titlebar(window, theme_colors)` - Applies platform-specific titlebar customization
+- `get_recommended_icon_formats()` - Returns platform-specific icon
+  format preferences
+- `validate_icon_path(icon_path)` - Validates icon files for the
+  platform
+- `set_window_icon(window, icon_path)` - Sets window icons using
+  platform-optimal methods
+- `apply_custom_titlebar(window, theme_colors)` - Applies
+  platform-specific titlebar customization
 
 ## Platform-Specific Features
 
 ### Windows (`WindowsPlatformHandler`)
 
 - **Icon Formats**: Prefers `.ico`, supports `.png`, `.bmp`, `.gif`
-- **Icon Handling**: Uses `iconbitmap()` for `.ico` files, `iconphoto()` for others
+- **Icon Handling**: Uses `iconbitmap()` for `.ico` files,
+  `iconphoto()` for others
 - **Titlebar**: Uses Windows DWM API to set titlebar colors
 - **Features**: Native Windows titlebar color customization
 
 ### macOS (`MacOSPlatformHandler`)
 
 - **Icon Formats**: Prefers `.png`, supports `.gif`, `.bmp`, `.ico`
-- **Icon Handling**: Uses `iconphoto()` primarily, `iconbitmap()` as fallback
-- **Titlebar**: Creates custom titlebar with macOS-style window controls
-- **Features**: Custom draggable titlebar with red/yellow/green buttons
+- **Icon Handling**: Uses `iconphoto()` primarily, `iconbitmap()` as
+  fallback
+- **Titlebar**: Creates custom titlebar with macOS-style window
+  controls
+- **Features**: Custom draggable titlebar with red/yellow/green
+  buttons
 
 ### Linux (`LinuxPlatformHandler`)
 
-- **Icon Formats**: Prefers `.png`, supports `.xbm`, `.gif`, `.bmp`, `.ico`
-- **Icon Handling**: Uses `iconphoto()` primarily for better compatibility
+- **Icon Formats**: Prefers `.png`, supports `.xbm`, `.gif`, `.bmp`,
+  `.ico`
+- **Icon Handling**: Uses `iconphoto()` primarily for better
+  compatibility
 - **Titlebar**: Basic theming, respects window manager preferences
-- **Features**: Desktop environment detection, transparency support detection
+- **Features**: Desktop environment detection, transparency support
+  detection
 
 ## Integration Points
 
 ### Themes Module
 
-The `themes.py` module now uses the platform handler for titlebar customization:
+The `themes.py` module now uses the platform handler for titlebar
+customization:
 
 ```python
 from .platform import platform_handler
@@ -67,7 +84,8 @@ if window:
 
 ### Enhanced Dockable Module
 
-The `enhanced_dockable.py` module uses platform handlers for icon functionality:
+The `enhanced_dockable.py` module uses platform handlers for icon
+functionality:
 
 ```python
 from .platform import platform_handler
@@ -86,21 +104,25 @@ def _set_window_icon(self, icon_path):
 ## Benefits
 
 ### 1. **Maintainability**
+
 - Platform-specific code is isolated and organized
 - Easier to update platform-specific features
 - Clear separation of concerns
 
 ### 2. **Testability**
+
 - Each platform handler can be tested independently
 - Mock handlers can be used for testing
 - Platform-specific behavior is predictable
 
 ### 3. **Extensibility**
+
 - New platforms can be added by creating new handler classes
 - Platform-specific features can be added without affecting other platforms
 - Easy to customize behavior for specific environments
 
 ### 4. **Code Quality**
+
 - Eliminates platform-specific `if/else` blocks scattered throughout the code
 - Reduces code duplication
 - Improves type safety with abstract base class
@@ -150,12 +172,15 @@ theme_manager.set_theme("dark", window=root)
 
 ### For Existing Code
 
-The public API remains unchanged. Existing code using ThreePaneWindows will continue to work without modifications.
+The public API remains unchanged. Existing code using ThreePaneWindows
+will continue to work without modifications.
 
 ### For Developers
 
-- Platform-specific customizations should now be implemented in the appropriate platform handler
-- New platform-specific features should be added to the `PlatformHandler` interface
+- Platform-specific customizations should now be implemented in the
+  appropriate platform handler
+- New platform-specific features should be added to the
+  `PlatformHandler` interface
 - Testing should include verification of platform-specific behavior
 
 ## Future Enhancements
@@ -183,4 +208,5 @@ Run the platform demo to see the separation in action:
 python example_platform_demo.py
 ```
 
-This will show platform-specific icon format recommendations, validation behavior, and titlebar customization in a live ThreePaneWindows application.
+This will show platform-specific icon format recommendations, validation
+behavior, and titlebar customization in a live ThreePaneWindows application.

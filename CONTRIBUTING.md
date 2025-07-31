@@ -1,6 +1,7 @@
 # Contributing to ThreePaneWindows
 
-Thank you for your interest in contributing to ThreePaneWindows! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to ThreePaneWindows! This
+document provides guidelines and information for contributors.
 
 ## Table of Contents
 
@@ -15,13 +16,15 @@ Thank you for your interest in contributing to ThreePaneWindows! This document p
 
 ## Code of Conduct
 
-This project adheres to a code of conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to the project maintainers.
+This project adheres to a code of conduct. By participating, you are
+expected to uphold this code. Please report unacceptable behavior to the
+project maintainers.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.9 to 3.13
 - Git
 - A GitHub account
 
@@ -103,17 +106,17 @@ We follow these coding standards:
 
 ### Python Version Compatibility
 
-This project supports Python 3.8 and above. When developing, be aware of:
+This project supports Python 3.9 to 3.13. When developing, be aware of:
 
-1. **Python 3.8 Compatibility**: Some features require special handling in Python 3.8:
-   - Use `typing-extensions` for newer typing features (like TypedDict, Literal, Protocol)
-   - Avoid f-strings with `=` debugging syntax (Python 3.8 doesn't support it)
-   - Be careful with Unicode handling in Python 3.8
-   - Test your changes with Python 3.8 specifically
+1. **Modern Python Features**: The project uses modern Python features
+   available in Python 3.9+:
+   - Built-in generic types (list[str] instead of List[str])
+   - Union types with | operator (Python 3.10+)
+   - Structural pattern matching (Python 3.10+)
+   - Type hints improvements
 
-2. **CI Testing**: The CI workflow uses different configurations for Python 3.8 vs newer versions:
-   - Python 3.8 uses `pytest_py38.ini` and skips certain problematic tests
-   - Python 3.9+ uses `pytest_ci.ini` for testing
+2. **CI Testing**: The CI workflow uses `pytest_ci.ini` for testing
+   across all supported Python versions
 
 ### Code Quality Tools
 
@@ -151,7 +154,7 @@ pytest --cov=threepanewindows
 pytest tests/test_fixed.py
 
 # Run tests for specific Python versions
-tox -e py38,py39,py310,py311,py312
+tox -e py39,py310,py311,py312,py313
 ```
 
 ### CI Workflow Tests
@@ -159,14 +162,9 @@ tox -e py38,py39,py310,py311,py312
 To run tests as they would run in the CI workflow:
 
 ```bash
-# For Python 3.9 and above
+# Run tests with CI configuration
 pytest -c pytest_ci.ini tests/ -m "not gui"
-
-# For Python 3.8 (which has special handling)
-pytest -c pytest_py38.ini tests/ -m "not gui" -k "not test_demo_integration_with_mainloop and not test_run_demo_creates_window and not test_examples_no_longer_hang"
 ```
-
-The Python 3.8 configuration skips certain tests that may cause stack overflow errors or have compatibility issues with Python 3.8.
 
 ### Writing Tests
 

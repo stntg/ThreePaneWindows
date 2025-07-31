@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="threepanewindows-stubs",
-    version="1.1.0",
+    version="1.2.0",
     description="Type stubs for threepanewindows",
     long_description=(
         "Type stubs for the threepanewindows library - "

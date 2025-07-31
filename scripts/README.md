@@ -1,6 +1,7 @@
 # Markdown Checker Scripts
 
-This directory contains scripts to automatically check and fix Markdown files in the project.
+This directory contains scripts to automatically check and fix Markdown files in
+the project.
 
 ## Scripts Overview
 
@@ -166,7 +167,9 @@ Add to `.git/hooks/pre-commit`:
 # !/bin/bash
 python scripts/quick_md_check.py
 if [ $? -ne 0 ]; then
-    echo "Markdown issues found. Run 'python scripts/quick_md_check.py --fix' to fix them."
+    echo "Markdown issues found."
+    echo "Run 'python scripts/quick_md_check.py --fix' to fix them."
+    echo "See the documentation for more details."
     exit 1
 fi
 ```bash
@@ -365,4 +368,5 @@ def check_custom_issue(self, file_path: str, lines: List[str]) -> List[MarkdownI
 
 ## License
 
-These scripts are part of the ThreePaneWindows project and follow the same license terms.
+These scripts are part of the ThreePaneWindows project and follow the same license
+terms.

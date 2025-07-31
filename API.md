@@ -1,10 +1,18 @@
 # ThreePaneWindows API Documentation
 
+## Requirements
+
+- **Python**: 3.9 to 3.13
+- **Dependencies**: None (uses Python standard library only)
+- **Platforms**: Windows, macOS, Linux
+
 ## Overview
 
-ThreePaneWindows provides multiple classes for creating three-pane layouts in Tkinter applications:
+ThreePaneWindows provides multiple classes for creating three-pane layouts in
+Tkinter applications:
 
-- `EnhancedDockableThreePaneWindow`: Professional layout with advanced theming and cross-platform icon support
+- `EnhancedDockableThreePaneWindow`: Professional layout with advanced theming
+  and cross-platform icon support
 - `DockableThreePaneWindow`: Advanced layout with detachable side panels
 - `FixedThreePaneLayout`: Simple fixed layout with customizable panels
 
@@ -12,31 +20,42 @@ ThreePaneWindows provides multiple classes for creating three-pane layouts in Tk
 
 ### Class: `EnhancedDockableThreePaneWindow(tk.Frame)`
 
-A professional three-pane window with advanced theming, cross-platform icon support, and sophisticated user interactions.
+A professional three-pane window with advanced theming, cross-platform icon
+support, and sophisticated user interactions.
 
 **Key Features:**
 
-- **Professional Theming**: Multiple built-in themes (light, dark, blue professional)
-- **Cross-Platform Icons**: Support for .ico, .png, .gif, .bmp, .xbm formats with automatic fallback
+- **Professional Theming**: Multiple built-in themes (light, dark, blue
+  professional)
+- **Cross-Platform Icons**: Support for .ico, .png, .gif, .bmp, .xbm formats
+  with automatic fallback
 - **Drag & Drop Interface**: Intuitive panel detaching by dragging headers
-- **Advanced Customization**: Configurable panel properties, icons, and constraints
+- **Advanced Customization**: Configurable panel properties, icons, and
+  constraints
+- **Smart Layout System (v1.2.0)**: Automatic detection of fixed vs. resizable
+  panes for optimal sash behavior
 - **Smart Positioning**: Intelligent window placement and sizing
 
 #### Constructor: EnhancedDockableThreePaneWindow
 
 ```python
-EnhancedDockableThreePaneWindow(master=None, left_config=None, center_config=None,
-                               right_config=None, left_builder=None, center_builder=None,
-                               right_builder=None, theme_name="light", enable_animations=True,
-                               menu_bar=None, **kwargs)
+EnhancedDockableThreePaneWindow(
+    master=None, left_config=None, center_config=None,
+    right_config=None, left_builder=None, center_builder=None,
+    right_builder=None, theme_name="light", enable_animations=True,
+    menu_bar=None, **kwargs
+)
 ```
 
 **Parameters:**
 
 - `master`: Parent widget (default: None)
-- `left_config`: PaneConfig object for left panel configuration (default: None)
-- `center_config`: PaneConfig object for center panel configuration (default: None)
-- `right_config`: PaneConfig object for right panel configuration (default: None)
+- `left_config`: PaneConfig object for left panel configuration
+  (default: None)
+- `center_config`: PaneConfig object for center panel configuration
+  (default: None)
+- `right_config`: PaneConfig object for right panel configuration
+  (default: None)
 - `left_builder`: Function to build left panel content (default: None)
 - `center_builder`: Function to build center panel content (default: None)
 - `right_builder`: Function to build right panel content (default: None)
@@ -52,11 +71,16 @@ EnhancedDockableThreePaneWindow(master=None, left_config=None, center_config=Non
 class PaneConfig:
     title: str = ""                    # Panel title
     icon: str = ""                     # Icon (emoji or text)
-    window_icon: str = ""              # Path to icon file for detached windows (.ico, .png, .gif, .bmp, .xbm)
-    custom_titlebar: bool = False      # Use custom title bar instead of system title bar
-    custom_titlebar_shadow: bool = True # Add shadow/border to custom title bar windows
-    detached_height: int = 0           # Fixed height for detached windows (0 = auto)
-    detached_scrollable: bool = True   # Add scrollbars if content exceeds detached window size
+    window_icon: str = ""              # Path to icon file for detached windows
+                                       # (.ico, .png, .gif, .bmp, .xbm)
+    custom_titlebar: bool = False      # Use custom title bar instead of
+                                       # system title bar
+    custom_titlebar_shadow: bool = True # Add shadow/border to custom title
+                                        # bar windows
+    detached_height: int = 0           # Fixed height for detached windows
+                                       # (0 = auto)
+    detached_scrollable: bool = True   # Add scrollbars if content exceeds
+                                       # detached window size
     default_width: int = 200           # Default panel width
     min_width: int = 100               # Minimum panel width
     max_width: int = 0                 # Maximum panel width (0 = no limit)
@@ -64,6 +88,42 @@ class PaneConfig:
     detachable: bool = True            # Panel can be detached
     closable: bool = False             # Panel can be closed
     resizable: bool = True             # Panel can be resized
+```
+
+#### Smart Layout System (v1.2.0)
+
+The enhanced window automatically detects the optimal layout system based on
+pane configuration:
+
+**Custom Layout (Fixed Panes):**
+
+- Used when any pane has `fixed_width` set or `resizable=False`
+- Provides visual sash separators without interactive resize handles
+- Fixed panes maintain their specified widths
+- Center pane automatically expands to fill remaining space
+- Proper handling of detached panes (center expands when others detach)
+
+**TTK PanedWindow Layout (Resizable Panes):**
+
+- Used when all panes are fully resizable (`resizable=True` and no
+  `fixed_width`)
+- Provides standard TTK PanedWindow with interactive sash handles
+- All panes can be resized by dragging sash handles
+- Standard TTK PanedWindow behavior for detaching/reattaching
+
+**Configuration Examples:**
+
+```python
+# Fixed width left pane - triggers custom layout
+left_config = PaneConfig(fixed_width=200)
+
+# Non-resizable right pane - triggers custom layout
+right_config = PaneConfig(resizable=False, default_width=150)
+
+# All resizable panes - uses TTK PanedWindow
+left_config = PaneConfig(resizable=True)
+center_config = PaneConfig(resizable=True)
+right_config = PaneConfig(resizable=True)
 ```
 
 #### Cross-Platform Icon Support
@@ -74,7 +134,8 @@ The enhanced window supports cross-platform icon display for detached windows:
 
 - **Windows**: `.ico` (primary), `.png`, `.bmp`, `.gif` (secondary)
 - **macOS**: `.png` (primary), `.gif`, `.bmp` (secondary), `.ico` (limited)
-- **Linux**: `.png`, `.xbm` (primary), `.gif`, `.bmp` (secondary), `.ico` (limited)
+- **Linux**: `.png`, `.xbm` (primary), `.gif`, `.bmp` (secondary),
+  `.ico` (limited)
 
 **Icon Resolution Strategy:**
 
@@ -179,17 +240,21 @@ A sophisticated three-pane window with detachable left and right panels.
 
 **Key Features:**
 
-- **Detachable Panels**: Left and right panels can be detached into separate windows
-- **Center Panel Expansion**: When side panels are detached, the center panel automatically expands to fill the available space
-- **Automatic Reattachment**: Detached panels can be reattached by closing their windows or using reattach buttons
-- **Flexible Layout**: Supports both resizable and fixed-width panel configurations
+- **Detachable Panels**: Left and right panels can be detached into separate
+  windows
+- **Center Panel Expansion**: When side panels are detached, the center panel
+  automatically expands to fill the available space
+- **Automatic Reattachment**: Detached panels can be reattached by closing
+  their windows or using reattach buttons
+- **Flexible Layout**: Supports both resizable and fixed-width panel
+  configurations
 
 #### Constructor: DockableThreePaneWindow
 
 ```python
 DockableThreePaneWindow(master=None, side_width=150, left_builder=None,
                        center_builder=None, right_builder=None, **kwargs)
-```bash
+```
 
 **Parameters:**
 
@@ -399,13 +464,16 @@ layout = FixedThreePaneLayout(root)
 layout.frame_left.config(bg="#FF0000")  # Red background
 layout.frame_center.config(bg="#00FF00")  # Green background
 layout.frame_right.config(bg="#0000FF")  # Blue background
-```javascript
+```
 
 ## Best Practices
 
-1. **Builder Functions**: Use builder functions with `DockableThreePaneWindow` for dynamic content that needs to be recreated when panels are detached/reattached.
+1. **Builder Functions**: Use builder functions with `DockableThreePaneWindow`
+   for dynamic content that needs to be recreated when panels are
+   detached/reattached.
 
-2. **Widget Management**: With `FixedThreePaneLayout`, create widgets with the correct parent frame for better performance:
+2. **Widget Management**: With `FixedThreePaneLayout`, create widgets with the
+   correct parent frame for better performance:
 
    ```python
    # Good
@@ -421,20 +489,24 @@ layout.frame_right.config(bg="#0000FF")  # Blue background
 
    ```python
    # For center content that should resize
-   layout.add_to_center(text_widget)  # Automatically uses fill='both', expand=True
+   layout.add_to_center(text_widget)  # Automatically uses fill='both',
+                                       # expand=True
 
    # For side content that should stay fixed
    layout.add_to_left(button_widget)  # Uses default packing
    ```
 
-4. **Memory Management**: Use `clear_*()` methods to properly clean up widgets when switching content.
+4. **Memory Management**: Use `clear_*()` methods to properly clean up widgets
+   when switching content.
 
 ## Error Handling
 
 Both classes are designed to be robust, but consider these scenarios:
 
-- **Invalid builder functions**: If a builder function raises an exception, the panel will be created but empty
-- **Widget reparenting**: The `add_to_*` methods handle widget reparenting automatically
+- **Invalid builder functions**: If a builder function raises an exception, the
+  panel will be created but empty
+- **Widget reparenting**: The `add_to_*` methods handle widget reparenting
+  automatically
 - **Window closing**: Detached windows automatically reattach when closed
 
 ## Performance Considerations

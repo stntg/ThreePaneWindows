@@ -2,7 +2,7 @@
 
 from typing import Tuple
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 
 def _parse_version(version_string: str) -> Tuple[int, int, int]:

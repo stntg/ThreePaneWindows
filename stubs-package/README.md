@@ -1,6 +1,12 @@
 # ThreePaneWindows Type Stubs
 
-This package contains type stubs for the `threepanewindows` library, providing type hints for better IDE support and static type checking.
+This package contains type stubs for the `threepanewindows` library, providing type
+hints for better IDE support and static type checking.
+
+## Requirements
+
+- **Python**: 3.9 to 3.13
+- **Compatible with**: threepanewindows >= 1.0.0
 
 ## Installation
 
@@ -10,7 +16,8 @@ pip install threepanewindows-stubs
 
 ## Usage
 
-Once installed, your IDE and type checkers (like mypy) will automatically use these stubs when working with the `threepanewindows` library.
+Once installed, your IDE and type checkers (like mypy) will automatically use these
+stubs when working with the `threepanewindows` library.
 
 ## What's Included
 
@@ -43,11 +50,12 @@ The stubs cover all public APIs of the threepanewindows library:
   - System theme detection
   - Window appearance configuration
 
-## Requirements
+## System Requirements
 
-- Python 3.8+
+- Python 3.9+
 - threepanewindows library
 
 ## License
 
-These stubs are provided under the same license as the original threepanewindows library (MIT).
+These stubs are provided under the same license as the original
+threepanewindows library (MIT).
