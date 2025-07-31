@@ -39,6 +39,25 @@ and this project adheres to
 - Enhanced window resize behavior for mixed resizable/fixed pane
   configurations.
 
+### Documentation
+
+- **Comprehensive API Documentation**: Complete docstring improvements
+  across the entire codebase following Google/NumPy style conventions
+- Enhanced class documentation for `PaneConfig`, `DetachedWindow`, and
+  `FixedThreePaneLayout` with detailed parameter descriptions
+- Improved method documentation with proper `Args:` and `Returns:` sections
+  for all public API methods
+- Added detailed documentation for utility functions in the `utils` package
+- Professional-grade documentation standards applied throughout
+
+### Infrastructure
+
+- **GitHub Actions Security**: Fixed missing permissions in workflow files
+  for secure PyPI publishing
+- Added proper `id-token: write` permissions for trusted publishing
+- Enhanced workflow security compliance
+- Added stub package release workflow for type hint distribution
+
 ## [1.1.0] - 2025-01-27
 
 ### Added
