@@ -3,6 +3,26 @@ from typing import Any, Optional
 
 
 class FixedThreePaneLayout(tk.Frame):
+    """
+    A fixed three-pane window layout with left, center, and right panes.
+
+    This class provides a simple three-pane layout where the side panes can have
+    fixed or resizable widths, and the center pane fills the remaining space.
+    It supports menu bars and customizable pane sizing.
+
+    Args:
+        master (tk.Widget): The parent widget.
+        side_width (int): Default width for side panes (default: 150).
+        sash_width (int): Width of the sash/separator between panes (default: 2).
+        left_width (Optional[int]): Specific width for left pane (overrides side_width).
+        right_width (Optional[int]): Specific width for right pane (overrides side_width).
+        left_fixed_width (Optional[int]): Fixed width for left pane (non-resizable).
+        right_fixed_width (Optional[int]): Fixed width for right pane (non-resizable).
+        min_pane_size (int): Minimum size for resizable panes (default: 50).
+        menu_bar (Optional[tk.Menu]): Menu bar to attach to the parent window.
+        **kwargs: Additional keyword arguments passed to tk.Frame.
+    """
+
     def __init__(
         self,
         master: tk.Widget,
@@ -183,27 +203,33 @@ class FixedThreePaneLayout(tk.Frame):
 
     @property
     def frame_left(self) -> tk.Frame:
+        """Get the left frame container (legacy property name)."""
         return self._frame_left
 
     @property
     def frame_center(self) -> tk.Frame:
+        """Get the center frame container (legacy property name)."""
         return self._frame_center
 
     @property
     def frame_right(self) -> tk.Frame:
+        """Get the right frame container (legacy property name)."""
         return self._frame_right
 
     def clear_left(self) -> None:
+        """Clear all widgets from the left pane except the default label."""
         for widget in self._frame_left.winfo_children():
             if widget != self.label_left:
                 widget.destroy()
 
     def clear_center(self) -> None:
+        """Clear all widgets from the center pane except the default label."""
         for widget in self._frame_center.winfo_children():
             if widget != self.label_center:
                 widget.destroy()
 
     def clear_right(self) -> None:
+        """Clear all widgets from the right pane except the default label."""
         for widget in self._frame_right.winfo_children():
             if widget != self.label_right:
                 widget.destroy()

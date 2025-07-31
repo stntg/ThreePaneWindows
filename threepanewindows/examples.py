@@ -14,7 +14,20 @@ _theme_update_in_progress = False
 
 
 def _coordinate_theme_update(update_func, *args, **kwargs):
-    """Coordinate theme updates to prevent cascading updates."""
+    """
+    Coordinate theme updates to prevent cascading updates.
+
+    This function prevents multiple simultaneous theme updates that could
+    cause performance issues or visual glitches.
+
+    Args:
+        update_func: The theme update function to call.
+        *args: Positional arguments to pass to the update function.
+        **kwargs: Keyword arguments to pass to the update function.
+
+    Returns:
+        The return value of the update function, or None if update is skipped.
+    """
     global _theme_update_in_progress
 
     if _theme_update_in_progress:

@@ -16,7 +16,13 @@ from .utils import platform_handler
 
 
 def get_recommended_icon_formats() -> List[str]:
-    """Get recommended icon formats for the current platform."""
+    """
+    Get recommended icon formats for the current platform.
+
+    Returns:
+        List[str]: List of file extensions in order of preference for the current platform.
+                  For example, Windows returns ['.ico', '.png'], while Linux/macOS return ['.png', '.ico'].
+    """
     return platform_handler.get_recommended_icon_formats()
 
 
@@ -24,18 +30,28 @@ def validate_icon_path(icon_path: str) -> Tuple[bool, str]:
     """
     Validate an icon path for cross-platform compatibility.
 
+    Args:
+        icon_path (str): Path to the icon file to validate.
+
     Returns:
-        tuple: (is_valid, message)
+        Tuple[bool, str]: A tuple containing:
+            - bool: True if the icon path is valid and supported, False otherwise
+            - str: Descriptive message about the validation result
     """
     return platform_handler.validate_icon_path(icon_path)
 
 
 @dataclass
 class PaneConfig:
-    """Configuration for a pane."""
+    """
+    Configuration for a pane in the three-pane window.
 
-    title: str = ""
-    icon: str = ""
+    This class defines all the visual and behavioral properties for a pane,
+    including its title, icon, sizing constraints, and interaction capabilities.
+    """
+
+    title: str = ""  # Display title for the pane header
+    icon: str = ""  # Icon for the pane (emoji, text, or file path)
     window_icon: str = (
         ""  # Path to icon file for detached windows (.ico, .png, .gif, .bmp, .xbm)
     )
@@ -45,12 +61,12 @@ class PaneConfig:
     detached_scrollable: bool = (
         True  # Add scrollbars if content exceeds detached window size
     )
-    min_width: int = 100
-    max_width: int = 500
-    default_width: int = 200
-    resizable: bool = True
-    detachable: bool = True
-    closable: bool = False
+    min_width: int = 100  # Minimum width constraint for the pane
+    max_width: int = 500  # Maximum width constraint for the pane
+    default_width: int = 200  # Default width when first displayed
+    resizable: bool = True  # Whether the pane can be resized by the user
+    detachable: bool = True  # Whether the pane can be detached into a separate window
+    closable: bool = False  # Whether the pane can be closed/hidden
     fixed_width: Optional[int] = (
         None  # If set, pane will stick to this width and not be resizable
     )
@@ -130,26 +146,58 @@ class DragHandle(tk.Frame):
             child.bind("<ButtonRelease-1>", self._on_drag_end)
 
     def _on_enter(self, event):
-        """Handle mouse enter."""
+        """
+        Handle mouse enter event.
+
+        Changes the drag handle appearance to provide visual feedback
+        when the mouse hovers over it.
+
+        Args:
+            event: Tkinter event object containing mouse position and state.
+        """
         theme = self.theme_manager.get_current_theme()
         self.configure(bg=theme.colors.accent_bg)
         self.grip_frame.configure(bg=theme.colors.accent_bg)
 
     def _on_leave(self, event):
-        """Handle mouse leave."""
+        """
+        Handle mouse leave event.
+
+        Restores the drag handle to its normal appearance when the mouse
+        leaves the area, unless a drag operation is currently in progress.
+
+        Args:
+            event: Tkinter event object containing mouse position and state.
+        """
         if not self.is_dragging:
             theme = self.theme_manager.get_current_theme()
             self.configure(bg=theme.colors.panel_header_bg)
             self.grip_frame.configure(bg=theme.colors.panel_header_bg)
 
     def _on_drag_start(self, event):
-        """Handle drag start."""
+        """
+        Handle the start of a drag operation.
+
+        Records the initial mouse position for calculating drag distance
+        and determining when to trigger detachment.
+
+        Args:
+            event: Tkinter event object containing mouse position and state.
+        """
         self.is_dragging = False
         self.drag_start_x = event.x_root
         self.drag_start_y = event.y_root
 
     def _on_drag_motion(self, event):
-        """Handle drag motion."""
+        """
+        Handle mouse motion during a potential drag operation.
+
+        Monitors mouse movement and initiates visual drag feedback once
+        the movement exceeds the drag threshold distance.
+
+        Args:
+            event: Tkinter event object containing current mouse position.
+        """
         if not self.is_dragging:
             # Check if we've moved enough to start dragging
             dx = abs(event.x_root - self.drag_start_x)
@@ -160,7 +208,15 @@ class DragHandle(tk.Frame):
                 self._start_drag_visual()
 
     def _on_drag_end(self, event):
-        """Handle drag end."""
+        """
+        Handle the end of a drag operation.
+
+        Determines whether the drag distance was sufficient to trigger
+        pane detachment and calls the detach callback if needed.
+
+        Args:
+            event: Tkinter event object containing final mouse position.
+        """
         if self.is_dragging:
             self._end_drag_visual()
             # Check if we should detach
@@ -271,7 +327,18 @@ class PaneHeader(tk.Frame):
             self.drag_handle.pack(fill="x", expand=True, padx=8)
 
     def _is_icon_file(self, icon_path: str) -> bool:
-        """Check if the icon is a file path."""
+        """
+        Check if the icon string represents a file path rather than text/emoji.
+
+        This method distinguishes between file-based icons (like PNG/ICO files)
+        and text-based icons (like emojis or Unicode symbols).
+
+        Args:
+            icon_path (str): The icon string to check.
+
+        Returns:
+            bool: True if the string appears to be a file path, False if it's likely text/emoji.
+        """
         if not icon_path:
             return False
 
@@ -286,7 +353,20 @@ class PaneHeader(tk.Frame):
         return any(icon_path.lower().endswith(ext) for ext in icon_extensions)
 
     def _create_icon_label(self, parent, style, theme):
-        """Create an icon label (text or image)."""
+        """
+        Create an icon label widget that can display either text or image icons.
+
+        This method handles both file-based icons (PNG, ICO, etc.) and text-based
+        icons (emojis, Unicode symbols) with appropriate fallback behavior.
+
+        Args:
+            parent: The parent widget to contain the icon label.
+            style: Style dictionary containing background and foreground colors.
+            theme: Theme object containing typography settings.
+
+        Returns:
+            tk.Label or None: The created icon label widget, or None if no icon is configured.
+        """
         if not self.config.icon:
             return None
 
@@ -333,7 +413,21 @@ class PaneHeader(tk.Frame):
     def _create_control_button(
         self, parent, text: str, command: Callable, tooltip: str
     ) -> tk.Button:
-        """Create a control button."""
+        """
+        Create a themed control button for the pane header.
+
+        Creates a small button with hover effects that matches the current theme.
+        Used for close, detach, and other pane control actions.
+
+        Args:
+            parent: The parent widget to contain the button.
+            text (str): The text/symbol to display on the button.
+            command (Callable): The function to call when the button is clicked.
+            tooltip (str): Tooltip text for accessibility (currently unused but reserved).
+
+        Returns:
+            tk.Button: The created and configured button widget.
+        """
         theme = self.theme_manager.get_current_theme()
 
         btn = tk.Button(
@@ -381,7 +475,13 @@ class PaneHeader(tk.Frame):
 
 
 class DetachedWindow(tk.Toplevel):
-    """Professional detached window for panes."""
+    """
+    Professional detached window for displaying pane content in a separate window.
+
+    This class creates a standalone window that can display pane content when
+    a pane is detached from the main three-pane layout. It supports custom
+    titlebars, theming, scrollable content, and reattachment functionality.
+    """
 
     def _is_icon_file(self, path: str) -> bool:
         """Check if a string is likely an icon file path."""
@@ -398,7 +498,19 @@ class DetachedWindow(tk.Toplevel):
         layout_instance=None,
         **kwargs,
     ):
-        """Initialize detached window with configuration and callbacks."""
+        """
+        Initialize detached window with configuration and callbacks.
+
+        Args:
+            parent: The parent window (usually the main application window).
+            pane_side (str): Which pane this window represents ('left', 'center', 'right').
+            config (PaneConfig): Configuration object defining window behavior and appearance.
+            content_builder (Callable): Function to call to build the window's content.
+            on_reattach (Callable): Callback function to call when the window should be reattached.
+            theme_manager (ThemeManager): Theme manager for consistent styling.
+            layout_instance: Reference to the main layout instance (optional).
+            **kwargs: Additional keyword arguments passed to tk.Toplevel.
+        """
         super().__init__(parent, **kwargs)
         self.pane_side = pane_side
         self.config = config
@@ -925,7 +1037,25 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         show_toolbar: bool = False,
         **kwargs,
     ):
-        """Initialize enhanced dockable three-pane window with configuration options."""
+        """
+        Initialize enhanced dockable three-pane window with configuration options.
+
+        Args:
+            master: Parent widget (usually the root window).
+            left_config (Optional[PaneConfig]): Configuration for the left pane.
+            center_config (Optional[PaneConfig]): Configuration for the center pane.
+            right_config (Optional[PaneConfig]): Configuration for the right pane.
+            left_builder (Optional[Callable]): Function to build left pane content.
+            center_builder (Optional[Callable]): Function to build center pane content.
+            right_builder (Optional[Callable]): Function to build right pane content.
+            theme_name (str): Name of the theme to use ("light", "dark", "blue", "native").
+            theme: Alternative parameter for theme_name (supports ThemeType enum).
+            enable_animations (bool): Whether to enable smooth animations.
+            menu_bar (Optional[tk.Menu]): Menu bar to attach to the parent window.
+            show_status_bar (bool): Whether to show a status bar at the bottom.
+            show_toolbar (bool): Whether to show a toolbar at the top.
+            **kwargs: Additional keyword arguments passed to tk.Frame.
+        """
         super().__init__(master, **kwargs)
 
         # Configuration
@@ -1287,7 +1417,16 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                 container.pack_propagate(False)
 
     def _configure_fixed_pane_width(self, pane_side: str, fixed_width: int):
-        """Configure a pane to have a fixed width."""
+        """
+        Configure a pane to have a fixed width that cannot be resized by the user.
+
+        This method sets both minimum and maximum width constraints to the same value,
+        effectively preventing the pane from being resized through the sash.
+
+        Args:
+            pane_side (str): Which pane to configure ('left', 'center', 'right').
+            fixed_width (int): The fixed width in pixels to set for the pane.
+        """
         if pane_side not in self.pane_frames:
             return
 
@@ -2329,7 +2468,15 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                 self.show_center_pane()
 
     def is_pane_visible(self, pane_side: str) -> bool:
-        """Check if a pane is currently visible."""
+        """
+        Check if a pane is currently visible.
+
+        Args:
+            pane_side (str): Which pane to check ('left', 'center', 'right').
+
+        Returns:
+            bool: True if the pane is visible (either attached or detached), False otherwise.
+        """
         if pane_side in self.pane_frames:
             if pane_side in self.detached_windows:
                 # If detached, check window state
@@ -2354,7 +2501,14 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self.update_status(text)
 
     def add_toolbar_button(self, text: str, command, tooltip: str = ""):
-        """Add a button to the toolbar."""
+        """
+        Add a button to the toolbar.
+
+        Args:
+            text (str): The text to display on the button.
+            command: The function to call when the button is clicked.
+            tooltip (str): Tooltip text for the button (currently unused but reserved).
+        """
         if hasattr(self, "toolbar") and self.toolbar:
             theme = self.theme_manager.get_current_theme()
 
@@ -2406,7 +2560,12 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         )
 
     def get_available_themes(self) -> list:
-        """Get list of available theme names."""
+        """
+        Get list of available theme names.
+
+        Returns:
+            list: List of theme names that can be used with switch_theme().
+        """
         return ["light", "dark", "blue"]  # Based on the themes available
 
     def refresh_ui(self):
@@ -2430,7 +2589,18 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                         print(f"Error updating theme for {pane_side} pane: {e}")
 
     def get_pane_content_frame(self, pane_side: str) -> Optional[tk.Frame]:
-        """Get the content frame for a specific pane."""
+        """
+        Get the content frame for a specific pane.
+
+        This method provides access to the frame where pane content is displayed,
+        useful for adding widgets or updating content dynamically.
+
+        Args:
+            pane_side (str): Which pane to get ('left', 'center', 'right').
+
+        Returns:
+            Optional[tk.Frame]: The content frame for the specified pane, or None if not found.
+        """
         if pane_side == "center":
             return self.get_center_frame()
         elif pane_side == "left":
@@ -2492,5 +2662,13 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         )
 
     def get_platform_info(self) -> Dict[str, str]:
-        """Get platform information including recommended scrollbar type."""
+        """
+        Get platform information including recommended scrollbar type.
+
+        Returns:
+            Dict[str, str]: Dictionary containing platform details such as:
+                - 'platform': Operating system name
+                - 'scrollbar_type': Recommended scrollbar type for this platform
+                - Other platform-specific information
+        """
         return self.theme_manager.get_platform_info()
