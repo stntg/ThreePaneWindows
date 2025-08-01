@@ -38,6 +38,10 @@ jobs:
         python -c "import sys; print(f'Python: {sys.version}')"
         python -c "import sphinx; print(f'Sphinx: {sphinx.__version__}')"
         python -c "import myst_parser; print(f'MyST Parser: {myst_parser.__version__}')" || echo "MyST Parser not available"
+        python -c "import linkify_it; print(f'Linkify-it-py: {linkify_it.__version__}')" || echo "Linkify-it-py not available"
+        # Show installed packages for debugging
+        echo "Installed documentation packages:"
+        pip list | grep -E "(sphinx|myst|linkify|rtd)"
         # Build documentation with verbose output
         sphinx-build -b html -v . _build/html
         touch _build/html/.nojekyll
