@@ -93,7 +93,7 @@ if myst_parser_available:
 
     # Check if linkify is available
     try:
-        import linkify_it  # noqa: F401
+        from linkify_it import LinkifyIt  # noqa: F401
 
         available_extensions.append("linkify")
         print("Linkify extension available")

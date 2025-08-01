@@ -54,7 +54,7 @@ def main() -> int:
         print("Warning: Sphinx RTD Theme not installed.")
 
     try:
-        import linkify_it  # noqa: F401
+        from linkify_it import LinkifyIt  # noqa: F401
 
         print("Linkify-it-py available")
     except ImportError:
