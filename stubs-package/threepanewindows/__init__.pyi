@@ -24,6 +24,9 @@ from .themes import ThemeManager as ThemeManager
 from .themes import ThemeType as ThemeType
 from .themes import get_theme_manager as get_theme_manager
 from .themes import set_global_theme as set_global_theme
+from .logging_config import add_file_logging as add_file_logging
+from .logging_config import disable_logging as disable_logging
+from .logging_config import enable_console_logging as enable_console_logging
 
 __author__: str
 __email__: str
@@ -45,4 +48,7 @@ __all__ = [
     "get_theme_manager",
     "set_global_theme",
     "ThemeType",
+    "enable_console_logging",
+    "disable_logging",
+    "add_file_logging",
 ]
