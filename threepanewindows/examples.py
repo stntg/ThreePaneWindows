@@ -8,6 +8,10 @@ import tkinter as tk
 from .dockable import DockableThreePaneWindow
 from .enhanced_dockable import EnhancedDockableThreePaneWindow, PaneConfig
 from .fixed import FixedThreePaneLayout
+from .logging_config import get_logger
+
+# Initialize logger for this module
+logger = get_logger(__name__)
 
 # Global theme update coordination
 _theme_update_in_progress = False
@@ -58,7 +62,7 @@ def run_demo_with_timeout(timeout_seconds: int = 5, interactive: bool = False) -
             return True
         except Exception as e:
             # Log the specific error for debugging
-            print(f"Warning: Non-interactive demo failed: {e}")
+            logger.warning("Non-interactive demo failed: %s", e)
             return False
 
     # For interactive mode, use threading with timeout
@@ -181,7 +185,7 @@ def test_all_demo_components() -> dict:
         # Failed to initialize test environment - likely no display available
         # Return current results (all False by default) - this is expected in
         # headless environments
-        print(f"Debug: Test environment initialization failed: {e}")
+        logger.debug("Test environment initialization failed: %s", e)
         # This is expected in headless environments, so we don't raise
 
     return results
@@ -247,7 +251,7 @@ def test_basic_demo_components() -> dict:
         # Failed to initialize basic test environment - likely no display available
         # Return current results (all False by default) - this is expected in
         # headless environments
-        print(f"Debug: Basic test environment initialization failed: {e}")
+        logger.debug("Basic test environment initialization failed: %s", e)
         # This is expected in headless environments, so we don't raise
 
     return results
@@ -414,8 +418,8 @@ def _run_non_interactive_demos():
             if "main thread" in str(e) or "theme" in str(e).lower():
                 # Skip enhanced demo if theme issues - this is expected in
                 # non-interactive environments
-                print(
-                    f"Debug: Skipping enhanced demo due to theme/threading issue: {e}"
+                logger.debug(
+                    "Skipping enhanced demo due to theme/threading issue: %s", e
                 )
             else:
                 raise
@@ -428,7 +432,7 @@ def _run_non_interactive_demos():
                     demo[0].destroy()
                 except Exception as cleanup_error:
                     # Ignore cleanup errors - window may already be destroyed
-                    print(f"Debug: Cleanup error (expected): {cleanup_error}")
+                    logger.debug("Cleanup error (expected): %s", cleanup_error)
         raise e
     return demos
 
@@ -586,7 +590,7 @@ from threepanewindows.enhanced_dockable import (
 
 # Cross-platform icon support
 formats = get_recommended_icon_formats()
-print(f"Recommended formats: {formats}")
+logger.info("Recommended formats: %s", formats)
 
 # Configure panels with advanced options
 left_config = PaneConfig(
@@ -707,7 +711,7 @@ def _setup_theme_controls(theme_frame, window_container, theme_var):
                 if hasattr(window_ref, "update_status"):
                     window_ref.update_status(f"Theme: {new_theme.upper()}")
             except Exception as e:
-                print(f"Theme change error: {e}")
+                logger.error("Theme change error: %s", e)
                 if hasattr(window_ref, "update_status"):
                     window_ref.update_status(f"Theme change failed: {str(e)}")
 
@@ -1192,7 +1196,7 @@ def _build_enhanced_file_explorer(frame, panel_name):
                 frame.pack_propagate(True)
                 frame.grid_propagate(True)
 
-            print(f"📁 {panel_name} updated to theme: {current_theme.name}")
+            logger.info("📁 %s updated to theme: %s", panel_name, current_theme.name)
 
         # Schedule the update to happen after current event processing
         frame.after_idle(_apply_updates)
@@ -1229,7 +1233,7 @@ def _update_file_explorer_styles(theme_manager, panel_name, frames, tree):
                 pass
 
     except Exception as e:
-        print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
+        logger.warning("Error updating ttk styles in %s: %s", panel_name, e)
 
 
 def _create_code_editor_toolbar(frame, panel_name):
@@ -1439,7 +1443,7 @@ def _build_enhanced_code_editor(frame, panel_name):
                 frame.pack_propagate(True)
                 frame.grid_propagate(True)
 
-            print(f"📝 {panel_name} updated to theme: {current_theme.name}")
+            logger.info("📝 %s updated to theme: %s", panel_name, current_theme.name)
 
         # Schedule the update to happen after current event processing
         frame.after_idle(_apply_updates)
@@ -1467,16 +1471,24 @@ def _update_code_editor_styles(theme_manager, panel_name, frames):
                     pass
 
     except Exception as e:
-        print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
+        logger.warning("Error updating ttk styles in %s: %s", panel_name, e)
 
 
 def _build_enhanced_properties(frame, panel_name):
     """Build an enhanced properties panel with themed widgets."""
-    from tkinter import ttk
+    # Set up the UI components
+    layout = _find_layout_instance(frame)
+    header_frame = _create_properties_header(frame, panel_name)
+    props_frame, listbox, scrollbar = _create_properties_list(frame, layout)
 
-    from .themes import get_theme_manager
+    # Set up theme update functionality
+    _setup_properties_theme_update(
+        frame, panel_name, listbox, scrollbar, header_frame, props_frame
+    )
 
-    # Get layout instance
+
+def _find_layout_instance(frame):
+    """Find the layout instance that can create themed scrollbars."""
     layout = None
     parent = frame
     while parent and layout is None:
@@ -1484,8 +1496,13 @@ def _build_enhanced_properties(frame, panel_name):
             layout = parent
             break
         parent = parent.master
+    return layout
 
-    # Header with custom titlebar indicator
+
+def _create_properties_header(frame, panel_name):
+    """Create the header section for the properties panel."""
+    from tkinter import ttk
+
     header_frame = ttk.Frame(frame, style="Themed.TFrame")
     header_frame.pack(fill="x", padx=10, pady=(10, 5))
 
@@ -1502,6 +1519,15 @@ def _build_enhanced_properties(frame, panel_name):
         font=("Arial", 8),
     ).pack(side="right")
 
+    return header_frame
+
+
+def _create_properties_list(frame, layout):
+    """Create the properties list with scrollbar."""
+    from tkinter import ttk
+
+    from .themes import get_theme_manager
+
     # Properties list with scrollbar
     props_frame = ttk.Frame(frame, style="Themed.TFrame")
     props_frame.pack(fill="both", expand=True, padx=10, pady=5)
@@ -1515,7 +1541,26 @@ def _build_enhanced_properties(frame, panel_name):
     listbox = tk.Listbox(props_frame, **listbox_style, font=("Arial", 9))
 
     # Add property items
-    properties = [
+    properties = _get_properties_content()
+    for prop in properties:
+        listbox.insert(tk.END, prop)
+
+    # Create scrollbar
+    scrollbar = _create_properties_scrollbar(props_frame, layout, listbox)
+
+    # Layout
+    listbox.grid(row=0, column=0, sticky="nsew")
+    scrollbar.grid(row=0, column=1, sticky="ns")
+
+    props_frame.grid_rowconfigure(0, weight=1)
+    props_frame.grid_columnconfigure(0, weight=1)
+
+    return props_frame, listbox, scrollbar
+
+
+def _get_properties_content():
+    """Get the content for the properties list."""
+    return [
         "🎨 Theme System",
         "  ✅ Automatic synchronization",
         "  ✅ Detached window support",
@@ -1541,10 +1586,11 @@ def _build_enhanced_properties(frame, panel_name):
         "🔄 Theme updates work perfectly now!",
     ]
 
-    for prop in properties:
-        listbox.insert(tk.END, prop)
 
-    # Create scrollbar
+def _create_properties_scrollbar(props_frame, layout, listbox):
+    """Create the scrollbar for the properties list."""
+    from tkinter import ttk
+
     if layout:
         scrollbar = layout.create_themed_scrollbar(
             props_frame, orient="vertical", command=listbox.yview
@@ -1553,25 +1599,24 @@ def _build_enhanced_properties(frame, panel_name):
         scrollbar = ttk.Scrollbar(props_frame, orient="vertical", command=listbox.yview)
 
     listbox.configure(yscrollcommand=scrollbar.set)
+    return scrollbar
 
-    # Layout
-    listbox.grid(row=0, column=0, sticky="nsew")
-    scrollbar.grid(row=0, column=1, sticky="ns")
 
-    props_frame.grid_rowconfigure(0, weight=1)
-    props_frame.grid_columnconfigure(0, weight=1)
-
+def _setup_properties_theme_update(
+    frame, panel_name, listbox, scrollbar, header_frame, props_frame
+):
+    """Set up the theme update functionality for the properties panel."""
     # Theme update function with debouncing
     _last_theme_update = [0]  # Use list to allow modification in nested function
 
     def update_theme(theme_name=None):
         import time
 
+        from .themes import get_theme_manager
+
         # Simple debouncing - ignore rapid updates
-        current_time = time.time()
-        if current_time - _last_theme_update[0] < 0.1:  # 100ms debounce
+        if not _should_update_theme(_last_theme_update):
             return
-        _last_theme_update[0] = current_time
 
         theme_manager = get_theme_manager()
         if theme_name:
@@ -1579,59 +1624,116 @@ def _build_enhanced_properties(frame, panel_name):
 
         current_theme = theme_manager.get_current_theme()
 
-        # Batch all updates together to minimize layout recalculations
-        def _apply_updates():
-            # Temporarily disable geometry propagation to prevent jumping
-            frame.pack_propagate(False)
-            frame.grid_propagate(False)
-
-            try:
-                # Update listbox only if style has changed
-                listbox_style = theme_manager.get_tk_widget_style("listbox")
-                current_bg = listbox.cget("bg")
-                new_bg = listbox_style.get("bg", current_bg)
-
-                if current_bg != new_bg:
-                    listbox.configure(**listbox_style)
-                    listbox.configure(font=("Arial", 9))
-
-                # Update scrollbar
-                if hasattr(scrollbar, "apply_theme"):
-                    scrollbar.apply_theme(current_theme.colors)
-
-                # Update ttk widget styles by refreshing the style configuration
-                try:
-                    style = ttk.Style()
-                    # Force refresh of themed styles
-                    theme_manager.apply_ttk_theme(style)
-
-                    # Update specific widgets only if needed
-                    for widget in [header_frame, props_frame]:
-                        if hasattr(widget, "winfo_exists") and widget.winfo_exists():
-                            try:
-                                current_style = widget.cget("style")
-                                if current_style != "Themed.TFrame":
-                                    widget.configure(style="Themed.TFrame")
-                            except (tk.TclError, AttributeError):
-                                pass
-
-                except Exception as e:
-                    print(f"Warning: Error updating ttk styles in {panel_name}: {e}")
-
-                # Force update of pending geometry changes
-                frame.update_idletasks()
-
-            finally:
-                # Re-enable geometry propagation
-                frame.pack_propagate(True)
-                frame.grid_propagate(True)
-
-            print(f"🔧 {panel_name} updated to theme: {current_theme.name}")
-
-        # Schedule the update to happen after current event processing
-        frame.after_idle(_apply_updates)
+        # Create the update function and schedule it
+        update_func = _create_theme_update_function(
+            frame,
+            panel_name,
+            listbox,
+            scrollbar,
+            header_frame,
+            props_frame,
+            theme_manager,
+            current_theme,
+        )
+        frame.after_idle(update_func)
 
     frame.update_theme = update_theme
+
+
+def _should_update_theme(_last_theme_update):
+    """Check if theme should be updated based on debouncing."""
+    import time
+
+    current_time = time.time()
+    if current_time - _last_theme_update[0] < 0.1:  # 100ms debounce
+        return False
+    _last_theme_update[0] = current_time
+    return True
+
+
+def _create_theme_update_function(
+    frame,
+    panel_name,
+    listbox,
+    scrollbar,
+    header_frame,
+    props_frame,
+    theme_manager,
+    current_theme,
+):
+    """Create the function that applies theme updates."""
+
+    def _apply_updates():
+        # Temporarily disable geometry propagation to prevent jumping
+        frame.pack_propagate(False)
+        frame.grid_propagate(False)
+
+        try:
+            _update_listbox_theme(listbox, theme_manager)
+            _update_scrollbar_theme(scrollbar, current_theme)
+            _update_ttk_widgets_theme(
+                theme_manager, panel_name, header_frame, props_frame
+            )
+
+            # Force update of pending geometry changes
+            frame.update_idletasks()
+
+        finally:
+            # Re-enable geometry propagation
+            frame.pack_propagate(True)
+            frame.grid_propagate(True)
+
+        logger.info("🔧 %s updated to theme: %s", panel_name, current_theme.name)
+
+    return _apply_updates
+
+
+def _update_listbox_theme(listbox, theme_manager):
+    """Update the listbox theme if needed."""
+    listbox_style = theme_manager.get_tk_widget_style("listbox")
+    current_bg = listbox.cget("bg")
+    new_bg = listbox_style.get("bg", current_bg)
+
+    if current_bg != new_bg:
+        listbox.configure(**listbox_style)
+        listbox.configure(font=("Arial", 9))
+
+
+def _update_scrollbar_theme(scrollbar, current_theme):
+    """Update the scrollbar theme if it supports theming."""
+    if hasattr(scrollbar, "apply_theme"):
+        scrollbar.apply_theme(current_theme.colors)
+
+
+def _update_ttk_widgets_theme(theme_manager, panel_name, header_frame, props_frame):
+    """Update TTK widgets theme."""
+    import tkinter as tk
+    from tkinter import ttk
+
+    try:
+        style = ttk.Style()
+        # Force refresh of themed styles
+        theme_manager.apply_ttk_theme(style)
+
+        # Update specific widgets only if needed
+        for widget in [header_frame, props_frame]:
+            _update_single_ttk_widget(widget)
+
+    except Exception as e:
+        logger.warning("Error updating ttk styles in %s: %s", panel_name, e)
+
+
+def _update_single_ttk_widget(widget):
+    """Update a single TTK widget's style if needed."""
+    import tkinter as tk
+
+    if hasattr(widget, "winfo_exists") and widget.winfo_exists():
+        try:
+            current_style = widget.cget("style")
+            if current_style != "Themed.TFrame":
+                widget.configure(style="Themed.TFrame")
+        except (tk.TclError, AttributeError):
+            pass
 
 
 def _create_enhanced_demo_controls(root, window, initial_theme):
@@ -1655,7 +1757,7 @@ def _create_enhanced_demo_controls(root, window, initial_theme):
         # Show detached windows info (only if there are any)
         detached_count = len(window.detached_windows)
         if detached_count > 0:
-            print(f"📊 Currently detached: {detached_count} panels")
+            logger.info("📊 Currently detached: %d panels", detached_count)
             for pane_side in window.detached_windows:
                 titlebar_type = (
                     "custom"
@@ -1666,7 +1768,9 @@ def _create_enhanced_demo_controls(root, window, initial_theme):
                     )
                     else "regular"
                 )
-                print(f"  🪟 {pane_side} panel (detached, {titlebar_type} titlebar)")
+                logger.info(
+                    "  🪟 %s panel (detached, %s titlebar)", pane_side, titlebar_type
+                )
 
         # Use coordinated theme switching to prevent cascading updates
         def _do_theme_switch():
@@ -1721,25 +1825,27 @@ def _show_enhanced_demo_info(window, initial_theme):
 
     platform_info = window.get_platform_info()
 
-    print("\n🎨 === Enhanced Three-Pane Demo Started ===")
-    print(f"🖥️  Platform: {platform_info['platform']}")
-    print(f"📜 Scrollbars: {platform_info['scrollbar_type']}")
-    print(f"📝 Description: {platform_info['scrollbar_description']}")
-    print(f"🎨 Initial theme: {initial_theme}")
-    print(f"🎯 Available themes: {list(get_theme_manager().list_themes().keys())}")
-    print("\n✨ NEW FEATURES DEMONSTRATED:")
-    print("  ✅ Automatic theme synchronization")
-    print("  ✅ Perfect detached window theming")
-    print("  ✅ Custom titlebar detached window fix")
-    print("  ✅ Platform-specific scrollbar detection")
-    print("  ✅ One-call theme switching API")
-    print("\n🎯 TEST INSTRUCTIONS:")
-    print("  1️⃣  Detach panels using ⧉ buttons")
-    print("  2️⃣  Switch themes using dropdown")
-    print("  3️⃣  Notice instant theme updates")
-    print("  4️⃣  Test custom titlebar panel (right)")
-    print("  5️⃣  Try multiple detached panels")
-    print("=" * 60)
+    logger.info("\n🎨 === Enhanced Three-Pane Demo Started ===")
+    logger.info("🖥️  Platform: %s", platform_info["platform"])
+    logger.info("📜 Scrollbars: %s", platform_info["scrollbar_type"])
+    logger.info("📝 Description: %s", platform_info["scrollbar_description"])
+    logger.info("🎨 Initial theme: %s", initial_theme)
+    logger.info(
+        "🎯 Available themes: %s", list(get_theme_manager().list_themes().keys())
+    )
+    logger.info("\n✨ NEW FEATURES DEMONSTRATED:")
+    logger.info("  ✅ Automatic theme synchronization")
+    logger.info("  ✅ Perfect detached window theming")
+    logger.info("  ✅ Custom titlebar detached window fix")
+    logger.info("  ✅ Platform-specific scrollbar detection")
+    logger.info("  ✅ One-call theme switching API")
+    logger.info("\n🎯 TEST INSTRUCTIONS:")
+    logger.info("  1️⃣  Detach panels using ⧉ buttons")
+    logger.info("  2️⃣  Switch themes using dropdown")
+    logger.info("  3️⃣  Notice instant theme updates")
+    logger.info("  4️⃣  Test custom titlebar panel (right)")
+    logger.info("  5️⃣  Try multiple detached panels")
+    logger.info("=" * 60)
 
     # Update status bar
     window.update_status(

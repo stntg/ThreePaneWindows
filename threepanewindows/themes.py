@@ -5,7 +5,6 @@ This module provides comprehensive theming capabilities including color schemes,
 typography, spacing, and platform-specific theme detection and management.
 """
 
-import logging
 import platform
 import tkinter as tk
 from dataclasses import dataclass, field
@@ -17,7 +16,11 @@ if TYPE_CHECKING:
     from .custom_scrollbar import ThemedScrollbar
 
 # Import platform-specific functionality
+from .logging_config import get_logger
 from .utils import platform_handler
+
+# Initialize logger for this module
+logger = get_logger(__name__)
 
 
 class ThemeType(Enum):
@@ -386,7 +389,7 @@ class ThemeManager:
                 )
 
         except Exception as e:
-            print(f"Warning: Could not initialize native themes: {e}")
+            logger.warning("Could not initialize native themes: %s", e)
             # Create fallback native themes based on existing themes
             self._create_fallback_native_themes()
 
@@ -523,7 +526,7 @@ class ThemeManager:
             # Re-initialize native themes with current system settings
             self._initialize_native_themes()
         except Exception as e:
-            print(f"Warning: Could not update native themes: {e}")
+            logger.warning("Could not update native themes: %s", e)
 
     def _apply_platform_specific_styling(self, window: tk.Tk, theme: Theme) -> None:
         """Apply platform-specific styling enhancements."""
@@ -532,7 +535,7 @@ class ThemeManager:
             if hasattr(platform_handler, "apply_macos_native_styling"):
                 platform_handler.apply_macos_native_styling(window, theme.colors)
         except Exception as e:
-            print(f"Warning: Could not apply platform-specific styling: {e}")
+            logger.warning("Could not apply platform-specific styling: %s", e)
 
     def refresh_system_theme(self) -> bool:
         """
@@ -565,7 +568,7 @@ class ThemeManager:
 
             return True
         except Exception as e:
-            print(f"Warning: Could not refresh system theme: {e}")
+            logger.warning("Could not refresh system theme: %s", e)
             return False
 
     def get_theme(self, name: Union[str, ThemeType]) -> Optional[Theme]:
@@ -831,101 +834,142 @@ class ThemeManager:
             recursive: Whether to theme child widgets as well
         """
         try:
-            widget_class = widget.winfo_class()
-
-            # Apply TTK widget theming (these are handled by apply_ttk_theme)
-            if widget_class.startswith("T"):
-                # TTK widgets are themed via style configuration
-                pass
-            else:
-                # Apply TK widget theming
-                if widget_class == "Text":
-                    style = self.get_tk_widget_style("text")
-                    widget.configure(**style)
-                elif widget_class == "Listbox":
-                    style = self.get_tk_widget_style("listbox")
-                    widget.configure(**style)
-                elif widget_class == "Canvas":
-                    style = self.get_tk_widget_style("canvas")
-                    widget.configure(**style)
-                elif widget_class == "Entry":
-                    style = self.get_tk_widget_style("entry")
-                    widget.configure(**style)
-                elif widget_class == "Label":
-                    style = self.get_tk_widget_style("label")
-                    widget.configure(**style)
-                elif widget_class == "Button":
-                    # Skip theming for scrollbar buttons
-                    parent = widget.master
-                    is_scrollbar_button = False
-
-                    # Check if this button belongs to a scrollbar
-                    if (
-                        parent
-                        and hasattr(parent, "apply_theme")
-                        and "scrollbar" in str(type(parent)).lower()
-                    ):
-                        # This is a scrollbar button - skip general button theming
-                        is_scrollbar_button = True
-
-                    if not is_scrollbar_button:
-                        # Regular button - apply standard button styling
-                        style = self.get_tk_widget_style("button")
-                        widget.configure(**style)
-                elif widget_class == "Frame":
-                    # Skip theming for custom scrollbar components and their children
-                    parent = widget.master
-                    is_scrollbar_component = False
-
-                    # Check if this is a scrollbar or a child of a scrollbar
-                    if (
-                        hasattr(widget, "apply_theme")
-                        and "scrollbar" in str(type(widget)).lower()
-                    ):
-                        # This is the scrollbar itself
-                        widget.apply_theme(self.get_current_theme().colors)
-                        is_scrollbar_component = True
-                    elif (
-                        parent
-                        and hasattr(parent, "apply_theme")
-                        and "scrollbar" in str(type(parent)).lower()
-                    ):
-                        # This is a child of a scrollbar (trough, thumb) - skip theming
-                        is_scrollbar_component = True
-                    elif (
-                        parent
-                        and parent.master
-                        and hasattr(parent.master, "apply_theme")
-                        and "scrollbar" in str(type(parent.master)).lower()
-                    ):
-                        # This is a grandchild of a scrollbar - skip theming
-                        is_scrollbar_component = True
-
-                    if not is_scrollbar_component:
-                        # Regular frame - apply standard frame styling
-                        style = self.get_tk_widget_style("frame")
-                        widget.configure(**style)
-                elif widget_class == "Toplevel":
-                    theme = self.get_current_theme()
-                    widget.configure(bg=theme.colors.primary_bg)
-                elif widget_class == "Tk":
-                    theme = self.get_current_theme()
-                    widget.configure(bg=theme.colors.primary_bg)
+            # Apply theme to the current widget
+            self._apply_theme_to_single_widget(widget)
 
             # Recursively apply to children if requested
             if recursive:
-                try:
-                    for child in widget.winfo_children():
-                        self.apply_theme_to_widget(child, recursive=True)
-                except Exception as e:
-                    # Some widgets don't support winfo_children() or have other issues
-                    logging.debug(
-                        f"Could not apply theme to child widgets of {widget}: {e}"
-                    )
+                self._apply_theme_to_children(widget)
 
         except Exception as e:
             # Log theming errors for individual widgets but don't crash the application
-            logging.debug(f"Could not apply theme to widget {widget}: {e}")
+            logger.debug(f"Could not apply theme to widget {widget}: {e}")
+
+    def _apply_theme_to_single_widget(self, widget) -> None:
+        """Apply theme to a single widget without recursion."""
+        widget_class = widget.winfo_class()
+
+        # Skip TTK widgets (handled by apply_ttk_theme)
+        if widget_class.startswith("T"):
+            return
+
+        # Get the appropriate theme handler
+        theme_handler = self._get_widget_theme_handler(widget_class)
+        if theme_handler:
+            theme_handler(widget)
+
+    def _get_widget_theme_handler(self, widget_class: str):
+        """Get the appropriate theme handler for a widget class."""
+        handlers = {
+            "Text": self._theme_text_widget,
+            "Listbox": self._theme_listbox_widget,
+            "Canvas": self._theme_canvas_widget,
+            "Entry": self._theme_entry_widget,
+            "Label": self._theme_label_widget,
+            "Button": self._theme_button_widget,
+            "Frame": self._theme_frame_widget,
+            "Toplevel": self._theme_toplevel_widget,
+            "Tk": self._theme_tk_widget,
+        }
+        return handlers.get(widget_class)
+
+    def _apply_theme_to_children(self, widget) -> None:
+        """Apply theme to all children of a widget."""
+        try:
+            for child in widget.winfo_children():
+                self.apply_theme_to_widget(child, recursive=True)
+        except Exception as e:
+            # Some widgets don't support winfo_children() or have other issues
+            logger.debug(f"Could not apply theme to child widgets of {widget}: {e}")
+
+    def _theme_text_widget(self, widget) -> None:
+        """Apply theme to Text widget."""
+        style = self.get_tk_widget_style("text")
+        widget.configure(**style)
+
+    def _theme_listbox_widget(self, widget) -> None:
+        """Apply theme to Listbox widget."""
+        style = self.get_tk_widget_style("listbox")
+        widget.configure(**style)
+
+    def _theme_canvas_widget(self, widget) -> None:
+        """Apply theme to Canvas widget."""
+        style = self.get_tk_widget_style("canvas")
+        widget.configure(**style)
+
+    def _theme_entry_widget(self, widget) -> None:
+        """Apply theme to Entry widget."""
+        style = self.get_tk_widget_style("entry")
+        widget.configure(**style)
+
+    def _theme_label_widget(self, widget) -> None:
+        """Apply theme to Label widget."""
+        style = self.get_tk_widget_style("label")
+        widget.configure(**style)
+
+    def _theme_button_widget(self, widget) -> None:
+        """Apply theme to Button widget, skipping scrollbar buttons."""
+        if not self._is_scrollbar_button(widget):
+            style = self.get_tk_widget_style("button")
+            widget.configure(**style)
+
+    def _theme_frame_widget(self, widget) -> None:
+        """Apply theme to Frame widget, handling scrollbar components specially."""
+        if self._is_custom_scrollbar(widget):
+            # This is a custom scrollbar - apply its own theming
+            widget.apply_theme(self.get_current_theme().colors)
+        elif not self._is_scrollbar_component(widget):
+            # Regular frame - apply standard frame styling
+            style = self.get_tk_widget_style("frame")
+            widget.configure(**style)
+
+    def _theme_toplevel_widget(self, widget) -> None:
+        """Apply theme to Toplevel widget."""
+        theme = self.get_current_theme()
+        widget.configure(bg=theme.colors.primary_bg)
+
+    def _theme_tk_widget(self, widget) -> None:
+        """Apply theme to Tk root widget."""
+        theme = self.get_current_theme()
+        widget.configure(bg=theme.colors.primary_bg)
+
+    def _is_scrollbar_button(self, widget) -> bool:
+        """Check if a button belongs to a scrollbar."""
+        parent = widget.master
+        return (
+            parent
+            and hasattr(parent, "apply_theme")
+            and "scrollbar" in str(type(parent)).lower()
+        )
+
+    def _is_custom_scrollbar(self, widget) -> bool:
+        """Check if a widget is a custom scrollbar."""
+        return (
+            hasattr(widget, "apply_theme") and "scrollbar" in str(type(widget)).lower()
+        )
+
+    def _is_scrollbar_component(self, widget) -> bool:
+        """Check if a widget is a component of a scrollbar."""
+        parent = widget.master
+
+        # Check if parent is a scrollbar
+        if (
+            parent
+            and hasattr(parent, "apply_theme")
+            and "scrollbar" in str(type(parent)).lower()
+        ):
+            return True
+
+        # Check if grandparent is a scrollbar
+        if (
+            parent
+            and parent.master
+            and hasattr(parent.master, "apply_theme")
+            and "scrollbar" in str(type(parent.master)).lower()
+        ):
+            return True
+
+        return False
 
     def apply_theme_to_window(self, window) -> None:
         """
@@ -943,7 +987,7 @@ class ThemeManager:
             self.apply_theme_to_widget(window, recursive=True)
 
         except Exception as e:
-            print(f"Warning: Could not fully apply theme to window: {e}")
+            logger.warning("Could not fully apply theme to window: %s", e)
 
     def _is_dark_theme(self, colors: ColorScheme) -> bool:
         """Determine if a theme is dark based on its background color."""
@@ -958,230 +1002,334 @@ class ThemeManager:
         self, widget_type: str, state: str = "normal"
     ) -> Dict[str, Any]:
         """Get styling for custom Tkinter widgets."""
+        # Get widget style handler
+        style_handler = self._get_widget_style_handler(widget_type)
+        if style_handler:
+            return style_handler(state)
+
+        # Return base style if no specific handler found
+        return self._get_base_widget_style()
+
+    def _get_widget_style_handler(self, widget_type: str):
+        """Get the appropriate style handler for a widget type."""
+        handlers = {
+            "text": self._get_text_widget_style,
+            "listbox": self._get_listbox_widget_style,
+            "scrollbar": self._get_scrollbar_widget_style,
+            "canvas": self._get_canvas_widget_style,
+            "frame": self._get_frame_widget_style,
+            "toplevel": self._get_toplevel_widget_style,
+            "label": self._get_label_widget_style,
+            "button": self._get_button_widget_style,
+            "entry": self._get_entry_widget_style,
+            "checkbutton": self._get_checkbutton_widget_style,
+            "radiobutton": self._get_radiobutton_widget_style,
+            "scale": self._get_scale_widget_style,
+            "spinbox": self._get_spinbox_widget_style,
+            "menu": self._get_menu_widget_style,
+            "menubutton": self._get_menubutton_widget_style,
+            "message": self._get_message_widget_style,
+        }
+        return handlers.get(widget_type)
+
+    def _get_base_widget_style(self) -> Dict[str, Any]:
+        """Get base styling that applies to all widgets."""
         theme = self.get_current_theme()
-        colors = theme.colors
         typography = theme.typography
-        spacing = theme.spacing
 
         # Create font tuple with fallback
         font_family = self._get_available_font(
             typography.font_family, typography.font_family_fallback
         )
 
-        base_style = {
+        return {
             "font": (font_family, typography.font_size_normal),
             "relief": "flat",
             "borderwidth": 0,
         }
 
-        if widget_type == "text":
-            return {
-                **base_style,
-                "bg": colors.panel_content_bg,
-                "fg": colors.primary_text,
-                "insertbackground": colors.primary_text,
-                "selectbackground": colors.accent_bg,
-                "selectforeground": colors.primary_text,
-                "highlightcolor": colors.accent_text,
-                "highlightbackground": colors.border,
-                "highlightthickness": 1,
-                "borderwidth": 1,
-                "relief": "solid",
-            }
+    def _get_text_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Text widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        base_style = self._get_base_widget_style()
 
-        elif widget_type == "listbox":
-            return {
-                **base_style,
-                "bg": colors.panel_content_bg,
-                "fg": colors.primary_text,
-                "selectbackground": colors.accent_bg,
-                "selectforeground": colors.primary_text,
-                "highlightcolor": colors.accent_text,
-                "highlightbackground": colors.border,
-                "highlightthickness": 1,
-                "borderwidth": 1,
-                "relief": "solid",
-                "activestyle": "dotbox",
-            }
+        return {
+            **base_style,
+            "bg": colors.panel_content_bg,
+            "fg": colors.primary_text,
+            "insertbackground": colors.primary_text,
+            "selectbackground": colors.accent_bg,
+            "selectforeground": colors.primary_text,
+            "highlightcolor": colors.accent_text,
+            "highlightbackground": colors.border,
+            "highlightthickness": 1,
+            "borderwidth": 1,
+            "relief": "solid",
+        }
 
-        elif widget_type == "scrollbar":
-            # For dark themes, use specific dark colors
-            is_dark_theme = self._is_dark_theme(colors)
-            if is_dark_theme:
-                scrollbar_bg = colors.secondary_bg  # #2d2d30 for dark theme
-                trough_color = colors.panel_content_bg  # #1e1e1e for dark theme
-                border_color = colors.panel_content_bg  # #1e1e1e for dark theme
-                _ = colors.secondary_text  # Arrow color (not used in current config)
-            else:
-                # For colored themes, use white bg and theme color for trough/border
-                scrollbar_bg = "#ffffff"  # White background
-                trough_color = colors.accent_bg  # Theme color for trough
-                border_color = colors.accent_bg  # Theme color for border
-                _ = colors.primary_text  # Arrow color (not used in current config)
+    def _get_listbox_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Listbox widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        base_style = self._get_base_widget_style()
 
-            return {
-                "bg": scrollbar_bg,
-                "troughcolor": trough_color,
-                "activebackground": colors.button_hover,
-                "highlightbackground": border_color,
-                "highlightcolor": colors.accent_text,
-                "relief": "flat",
-                "borderwidth": 1,
-                "highlightthickness": 0,
-                "elementborderwidth": 1,
-                "width": 16,
-                # Additional options that work on most platforms
-                "jump": 1,
-                "repeatdelay": 300,
-                "repeatinterval": 100,
-            }
+        return {
+            **base_style,
+            "bg": colors.panel_content_bg,
+            "fg": colors.primary_text,
+            "selectbackground": colors.accent_bg,
+            "selectforeground": colors.primary_text,
+            "highlightcolor": colors.accent_text,
+            "highlightbackground": colors.border,
+            "highlightthickness": 1,
+            "borderwidth": 1,
+            "relief": "solid",
+            "activestyle": "dotbox",
+        }
 
-        elif widget_type == "canvas":
-            return {
-                "bg": colors.panel_content_bg,
-                "highlightcolor": colors.accent_text,
-                "highlightbackground": colors.border,
-                "highlightthickness": 1,
-                "relief": "flat",
-                "borderwidth": 0,
-            }
+    def _get_scrollbar_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Scrollbar widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
 
-        elif widget_type == "frame":
-            return {
-                "bg": colors.panel_content_bg,
-                "relief": "flat",
-                "borderwidth": 0,
-            }
+        # For dark themes, use specific dark colors
+        is_dark_theme = self._is_dark_theme(colors)
+        if is_dark_theme:
+            scrollbar_bg = colors.secondary_bg  # #2d2d30 for dark theme
+            trough_color = colors.panel_content_bg  # #1e1e1e for dark theme
+            border_color = colors.panel_content_bg  # #1e1e1e for dark theme
+        else:
+            # For colored themes, use white bg and theme color for trough/border
+            scrollbar_bg = "#ffffff"  # White background
+            trough_color = colors.accent_bg  # Theme color for trough
+            border_color = colors.accent_bg  # Theme color for border
 
-        elif widget_type == "toplevel":
-            return {
-                "bg": colors.panel_content_bg,
-                "relief": "flat",
-                "borderwidth": 0,
-            }
+        return {
+            "bg": scrollbar_bg,
+            "troughcolor": trough_color,
+            "activebackground": colors.button_hover,
+            "highlightbackground": border_color,
+            "highlightcolor": colors.accent_text,
+            "relief": "flat",
+            "borderwidth": 1,
+            "highlightthickness": 0,
+            "elementborderwidth": 1,
+            "width": 16,
+            # Additional options that work on most platforms
+            "jump": 1,
+            "repeatdelay": 300,
+            "repeatinterval": 100,
+        }
 
-        elif widget_type == "label":
-            return {
-                **base_style,
-                "bg": colors.panel_content_bg,
-                "fg": colors.primary_text,
-            }
+    def _get_canvas_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Canvas widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
 
-        elif widget_type == "button":
-            if state == "hover":
-                bg = colors.button_hover
-            elif state == "active":
-                bg = colors.button_active
-            else:
-                bg = colors.button_bg
+        return {
+            "bg": colors.panel_content_bg,
+            "highlightcolor": colors.accent_text,
+            "highlightbackground": colors.border,
+            "highlightthickness": 1,
+            "relief": "flat",
+            "borderwidth": 0,
+        }
 
-            return {
-                **base_style,
-                "bg": bg,
-                "fg": colors.button_fg,
-                "activebackground": colors.button_active,
-                "activeforeground": colors.button_fg,
-                "cursor": "hand2",
-                "padx": spacing.padding_normal,
-                "pady": spacing.padding_small,
-            }
+    def _get_frame_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Frame widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
 
-        elif widget_type == "entry":
-            return {
-                **base_style,
-                "bg": colors.panel_content_bg,
-                "fg": colors.primary_text,
-                "insertbackground": colors.primary_text,
-                "selectbackground": colors.accent_bg,
-                "selectforeground": colors.primary_text,
-                "highlightcolor": colors.accent_text,
-                "highlightbackground": colors.border,
-                "highlightthickness": 1,
-                "borderwidth": 1,
-                "relief": "solid",
-            }
+        return {
+            "bg": colors.panel_content_bg,
+            "relief": "flat",
+            "borderwidth": 0,
+        }
 
-        elif widget_type == "checkbutton":
-            return {
-                **base_style,
-                "bg": colors.panel_content_bg,
-                "fg": colors.primary_text,
-                "activebackground": colors.panel_content_bg,
-                "activeforeground": colors.primary_text,
-                "selectcolor": colors.panel_content_bg,
-                "cursor": "hand2",
-            }
+    def _get_toplevel_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Toplevel widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
 
-        elif widget_type == "radiobutton":
-            return {
-                **base_style,
-                "bg": colors.panel_content_bg,
-                "fg": colors.primary_text,
-                "activebackground": colors.panel_content_bg,
-                "activeforeground": colors.primary_text,
-                "selectcolor": colors.panel_content_bg,
-                "cursor": "hand2",
-            }
+        return {
+            "bg": colors.panel_content_bg,
+            "relief": "flat",
+            "borderwidth": 0,
+        }
 
-        elif widget_type == "scale":
-            return {
-                **base_style,
-                "bg": colors.panel_content_bg,
-                "fg": colors.primary_text,
-                "troughcolor": colors.secondary_bg,
-                "activebackground": colors.button_hover,
-                "highlightcolor": colors.accent_text,
-                "highlightbackground": colors.border,
-            }
+    def _get_label_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Label widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        base_style = self._get_base_widget_style()
 
-        elif widget_type == "spinbox":
-            return {
-                **base_style,
-                "bg": colors.panel_content_bg,
-                "fg": colors.primary_text,
-                "insertbackground": colors.primary_text,
-                "selectbackground": colors.accent_bg,
-                "selectforeground": colors.primary_text,
-                "highlightcolor": colors.accent_text,
-                "highlightbackground": colors.border,
-                "highlightthickness": 1,
-                "borderwidth": 1,
-                "relief": "solid",
-                "buttonbackground": colors.button_bg,
-            }
+        return {
+            **base_style,
+            "bg": colors.panel_content_bg,
+            "fg": colors.primary_text,
+        }
 
-        elif widget_type == "menu":
-            return {
-                **base_style,
-                "bg": colors.panel_content_bg,
-                "fg": colors.primary_text,
-                "activebackground": colors.accent_bg,
-                "activeforeground": colors.primary_text,
-                "selectcolor": colors.accent_bg,
-                "borderwidth": 1,
-                "relief": "solid",
-            }
+    def _get_button_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Button widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        spacing = theme.spacing
+        base_style = self._get_base_widget_style()
 
-        elif widget_type == "menubutton":
-            return {
-                **base_style,
-                "bg": colors.button_bg,
-                "fg": colors.button_fg,
-                "activebackground": colors.button_hover,
-                "activeforeground": colors.button_fg,
-                "cursor": "hand2",
-                "padx": spacing.padding_normal,
-                "pady": spacing.padding_small,
-            }
+        if state == "hover":
+            bg = colors.button_hover
+        elif state == "active":
+            bg = colors.button_active
+        else:
+            bg = colors.button_bg
 
-        elif widget_type == "message":
-            return {
-                **base_style,
-                "bg": colors.panel_content_bg,
-                "fg": colors.primary_text,
-            }
+        return {
+            **base_style,
+            "bg": bg,
+            "fg": colors.button_fg,
+            "activebackground": colors.button_active,
+            "activeforeground": colors.button_fg,
+            "cursor": "hand2",
+            "padx": spacing.padding_normal,
+            "pady": spacing.padding_small,
+        }
 
-        return base_style
+    def _get_entry_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Entry widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        base_style = self._get_base_widget_style()
+
+        return {
+            **base_style,
+            "bg": colors.panel_content_bg,
+            "fg": colors.primary_text,
+            "insertbackground": colors.primary_text,
+            "selectbackground": colors.accent_bg,
+            "selectforeground": colors.primary_text,
+            "highlightcolor": colors.accent_text,
+            "highlightbackground": colors.border,
+            "highlightthickness": 1,
+            "borderwidth": 1,
+            "relief": "solid",
+        }
+
+    def _get_checkbutton_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Checkbutton widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        base_style = self._get_base_widget_style()
+
+        return {
+            **base_style,
+            "bg": colors.panel_content_bg,
+            "fg": colors.primary_text,
+            "activebackground": colors.panel_content_bg,
+            "activeforeground": colors.primary_text,
+            "selectcolor": colors.panel_content_bg,
+            "cursor": "hand2",
+        }
+
+    def _get_radiobutton_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Radiobutton widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        base_style = self._get_base_widget_style()
+
+        return {
+            **base_style,
+            "bg": colors.panel_content_bg,
+            "fg": colors.primary_text,
+            "activebackground": colors.panel_content_bg,
+            "activeforeground": colors.primary_text,
+            "selectcolor": colors.panel_content_bg,
+            "cursor": "hand2",
+        }
+
+    def _get_scale_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Scale widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        base_style = self._get_base_widget_style()
+
+        return {
+            **base_style,
+            "bg": colors.panel_content_bg,
+            "fg": colors.primary_text,
+            "troughcolor": colors.secondary_bg,
+            "activebackground": colors.button_hover,
+            "highlightcolor": colors.accent_text,
+            "highlightbackground": colors.border,
+        }
+
+    def _get_spinbox_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Spinbox widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        base_style = self._get_base_widget_style()
+
+        return {
+            **base_style,
+            "bg": colors.panel_content_bg,
+            "fg": colors.primary_text,
+            "insertbackground": colors.primary_text,
+            "selectbackground": colors.accent_bg,
+            "selectforeground": colors.primary_text,
+            "highlightcolor": colors.accent_text,
+            "highlightbackground": colors.border,
+            "highlightthickness": 1,
+            "borderwidth": 1,
+            "relief": "solid",
+            "buttonbackground": colors.button_bg,
+        }
+
+    def _get_menu_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Menu widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        base_style = self._get_base_widget_style()
+
+        return {
+            **base_style,
+            "bg": colors.panel_content_bg,
+            "fg": colors.primary_text,
+            "activebackground": colors.accent_bg,
+            "activeforeground": colors.primary_text,
+            "selectcolor": colors.accent_bg,
+            "borderwidth": 1,
+            "relief": "solid",
+        }
+
+    def _get_menubutton_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Menubutton widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        spacing = theme.spacing
+        base_style = self._get_base_widget_style()
+
+        return {
+            **base_style,
+            "bg": colors.button_bg,
+            "fg": colors.button_fg,
+            "activebackground": colors.button_hover,
+            "activeforeground": colors.button_fg,
+            "cursor": "hand2",
+            "padx": spacing.padding_normal,
+            "pady": spacing.padding_small,
+        }
+
+    def _get_message_widget_style(self, state: str = "normal") -> Dict[str, Any]:
+        """Get styling for Message widgets."""
+        theme = self.get_current_theme()
+        colors = theme.colors
+        base_style = self._get_base_widget_style()
+
+        return {
+            **base_style,
+            "bg": colors.panel_content_bg,
+            "fg": colors.primary_text,
+        }
 
     def apply_ttk_theme(self, style: ttk.Style) -> None:
         """Apply current theme to ttk widgets."""

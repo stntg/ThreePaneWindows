@@ -11,7 +11,11 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Any, List, Optional, Tuple
 
+from ..logging_config import get_logger
 from .base import PlatformHandler
+
+# Initialize logger for this module
+logger = get_logger(__name__)
 
 
 def detect_macos_dark_mode() -> bool:
@@ -150,7 +154,7 @@ class MacOSPlatformHandler(PlatformHandler):
     def set_window_icon(self, window: tk.Tk, icon_path: str) -> bool:
         """Set window icon using macOS-optimized methods."""
         if not os.path.exists(icon_path):
-            print(f"Warning: Icon file not found: {icon_path}")
+            logger.warning("Icon file not found: %s", icon_path)
             return False
 
         try:
@@ -169,8 +173,8 @@ class MacOSPlatformHandler(PlatformHandler):
                     window._icon_photos.append(photo)
                     return True
                 except tk.TclError as e:
-                    print(
-                        f"Warning: Could not load icon as PhotoImage '{icon_path}': {e}"
+                    logger.warning(
+                        "Could not load icon as PhotoImage '%s': %s", icon_path, e
                     )
 
             # For .ico files or as fallback, try iconbitmap
@@ -178,11 +182,11 @@ class MacOSPlatformHandler(PlatformHandler):
                 window.iconbitmap(icon_path)
                 return True
             except tk.TclError as e:
-                print(f"Warning: Could not set icon '{icon_path}': {e}")
+                logger.warning("Could not set icon '%s': %s", icon_path, e)
                 return False
 
         except Exception as e:
-            print(f"Error setting window icon: {e}")
+            logger.error("Error setting window icon: %s", e)
             return False
 
     def apply_custom_titlebar(self, window: tk.Tk, theme_colors: Any) -> bool:
@@ -191,7 +195,7 @@ class MacOSPlatformHandler(PlatformHandler):
             self._apply_macos_custom_titlebar(window, theme_colors)
             return True
         except Exception as e:
-            print(f"Could not apply macOS custom titlebar: {e}")
+            logger.warning("Could not apply macOS custom titlebar: %s", e)
             return False
 
     def _apply_macos_custom_titlebar(self, window: tk.Tk, colors: Any) -> None:

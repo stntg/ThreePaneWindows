@@ -39,6 +39,7 @@ from .enhanced_dockable import (
     validate_icon_path,
 )
 from .fixed import FixedThreePaneLayout, FixedThreePaneWindow
+from .logging_config import add_file_logging, disable_logging, enable_console_logging
 from .themes import ThemeManager, ThemeType, get_theme_manager, set_global_theme
 
 # Metadata
@@ -68,6 +69,10 @@ __all__ = [
     "get_theme_manager",
     "set_global_theme",
     "ThemeType",
+    # Logging system
+    "enable_console_logging",
+    "disable_logging",
+    "add_file_logging",
 ]
 
 # Note: FixedThreePaneWindow is the modern name, FixedThreePaneLayout is legacy

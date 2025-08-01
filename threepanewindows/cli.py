@@ -8,6 +8,10 @@ This module provides a simple CLI to run demos and examples.
 import argparse
 
 from .examples import run_demo
+from .logging_config import get_logger
+
+# Initialize logger for this module
+logger = get_logger(__name__)
 
 
 def main() -> None:
@@ -35,7 +39,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.command == "demo":
-        print("Starting ThreePaneWindows demo...")
+        logger.info("Starting ThreePaneWindows demo...")
         run_demo()
     elif args.command == "info":
         show_info()
@@ -62,6 +66,8 @@ Usage:
 
 For more information, visit: https://github.com/stntg/threepanewindows
 """
+    # For CLI info command, we want to print directly to stdout
+    # This is user-facing output, not internal logging
     print(info_text)
 
 

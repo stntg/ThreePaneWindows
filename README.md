@@ -49,6 +49,7 @@ docking, theming, and advanced UI components.**
   interactions
 - **Smart Positioning**: Intelligent window placement and sizing
 - **Visual Feedback**: Professional hover effects and drag indicators
+- **🔍 NEW: Comprehensive Logging**: Silent by default with configurable debug output
 
 > 📖 **See [ENHANCED_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/ENHANCED_FEATURES.md)
 > for complete documentation of the new professional features.**
@@ -264,6 +265,55 @@ Or run directly with Python:
 ```bash
 python -m threepanewindows.examples
 ```
+
+## Logging and Debugging
+
+ThreePaneWindows includes a comprehensive logging system that is **silent by default**
+but can be easily enabled for debugging and monitoring:
+
+### Quick Start
+
+```python
+import threepanewindows
+
+# Enable console logging
+threepanewindows.enable_console_logging()
+
+# Your application code - now with logging
+window = threepanewindows.EnhancedDockableThreePaneWindow(root)
+```
+
+### Advanced Configuration
+
+```python
+import logging
+import threepanewindows
+
+# Enable file logging with debug level
+threepanewindows.add_file_logging('debug.log', level=logging.DEBUG)
+
+# Enable console logging with info level
+threepanewindows.enable_console_logging(level=logging.INFO)
+
+# Disable logging completely
+threepanewindows.disable_logging()
+```
+
+### Custom Logger Configuration
+
+```python
+import logging
+
+# Configure specific modules
+logger = logging.getLogger('threepanewindows.themes')
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('THEME: %(message)s'))
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+```
+
+> 📖 **See [docs/logging.md](docs/logging.md) for complete logging
+> documentation and examples.**
 
 ## System Requirements
 

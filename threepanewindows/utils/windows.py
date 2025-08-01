@@ -10,7 +10,11 @@ import os
 import tkinter as tk
 from typing import Any, List, Tuple
 
+from ..logging_config import get_logger
 from .base import PlatformHandler
+
+# Initialize logger for this module
+logger = get_logger(__name__)
 
 
 def set_windows_titlebar_color(hwnd: int, color_hex: str) -> None:
@@ -34,7 +38,7 @@ def set_windows_titlebar_color(hwnd: int, color_hex: str) -> None:
             ctypes.sizeof(ctypes.c_int),
         )
     except Exception as e:
-        print(f"Failed to set Windows titlebar color: {e}")
+        logger.warning("Failed to set Windows titlebar color: %s", e)
 
 
 class WindowsPlatformHandler(PlatformHandler):
@@ -74,7 +78,7 @@ class WindowsPlatformHandler(PlatformHandler):
     def set_window_icon(self, window: tk.Tk, icon_path: str) -> bool:
         """Set window icon using Windows-optimized methods."""
         if not os.path.exists(icon_path):
-            print(f"Warning: Icon file not found: {icon_path}")
+            logger.warning("Icon file not found: %s", icon_path)
             return False
 
         try:
@@ -102,8 +106,8 @@ class WindowsPlatformHandler(PlatformHandler):
                     window._icon_photos.append(photo)
                     return True
                 except tk.TclError as e:
-                    print(
-                        f"Warning: Could not load icon as PhotoImage '{icon_path}': {e}"
+                    logger.warning(
+                        "Could not load icon as PhotoImage '%s': %s", icon_path, e
                     )
 
             # If we get here, try iconbitmap as last resort
@@ -111,11 +115,11 @@ class WindowsPlatformHandler(PlatformHandler):
                 window.iconbitmap(icon_path)
                 return True
             except tk.TclError as e:
-                print(f"Warning: Could not set icon '{icon_path}': {e}")
+                logger.warning("Could not set icon '%s': %s", icon_path, e)
                 return False
 
         except Exception as e:
-            print(f"Error setting window icon: {e}")
+            logger.error("Error setting window icon: %s", e)
             return False
 
     def apply_custom_titlebar(self, window: tk.Tk, theme_colors: Any) -> bool:
@@ -132,7 +136,7 @@ class WindowsPlatformHandler(PlatformHandler):
             set_windows_titlebar_color(hwnd, theme_colors.primary_bg)
             return True
         except Exception as e:
-            print(f"Could not set Windows titlebar color: {e}")
+            logger.warning("Could not set Windows titlebar color: %s", e)
             return False
 
     def is_dark_mode(self) -> bool:

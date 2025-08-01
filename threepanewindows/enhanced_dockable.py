@@ -11,8 +11,12 @@ from dataclasses import dataclass
 from tkinter import ttk
 from typing import Callable, Dict, List, Optional, Tuple
 
+from .logging_config import get_logger
 from .themes import ThemeManager, get_theme_manager
 from .utils import platform_handler
+
+# Initialize logger for this module
+logger = get_logger(__name__)
 
 
 def get_recommended_icon_formats() -> List[str]:
@@ -407,7 +411,7 @@ class PaneHeader(tk.Frame):
             return icon_label
 
         except Exception as e:
-            print(f"Warning: Failed to create icon label: {e}")
+            logger.warning("Failed to create icon label: %s", e)
             return None
 
     def _create_control_button(
@@ -936,7 +940,7 @@ class DetachedWindow(tk.Toplevel):
             # Window has been destroyed, ignore
             pass
         except Exception as e:
-            print(f"Error refreshing detached window theme: {e}")
+            logger.error("Error refreshing detached window theme: %s", e)
 
     def create_themed_scrollbar(
         self, parent, orient="vertical", command=None, **kwargs
@@ -1004,7 +1008,7 @@ class DetachedWindow(tk.Toplevel):
             return icon_label
 
         except Exception as e:
-            print(f"Warning: Failed to create detached icon label: {e}")
+            logger.warning("Failed to create detached icon label: %s", e)
             return None
 
 
@@ -1735,99 +1739,159 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             return
 
         try:
-            # Get container dimensions
-            container_width = self.layout_frame.winfo_width()
-            container_height = self.layout_frame.winfo_height()
+            container_width, container_height = self._get_container_dimensions()
+            if not self._is_container_ready(container_width, container_height):
+                return
 
-            if container_width <= 1 or container_height <= 1:
-                return  # Not ready yet
+            # Get attachment states and calculate dimensions
+            attachment_states = self._get_pane_attachment_states()
+            pane_widths = self._calculate_pane_widths(
+                container_width, attachment_states
+            )
 
-            # Calculate pane widths based on what's currently attached
-            left_width = 0
-            center_width = 0
-            right_width = 0
-            sash_width = 2
-
-            # Check which panes are currently attached (not detached)
-            left_attached = self.left_builder and "left" in self.pane_frames
-            center_attached = self.center_builder and "center" in self.pane_frames
-            right_attached = self.right_builder and "right" in self.pane_frames
-
-            # Left pane width (only if attached)
-            if left_attached:
-                if self.left_config.fixed_width is not None:
-                    left_width = self.left_config.fixed_width
-                elif not self.left_config.resizable:
-                    left_width = self.left_config.default_width
-                else:
-                    left_width = self.left_config.default_width
-
-            # Right pane width (only if attached)
-            if right_attached:
-                if self.right_config.fixed_width is not None:
-                    right_width = self.right_config.fixed_width
-                elif not self.right_config.resizable:
-                    right_width = self.right_config.default_width
-                else:
-                    right_width = self.right_config.default_width
-
-            # Calculate center width (remaining space)
-            sashes_width = 0
-            if left_attached and center_attached:
-                sashes_width += sash_width
-            if center_attached and right_attached:
-                sashes_width += sash_width
-
-            center_width = container_width - left_width - right_width - sashes_width
-
-            # Ensure minimum widths
-            if center_width < 50:
-                center_width = 50
-
-            # Position panes
-            x_pos = 0
-
-            # Left pane
-            if left_attached:
-                self.pane_frames["left"].place(
-                    x=x_pos, y=0, width=left_width, height=container_height
-                )
-                x_pos += left_width
-
-                # Left sash (only if center is also attached)
-                if center_attached and hasattr(self, "left_sash"):
-                    self.left_sash.place(
-                        x=x_pos, y=0, width=sash_width, height=container_height
-                    )
-                    x_pos += sash_width
-                elif hasattr(self, "left_sash"):
-                    self.left_sash.place_forget()  # Hide sash if center is detached
-
-            # Center pane
-            if center_attached:
-                self.pane_frames["center"].place(
-                    x=x_pos, y=0, width=center_width, height=container_height
-                )
-                x_pos += center_width
-
-                # Right sash (only if right is also attached)
-                if right_attached and hasattr(self, "right_sash"):
-                    self.right_sash.place(
-                        x=x_pos, y=0, width=sash_width, height=container_height
-                    )
-                    x_pos += sash_width
-                elif hasattr(self, "right_sash"):
-                    self.right_sash.place_forget()  # Hide sash if right is detached
-
-            # Right pane
-            if right_attached:
-                self.pane_frames["right"].place(
-                    x=x_pos, y=0, width=right_width, height=container_height
-                )
+            # Position all panes
+            self._position_panes(pane_widths, container_height, attachment_states)
 
         except (tk.TclError, AttributeError):
             # Layout not ready or widget destroyed
             pass
+
+    def _get_container_dimensions(self):
+        """Get the container dimensions."""
+        container_width = self.layout_frame.winfo_width()
+        container_height = self.layout_frame.winfo_height()
+        return container_width, container_height
+
+    def _is_container_ready(self, width, height):
+        """Check if container dimensions are ready for layout."""
+        return width > 1 and height > 1
+
+    def _get_pane_attachment_states(self):
+        """Get the attachment state for all panes."""
+        return {
+            "left": self.left_builder and "left" in self.pane_frames,
+            "center": self.center_builder and "center" in self.pane_frames,
+            "right": self.right_builder and "right" in self.pane_frames,
+        }
+
+    def _calculate_pane_widths(self, container_width, attachment_states):
+        """Calculate widths for all panes based on their configurations."""
+        sash_width = 2
+
+        # Calculate individual pane widths
+        left_width = self._calculate_left_pane_width(attachment_states["left"])
+        right_width = self._calculate_right_pane_width(attachment_states["right"])
+
+        # Calculate sashes width
+        sashes_width = self._calculate_sashes_width(attachment_states, sash_width)
+
+        # Calculate center width (remaining space)
+        center_width = container_width - left_width - right_width - sashes_width
+        center_width = max(center_width, 50)  # Ensure minimum width
+
+        return {
+            "left": left_width,
+            "center": center_width,
+            "right": right_width,
+            "sash": sash_width,
+        }
+
+    def _calculate_left_pane_width(self, left_attached):
+        """Calculate the width for the left pane."""
+        if not left_attached:
+            return 0
+
+        if self.left_config.fixed_width is not None:
+            return self.left_config.fixed_width
+        else:
+            return self.left_config.default_width
+
+    def _calculate_right_pane_width(self, right_attached):
+        """Calculate the width for the right pane."""
+        if not right_attached:
+            return 0
+
+        if self.right_config.fixed_width is not None:
+            return self.right_config.fixed_width
+        else:
+            return self.right_config.default_width
+
+    def _calculate_sashes_width(self, attachment_states, sash_width):
+        """Calculate the total width needed for sashes."""
+        sashes_width = 0
+        if attachment_states["left"] and attachment_states["center"]:
+            sashes_width += sash_width
+        if attachment_states["center"] and attachment_states["right"]:
+            sashes_width += sash_width
+        return sashes_width
+
+    def _position_panes(self, pane_widths, container_height, attachment_states):
+        """Position all panes and sashes."""
+        x_pos = 0
+
+        # Position left pane and its sash
+        if attachment_states["left"]:
+            x_pos = self._position_left_pane(
+                x_pos, pane_widths, container_height, attachment_states
+            )
+
+        # Position center pane and its sash
+        if attachment_states["center"]:
+            x_pos = self._position_center_pane(
+                x_pos, pane_widths, container_height, attachment_states
+            )
+
+        # Position right pane
+        if attachment_states["right"]:
+            self._position_right_pane(x_pos, pane_widths, container_height)
+
+    def _position_left_pane(
+        self, x_pos, pane_widths, container_height, attachment_states
+    ):
+        """Position the left pane and its sash."""
+        # Position left pane
+        self.pane_frames["left"].place(
+            x=x_pos, y=0, width=pane_widths["left"], height=container_height
+        )
+        x_pos += pane_widths["left"]
+
+        # Position left sash if center is attached
+        if attachment_states["center"] and hasattr(self, "left_sash"):
+            self.left_sash.place(
+                x=x_pos, y=0, width=pane_widths["sash"], height=container_height
+            )
+            x_pos += pane_widths["sash"]
+        elif hasattr(self, "left_sash"):
+            self.left_sash.place_forget()
+
+        return x_pos
+
+    def _position_center_pane(
+        self, x_pos, pane_widths, container_height, attachment_states
+    ):
+        """Position the center pane and its sash."""
+        # Position center pane
+        self.pane_frames["center"].place(
+            x=x_pos, y=0, width=pane_widths["center"], height=container_height
+        )
+        x_pos += pane_widths["center"]
+
+        # Position right sash if right is attached
+        if attachment_states["right"] and hasattr(self, "right_sash"):
+            self.right_sash.place(
+                x=x_pos, y=0, width=pane_widths["sash"], height=container_height
+            )
+            x_pos += pane_widths["sash"]
+        elif hasattr(self, "right_sash"):
+            self.right_sash.place_forget()
+
+        return x_pos
+
+    def _position_right_pane(self, x_pos, pane_widths, container_height):
+        """Position the right pane."""
+        self.pane_frames["right"].place(
+            x=x_pos, y=0, width=pane_widths["right"], height=container_height
+        )
 
     def _trigger_custom_layout(self):
         """Trigger the initial custom layout."""
@@ -2140,63 +2204,84 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
     def _refresh_theme(self):
         """Refresh the theme for all components."""
         self._setup_styles()
-
-        # Get current theme
         theme = self.theme_manager.get_current_theme()
 
-        # Update main container background
+        # Update main components
+        self._refresh_main_container(theme)
+        self._refresh_paned_window()
+        self._refresh_toolbar(theme)
+        self._refresh_status_bar(theme)
+
+        # Update pane components
+        self._refresh_pane_headers()
+        self._refresh_pane_content_frames(theme)
+        self._refresh_detached_windows()
+
+        # Update custom widgets and force refresh
+        self._refresh_custom_widgets()
+        self.update_idletasks()
+
+    def _refresh_main_container(self, theme):
+        """Refresh the main container background."""
         self.configure(bg=theme.colors.secondary_bg)
 
-        # Update paned window style
+    def _refresh_paned_window(self):
+        """Refresh the paned window style."""
         if hasattr(self, "paned"):
             self.paned.configure(style="Themed.TPanedwindow")
 
-        # Update toolbar if it exists
-        if hasattr(self, "toolbar_frame") and self.toolbar_frame:
-            self.toolbar_frame.configure(bg=theme.colors.primary_bg)
-            # Update toolbar buttons
-            for child in self.toolbar_frame.winfo_children():
-                if isinstance(child, tk.Button):
-                    child.configure(
-                        bg=theme.colors.button_bg,
-                        fg=theme.colors.button_fg,
-                        activebackground=theme.colors.button_hover,
-                    )
+    def _refresh_toolbar(self, theme):
+        """Refresh the toolbar and its buttons."""
+        if not (hasattr(self, "toolbar_frame") and self.toolbar_frame):
+            return
 
-        # Update status bar if it exists
-        if hasattr(self, "status_bar") and self.status_bar:
-            self.status_bar.configure(bg=theme.colors.primary_bg)
-            if hasattr(self, "status_label") and self.status_label:
-                self.status_label.configure(
-                    bg=theme.colors.primary_bg, fg=theme.colors.primary_text
+        self.toolbar_frame.configure(bg=theme.colors.primary_bg)
+
+        # Update toolbar buttons
+        for child in self.toolbar_frame.winfo_children():
+            if isinstance(child, tk.Button):
+                child.configure(
+                    bg=theme.colors.button_bg,
+                    fg=theme.colors.button_fg,
+                    activebackground=theme.colors.button_hover,
                 )
 
-        # Update pane headers
+    def _refresh_status_bar(self, theme):
+        """Refresh the status bar and its label."""
+        if not (hasattr(self, "status_bar") and self.status_bar):
+            return
+
+        self.status_bar.configure(bg=theme.colors.primary_bg)
+
+        if hasattr(self, "status_label") and self.status_label:
+            self.status_label.configure(
+                bg=theme.colors.primary_bg, fg=theme.colors.primary_text
+            )
+
+    def _refresh_pane_headers(self):
+        """Refresh all pane headers."""
         for pane_side, header in self.pane_headers.items():
             if header:
                 header.refresh_theme()
 
-        # Update pane content frames
+    def _refresh_pane_content_frames(self, theme):
+        """Refresh pane content frames."""
         for pane_side, frame in self.pane_frames.items():
             if frame:
-                # Find content frames and update them
-                for child in frame.winfo_children():
-                    if isinstance(child, tk.Frame) and not isinstance(
-                        child, PaneHeader
-                    ):
-                        child.configure(bg=theme.colors.panel_content_bg)
+                self._refresh_pane_content_children(frame, theme)
 
-        # Refresh detached windows
+    def _refresh_pane_content_children(self, frame, theme):
+        """Refresh children of a pane content frame."""
+        for child in frame.winfo_children():
+            if isinstance(child, tk.Frame) and not isinstance(child, PaneHeader):
+                child.configure(bg=theme.colors.panel_content_bg)
+
+    def _refresh_detached_windows(self):
+        """Refresh all detached windows."""
         for window in self.detached_windows.values():
             window.theme_manager = self.theme_manager
             if hasattr(window, "refresh_theme"):
                 window.refresh_theme()
-
-        # Update custom widgets in panes (like text widgets and scrollbars)
-        self._refresh_custom_widgets()
-
-        # Force update
-        self.update_idletasks()
 
     def get_pane_frame(self, pane_side: str) -> Optional[tk.Frame]:
         """Get the content frame for a pane."""
@@ -2340,8 +2425,8 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                     child.configure(text=message)
                     break
         else:
-            # If no status bar, just print for debugging
-            print(f"Status: {message}")
+            # If no status bar, log the status message
+            logger.debug("Status: %s", message)
 
     def show_left_pane(self):
         """Show the left pane if it's hidden."""
@@ -2586,7 +2671,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
                         # Call the frame's update_theme method with current theme name
                         frame.update_theme(current_theme.name)
                     except Exception as e:
-                        print(f"Error updating theme for {pane_side} pane: {e}")
+                        logger.error(
+                            "Error updating theme for %s pane: %s", pane_side, e
+                        )
 
     def get_pane_content_frame(self, pane_side: str) -> Optional[tk.Frame]:
         """
@@ -2636,7 +2723,7 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
 
             return True
         else:
-            print(f"Warning: Failed to set theme '{theme_name}'")
+            logger.warning("Failed to set theme '%s'", theme_name)
             return False
 
     def create_themed_scrollbar(
