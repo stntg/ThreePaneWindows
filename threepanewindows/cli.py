@@ -40,6 +40,7 @@ def main() -> None:
 
     if args.command == "demo":
         logger.info("Starting ThreePaneWindows demo...")
+        print("Starting ThreePaneWindows demo...")
         run_demo()
     elif args.command == "info":
         show_info()
