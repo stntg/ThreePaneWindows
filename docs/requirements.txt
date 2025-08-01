@@ -1,0 +1,7 @@
+# Documentation build requirements
+# This file ensures consistent dependency versions for documentation builds
+sphinx>=5.0
+sphinx-rtd-theme>=1.0
+myst-parser>=0.18
+sphinx-autodoc-typehints>=1.19
+sphinx-copybutton>=0.5

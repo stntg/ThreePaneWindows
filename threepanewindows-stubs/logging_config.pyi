@@ -9,13 +9,15 @@ from typing import Optional, Union
 
 class ColoredFormatter(logging.Formatter):
     """Custom formatter that adds colors to log messages based on log level."""
-    
-    def __init__(self, fmt: Optional[str] = ..., datefmt: Optional[str] = ...) -> None: ...
+
+    def __init__(
+        self, fmt: Optional[str] = ..., datefmt: Optional[str] = ...
+    ) -> None: ...
     def format(self, record: logging.LogRecord) -> str: ...
 
 class LoggingConfig:
     """Centralized logging configuration for ThreePaneWindows."""
-    
+
     def __init__(self) -> None: ...
 
 def get_logger(name: str) -> logging.Logger:

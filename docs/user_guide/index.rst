@@ -14,6 +14,7 @@ This comprehensive user guide covers all aspects of using ThreePaneWindows in yo
    advanced_features
    best_practices
    troubleshooting
+   ../logging
 
 Overview
 --------

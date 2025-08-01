@@ -1,10 +1,12 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""Configuration file for the Sphinx documentation builder.
+
+For the full list of built-in configuration values, see the documentation:
+https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
 
 import os
 import sys
+from typing import Any, Dict
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -38,17 +40,69 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
     "sphinx.ext.githubpages",
-    "myst_parser",
 ]
+
+# Add myst_parser if available
+try:
+    import myst_parser
+
+    extensions.append("myst_parser")
+    myst_parser_available = True
+    print(f"MyST Parser {myst_parser.__version__} loaded successfully")
+except ImportError as e:
+    myst_parser_available = False
+    print(f"Warning: myst_parser not available ({e}), .md files will not be processed")
+except Exception as e:
+    myst_parser_available = False
+    print(f"Error loading myst_parser ({e}), .md files will not be processed")
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+# Exclude .md files if MyST parser is not available
+if not myst_parser_available:
+    exclude_patterns.extend(["*.md", "**/*.md"])
+
 # The suffix(es) of source filenames.
-source_suffix = {
-    ".rst": None,
-    ".md": "myst_parser",
-}
+if myst_parser_available:
+    source_suffix = {
+        ".rst": None,
+        ".md": "myst_parser",
+    }
+else:
+    source_suffix = {
+        ".rst": None,
+    }
+
+# MyST parser configuration is handled above in extensions
+
+# MyST parser configuration
+if myst_parser_available:
+    # Use basic extensions that are widely supported
+    try:
+        myst_enable_extensions = [
+            "colon_fence",
+            "deflist",
+            "linkify",
+            "replacements",
+            "smartquotes",
+            "tasklist",
+        ]
+
+        # MyST parser options
+        myst_heading_anchors = 3
+        myst_html_meta = {
+            "description lang=en": "Documentation for ThreePaneWindows",
+            "keywords": "tkinter, gui, layout, three-pane, dockable, ui",
+        }
+        print("MyST parser configured with extensions")
+    except Exception as e:
+        # Fallback to minimal configuration
+        myst_enable_extensions = []
+        print(f"Using minimal MyST configuration due to: {e}")
+else:
+    # Fallback: basic MyST configuration
+    myst_enable_extensions = []
 
 # The master toctree document.
 master_doc = "index"
@@ -82,7 +136,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+# html_static_path is already defined above
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -100,7 +154,7 @@ htmlhelp_basename = "ThreePaneWindowsdoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 
-latex_elements = {
+latex_elements: Dict[str, Any] = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
@@ -160,7 +214,6 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
-    "tkinter": ("https://docs.python.org/3/library/tkinter.html", None),
 }
 
 # -- Options for todo extension ----------------------------------------------
@@ -184,3 +237,20 @@ autodoc_typehints = "description"
 # -- Options for autosummary extension ---------------------------------------
 
 autosummary_generate = True
+
+# -- Setup function for additional configuration ---------------------------
+
+
+def setup(app: Any) -> Dict[str, Any]:
+    """Sphinx setup function for additional configuration."""
+    # Add any custom setup here
+    if myst_parser_available:
+        print("MyST parser is configured and ready")
+    else:
+        print("MyST parser is not available - only .rst files will be processed")
+
+    return {
+        "version": "0.1",
+        "parallel_read_safe": True,
+        "parallel_write_safe": True,
+    }

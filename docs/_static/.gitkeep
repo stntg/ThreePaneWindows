@@ -1,0 +1,9 @@
+# Static Files Directory
+#
+# This directory is required by Sphinx for static files (CSS, JS, images, etc.)
+# Even if empty, the directory must exist to prevent Sphinx warnings.
+#
+# To add custom static files:
+# 1. Place files in this directory
+# 2. Reference them in your documentation using: _static/filename
+# 3. They will be copied to the built documentation automatically
