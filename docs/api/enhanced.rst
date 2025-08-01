@@ -15,6 +15,7 @@ EnhancedDockableThreePaneWindow
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 PaneConfig
 ----------
@@ -23,6 +24,7 @@ PaneConfig
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Cross-Platform Icon Support
 ----------------------------
@@ -73,5 +75,7 @@ Icon Utility Functions
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: threepanewindows.enhanced_dockable.get_recommended_icon_formats
+   :no-index:
 
 .. autofunction:: threepanewindows.enhanced_dockable.validate_icon_path
+   :no-index:

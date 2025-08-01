@@ -18,8 +18,10 @@ Icon Utilities
 Cross-platform icon support utilities for enhanced window functionality.
 
 .. autofunction:: threepanewindows.get_recommended_icon_formats
+   :no-index:
 
 .. autofunction:: threepanewindows.validate_icon_path
+   :no-index:
 
 Version Information
 ~~~~~~~~~~~~~~~~~~~

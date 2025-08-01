@@ -109,8 +109,8 @@ Table of Contents
    :maxdepth: 2
    :caption: Development
 
-   contributing
-   changelog
+   contributing.md
+   changelog.md
    license
 
 .. toctree::

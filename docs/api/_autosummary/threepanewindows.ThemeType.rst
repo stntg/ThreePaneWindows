@@ -23,3 +23,7 @@
       ~ThemeType.GREEN
       ~ThemeType.PURPLE
       ~ThemeType.CUSTOM
+      ~ThemeType.SYSTEM
+      ~ThemeType.NATIVE
+      ~ThemeType.NATIVE_LIGHT
+      ~ThemeType.NATIVE_DARK

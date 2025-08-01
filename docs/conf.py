@@ -14,17 +14,25 @@ sys.path.insert(0, os.path.abspath(".."))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "ThreePaneWindows"
-copyright = "2024, Stan Griffiths"
+copyright = "2025, Stan Griffiths"
 author = "Stan Griffiths"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-# The short X.Y version.
-version = "0.1.0"
-# The full version, including alpha/beta/rc tags.
-release = "0.1.0"
+# Import version from the package
+try:
+    from threepanewindows._version import FULL_VERSION, __version__
+
+    # The short X.Y version.
+    version = ".".join(__version__.split(".")[:2])  # e.g., "1.2" from "1.2.0"
+    # The full version, including alpha/beta/rc tags.
+    release = FULL_VERSION
+except ImportError:
+    # Fallback if import fails
+    version = "1.2.0"
+    release = "1.2.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -67,7 +75,7 @@ if not myst_parser_available:
 if myst_parser_available:
     source_suffix = {
         ".rst": None,
-        ".md": "myst_parser",
+        ".md": None,
     }
 else:
     source_suffix = {

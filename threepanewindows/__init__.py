@@ -46,7 +46,7 @@ from .themes import ThemeManager, ThemeType, get_theme_manager, set_global_theme
 __author__ = "Stan Griffiths"
 __email__ = "stantgriffiths@gmail.com"
 __license__ = "MIT"
-__copyright__ = "Copyright 2024 Stan Griffiths"
+__copyright__ = "Copyright 2025 Stan Griffiths"
 
 # Public API
 __all__ = [

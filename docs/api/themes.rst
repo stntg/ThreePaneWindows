@@ -13,23 +13,28 @@ ThemeManager
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Theme Classes
 -------------
 
-.. autoclass:: threepanewindows.Theme
+.. autoclass:: threepanewindows.themes.Theme
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
-.. autoclass:: threepanewindows.ColorScheme
+.. autoclass:: threepanewindows.themes.ColorScheme
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Functions
 ---------
 
 .. autofunction:: threepanewindows.get_theme_manager
+   :no-index:
 
 .. autofunction:: threepanewindows.set_global_theme
+   :no-index:

@@ -123,7 +123,7 @@ class TestMetadata:
         """Test copyright information."""
         assert isinstance(__copyright__, str)
         assert "Copyright" in __copyright__
-        assert "2024" in __copyright__
+        assert "2025" in __copyright__
         assert "Stan Griffiths" in __copyright__
 
     def test_metadata_consistency(self):
