@@ -53,6 +53,15 @@ def main() -> int:
     except ImportError:
         print("Warning: Sphinx RTD Theme not installed.")
 
+    try:
+        import linkify_it  # noqa: F401
+
+        print("Linkify-it-py available")
+    except ImportError:
+        print(
+            "Warning: Linkify-it-py not installed. Linkify extension will be disabled."
+        )
+
     # Change to docs directory
     os.chdir(docs_dir)
 

@@ -78,16 +78,30 @@ else:
 
 # MyST parser configuration
 if myst_parser_available:
-    # Use basic extensions that are widely supported
+    # Check which extensions are available
+    available_extensions = []
+
+    # Always available extensions
+    basic_extensions = [
+        "colon_fence",
+        "deflist",
+        "replacements",
+        "smartquotes",
+        "tasklist",
+    ]
+    available_extensions.extend(basic_extensions)
+
+    # Check if linkify is available
     try:
-        myst_enable_extensions = [
-            "colon_fence",
-            "deflist",
-            "linkify",
-            "replacements",
-            "smartquotes",
-            "tasklist",
-        ]
+        import linkify_it  # noqa: F401
+
+        available_extensions.append("linkify")
+        print("Linkify extension available")
+    except ImportError:
+        print("Linkify extension not available - skipping")
+
+    try:
+        myst_enable_extensions = available_extensions
 
         # MyST parser options
         myst_heading_anchors = 3
@@ -95,11 +109,11 @@ if myst_parser_available:
             "description lang=en": "Documentation for ThreePaneWindows",
             "keywords": "tkinter, gui, layout, three-pane, dockable, ui",
         }
-        print("MyST parser configured with extensions")
+        print(f"MyST parser configured with extensions: {myst_enable_extensions}")
     except Exception as e:
         # Fallback to minimal configuration
-        myst_enable_extensions = []
-        print(f"Using minimal MyST configuration due to: {e}")
+        myst_enable_extensions = basic_extensions
+        print(f"Using basic MyST configuration due to: {e}")
 else:
     # Fallback: basic MyST configuration
     myst_enable_extensions = []

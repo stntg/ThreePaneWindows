@@ -5,3 +5,4 @@ sphinx-rtd-theme>=1.0
 myst-parser>=0.18
 sphinx-autodoc-typehints>=1.19
 sphinx-copybutton>=0.5
+linkify-it-py>=2.0.0
