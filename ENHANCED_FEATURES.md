@@ -1,12 +1,12 @@
-# 🎨 Enhanced Three-Pane Windows - Complete Feature Guide
+# Enhanced Three-Pane Windows - Complete Feature Guide
 
-## 🎯 **Major Improvements & New Features**
+## **Major Improvements & New Features**
 
 The enhanced dockable module now provides a sophisticated, highly customizable
 three-pane window with **automatic theme management**, **perfect detached window
 support**, and **platform-specific optimizations**.
 
-### ✨ Key Improvements
+### Key Improvements
 
 #### 1. **Professional Theming System**
 
@@ -38,7 +38,7 @@ support**, and **platform-specific optimizations**.
 - **Context-Aware UI**: Smart positioning and behavior
 - **Responsive Design**: Adapts to different screen sizes
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Basic Usage
 
@@ -119,7 +119,7 @@ else:
 - **macOS**: `.png` (best), `.gif`, `.bmp`, `.ico` (limited)
 - **Linux**: `.png`, `.xbm` (best), `.gif`, `.bmp`, `.ico` (limited)
 
-## 🎨 Theming System
+## Theming System
 
 ### Available Themes
 
@@ -183,7 +183,7 @@ theme_manager.register_theme(custom_theme)
 window.set_theme("custom")
 ```
 
-## 🖱️ User Interaction
+## User Interaction
 
 ### Detaching Panels
 
@@ -209,7 +209,7 @@ window.set_theme("custom")
 - **Professional Cursors**: Context-appropriate cursor changes
 - **Smooth Transitions**: Optional animations for state changes
 
-## 📋 Complete Example
+## Complete Example
 
 ```python
 # !/usr/bin/env python3
@@ -310,7 +310,7 @@ if **name** == "**main**":
     main()
 ```
 
-## 🔧 Advanced Features
+## Advanced Features
 
 ### Animation Control
 
@@ -351,7 +351,7 @@ print(f"Current theme: {current_theme.name}")
 button_style = theme_manager.get_style("button", "hover")
 ```
 
-## 🎯 Best Practices
+## Best Practices
 
 1. **Panel Sizing**: Use reasonable min/max constraints
 2. **Theme Consistency**: Stick to one theme throughout your application
@@ -359,7 +359,7 @@ button_style = theme_manager.get_style("button", "hover")
 4. **Performance**: Disable animations on slower systems if needed
 5. **Accessibility**: Use clear icons and descriptive titles
 
-## 🆚 Comparison with Original
+## Comparison with Original
 
 | Feature | Original | Enhanced |
 |---------|----------|----------|
@@ -372,7 +372,7 @@ button_style = theme_manager.get_style("button", "hover")
 | Window Positioning | Basic | Smart positioning |
 | User Experience | Functional | Professional |
 
-## 🚀 Migration Guide
+## Migration Guide
 
 ### From Original to Enhanced
 

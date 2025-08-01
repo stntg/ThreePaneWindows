@@ -20,13 +20,13 @@ We welcome contributions from everyone! Please see our
 
 ### Types of Contributions
 
-- 🐛 **Bug Reports**: Help us identify and fix issues
-- 💡 **Feature Requests**: Suggest new features or improvements
-- 📝 **Documentation**: Improve our docs and examples
-- 🧪 **Testing**: Add tests or improve test coverage
-- 💻 **Code**: Fix bugs or implement new features
-- 🎨 **Design**: Improve UI/UX and visual design
-- 🌍 **Translation**: Help make the project accessible worldwide
+- **Bug Reports**: Help us identify and fix issues
+- **Feature Requests**: Suggest new features or improvements
+- **Documentation**: Improve our docs and examples
+- **Testing**: Add tests or improve test coverage
+- **Code**: Fix bugs or implement new features
+- **Design**: Improve UI/UX and visual design
+- **Translation**: Help make the project accessible worldwide
 
 ### Recognition
 

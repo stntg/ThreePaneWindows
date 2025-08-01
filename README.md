@@ -16,20 +16,20 @@ docking, theming, and advanced UI components.**
   detachable side panels and automatic center panel expansion
 - **FixedThreePaneLayout**: A simple fixed three-pane layout with
   customizable panels
-- **✨ NEW: EnhancedDockableThreePaneWindow**: Professional-grade
+- **NEW: EnhancedDockableThreePaneWindow**: Professional-grade
   interface with advanced features
-- **🔒 NEW: Fixed Width Panes**: Optional fixed-width panes that don't
+- **NEW: Fixed Width Panes**: Optional fixed-width panes that don't
   resize with the window
-- **📋 NEW: Menu Bar Integration**: Built-in support for menu bars
+- **NEW: Menu Bar Integration**: Built-in support for menu bars
   across all window types
-- **🎯 NEW v1.2.0: Smart Layout System**: Automatic layout detection
+- **NEW v1.2.0: Smart Layout System**: Automatic layout detection
   for optimal sash behavior
 - Easy-to-use builder pattern for content creation
 - Fully customizable panel sizes and colors
 - Dynamic width control and constraint management
 - Cross-platform compatibility (Windows, macOS, Linux)
 
-### 🎨 Enhanced Professional Features (NEW!)
+### Enhanced Professional Features (NEW!)
 
 - **Professional Theming System**: Light, Dark, and Blue Professional
   themes
@@ -49,12 +49,12 @@ docking, theming, and advanced UI components.**
   interactions
 - **Smart Positioning**: Intelligent window placement and sizing
 - **Visual Feedback**: Professional hover effects and drag indicators
-- **🔍 NEW: Comprehensive Logging**: Silent by default with configurable debug output
+- **NEW: Comprehensive Logging**: Silent by default with configurable debug output
 
-> 📖 **See [ENHANCED_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/ENHANCED_FEATURES.md)
+> **See [ENHANCED_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/ENHANCED_FEATURES.md)
 > for complete documentation of the new professional features.**
 >
-> 🖼️ **See [CROSS_PLATFORM_ICONS.md](https://github.com/stntg/threepanewindows/blob/main/CROSS_PLATFORM_ICONS.md)
+> **See [CROSS_PLATFORM_ICONS.md](https://github.com/stntg/threepanewindows/blob/main/CROSS_PLATFORM_ICONS.md)
 > for detailed cross-platform icon support documentation.**
 
 ## Requirements
@@ -122,7 +122,7 @@ window.pack(fill='both', expand=True)
 root.mainloop()
 ```
 
-### ✨ Enhanced Professional Three-Pane Window (NEW!)
+### Enhanced Professional Three-Pane Window (NEW!)
 
 ```python
 import tkinter as tk
@@ -204,7 +204,7 @@ layout.add_to_right(tk.Label(root, text="Property 1"))
 root.mainloop()
 ```
 
-### 🔒 Fixed Width Panes (NEW!)
+### Fixed Width Panes (NEW!)
 
 All window types now support fixed width panes that don't resize with the
 window:
@@ -249,7 +249,7 @@ window.clear_right_fixed_width()     # Make right pane resizable
 root.mainloop()
 ```
 
-> 📖 **See [FIXED_WIDTH_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/FIXED_WIDTH_FEATURES.md)
+> **See [FIXED_WIDTH_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/FIXED_WIDTH_FEATURES.md)
 > for complete documentation of the fixed width and menu bar features.**
 
 ## Demo Application
@@ -312,7 +312,7 @@ logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 ```
 
-> 📖 **See [docs/logging.md](docs/logging.md) for complete logging
+> **See [docs/logging.md](docs/logging.md) for complete logging
 > documentation and examples.**
 
 ## System Requirements
