@@ -37,7 +37,8 @@ from typing import Optional
 # Add the package to the path for development
 sys.path.insert(0, str(Path(__file__).parent))
 
-from threepanewindows.logging_config import (
+import threepanewindows  # noqa: E402
+from threepanewindows.logging_config import (  # noqa: E402
     DEBUG,
     INFO,
     add_file_logging,

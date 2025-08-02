@@ -539,9 +539,6 @@ class DetachedWindow(tk.Toplevel):
             # Set window title first (for taskbar identification)
             self.title(f"{self.config.title or self.pane_side.title()} Panel")
 
-            # Try platform-specific custom titlebar with taskbar support
-            import platform
-
             # Use overrideredirect for all platforms
             self.overrideredirect(True)
         else:
@@ -1722,9 +1719,7 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self._create_visual_sashes()
 
     def _create_visual_sashes(self):
-        """
-        Create visual sashes that look like PanedWindow sashes but aren't interactive.
-        """
+        """Create visual sashes that look like PanedWindow sashes but aren't interactive."""
         theme = self.theme_manager.get_current_theme()
 
         # Left sash (between left and center)
