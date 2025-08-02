@@ -24,8 +24,9 @@ def get_recommended_icon_formats() -> List[str]:
     Get recommended icon formats for the current platform.
 
     Returns:
-        List[str]: List of file extensions in order of preference for the current platform.
-                  For example, Windows returns ['.ico', '.png'], while Linux/macOS return ['.png', '.ico'].
+        List[str]: List of file extensions in order of preference for the
+                  current platform. For example, Windows returns ['.ico', '.png'],
+                  while Linux/macOS return ['.png', '.ico'].
     """
     return platform_handler.get_recommended_icon_formats()
 
@@ -61,6 +62,9 @@ class PaneConfig:
     )
     custom_titlebar: bool = False  # Use custom title bar instead of system title bar
     custom_titlebar_shadow: bool = True  # Add shadow/border to custom title bar windows
+    show_in_taskbar: bool = (
+        True  # Whether detached windows appear in taskbar (Windows-specific)
+    )
     detached_height: int = 0  # Fixed height for detached windows (0 = auto)
     detached_scrollable: bool = (
         True  # Add scrollbars if content exceeds detached window size
@@ -532,9 +536,14 @@ class DetachedWindow(tk.Toplevel):
 
         # Window properties
         if self.config.custom_titlebar:
-            # Hide system title bar for custom title bar
+            # Set window title first (for taskbar identification)
+            self.title(f"{self.config.title or self.pane_side.title()} Panel")
+
+            # Try platform-specific custom titlebar with taskbar support
+            import platform
+
+            # Use overrideredirect for all platforms
             self.overrideredirect(True)
-            self.title("")  # Clear title since we're hiding the title bar
         else:
             self.title(f"{self.config.title or self.pane_side.title()} Panel")
 
@@ -605,7 +614,9 @@ class DetachedWindow(tk.Toplevel):
                 except tk.TclError:
                     pass
 
-        # Windows doesn't need special handling for basic functionality
+        elif system == "Windows":
+            # Windows-specific adjustments are now handled in _setup_window
+            pass
 
     def _set_window_icon(self, icon_path: str):
         """Set window icon with cross-platform compatibility."""
@@ -1711,8 +1722,9 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
         self._create_visual_sashes()
 
     def _create_visual_sashes(self):
-        """Create visual sashes that look like PanedWindow sashes but aren't
-        interactive."""
+        """
+        Create visual sashes that look like PanedWindow sashes but aren't interactive.
+        """
         theme = self.theme_manager.get_current_theme()
 
         # Left sash (between left and center)

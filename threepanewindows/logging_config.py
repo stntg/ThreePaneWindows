@@ -46,11 +46,13 @@ class ThreePaneWindowsLogger:
     _initialized: bool = False
 
     def __new__(cls) -> "ThreePaneWindowsLogger":
+        """Create or return the singleton instance."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self) -> None:
+        """Initialize the logger if not already initialized."""
         if not self._initialized:
             self._setup_logging()
             self._initialized = True
@@ -94,7 +96,7 @@ class ThreePaneWindowsLogger:
 
     def enable_console_logging(self, level: int = logging.INFO) -> None:
         """
-        Convenience method to enable console logging for the library.
+        Enable console logging for the library.
 
         Args:
             level: Logging level (logging.DEBUG, logging.INFO, etc.)
@@ -111,7 +113,20 @@ class ThreePaneWindowsLogger:
         )
 
         if not has_console_handler:
-            console_handler = logging.StreamHandler()
+            import sys
+
+            # Use UTF-8 encoding for console output on Windows
+            if sys.platform == "win32":
+                import io
+
+                console_handler = logging.StreamHandler(
+                    io.TextIOWrapper(
+                        sys.stderr.buffer, encoding="utf-8", errors="replace"
+                    )
+                )
+            else:
+                console_handler = logging.StreamHandler()
+
             formatter = logging.Formatter(
                 "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
             )
@@ -145,9 +160,10 @@ class ThreePaneWindowsLogger:
             filepath: Path to log file
             level: Logging level for file output
         """
-        file_handler = logging.FileHandler(filepath)
+        file_handler = logging.FileHandler(filepath, encoding="utf-8")
         formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
+            "%(asctime)s - %(name)s - %(levelname)s - "
+            "%(funcName)s:%(lineno)d - %(message)s"
         )
         file_handler.setFormatter(formatter)
         file_handler.setLevel(level)

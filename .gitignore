@@ -70,6 +70,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/build/
 
 # PyBuilder
 .pybuilder/
@@ -128,6 +129,7 @@ ENV/
 env.bak/
 venv.bak/
 .zencoder/
+logs/
 
 # Spyder project settings
 .spyderproject
@@ -198,10 +200,6 @@ ehthumbs_vista.db
 htmlcov/
 .pytest_cache/
 test-results/
-
-# Documentation builds
-docs/_build/
-docs/build/
 
 # Release artifacts
 release/

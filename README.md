@@ -315,6 +315,42 @@ logger.setLevel(logging.INFO)
 > **See [docs/logging.md](docs/logging.md) for complete logging
 > documentation and examples.**
 
+## Development Logging
+
+For developers working on the ThreePaneWindows library, comprehensive development logging tools are available:
+
+### Quick Development Setup
+
+```python
+# Method 1: Automatic setup (easiest)
+import setup_dev_logging  # Enables logging automatically
+
+# Method 2: Development logger driver
+# Run: python dev_logger.py --level DEBUG --file logs/dev.log
+```
+
+### Development Tools
+
+- **`dev_logger.py`** - Full-featured development logger with examples and interactive mode
+- **`setup_dev_logging.py`** - Quick import-and-go logging setup
+- **`example_with_logging.py`** - Complete example showing logging in action
+- **`start_dev_logging.bat`** - Windows batch file for easy access
+
+### Interactive Development
+
+```bash
+# Interactive mode with logging enabled
+python dev_logger.py --interactive
+
+# Run examples with logging
+python dev_logger.py --example basic --level DEBUG
+
+# Test all logging levels
+python dev_logger.py --test-levels
+```
+
+> **See [DEVELOPMENT_LOGGING.md](DEVELOPMENT_LOGGING.md) for complete development logging documentation.**
+
 ## System Requirements
 
 - Python 3.9+
