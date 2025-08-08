@@ -21,7 +21,7 @@ ThreePaneWindows Documentation
     :target: https://github.com/psf/black
     :alt: Code style: black
 
-**ThreePaneWindows** is a professional Python library for creating sophisticated three-pane window layouts in Tkinter applications. It provides ready-to-use, customizable components with advanced features like docking, theming, and modern UI elements.
+**ThreePaneWindows** is a professional Python library for creating sophisticated three-pane window layouts in Tkinter applications. It provides ready-to-use, customizable components with advanced features like flexible layouts, unified theming, custom UI components, and comprehensive logging.
 
 Requirements
 ------------
@@ -33,13 +33,28 @@ Requirements
 Features
 --------
 
+Core Layout Systems
+~~~~~~~~~~~~~~~~~~~
+
+* **EnhancedFlexibleLayout (NEW v1.3.0)**: Modern flexible layout system with weight-based distribution
 * **Multiple Layout Types**: Fixed-width and dockable three-pane layouts
-* **Smart Layout System (v1.2.0)**: Automatic detection of fixed vs. resizable panes for optimal sash behavior
-* **Professional Theming**: Built-in light and dark themes with customization options
+* **Smart Layout System**: Automatic detection of fixed vs. resizable panes for optimal sash behavior
+
+Advanced Theming & UI Components (NEW v1.3.0)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **Central Theme Manager**: Unified theming system across all components
+* **Custom Scrollbars**: Fully themeable scrollbars with cross-platform support
+* **Custom Menu Bars**: Themeable menu bars that work on all platforms
+* **Professional Theming**: Light, Dark, Blue, Green, Purple, System, and Native themes
+
+Professional Features
+~~~~~~~~~~~~~~~~~~~~
+
 * **Cross-Platform Icon Support**: Multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic platform optimization
 * **Advanced Docking**: Drag-and-drop pane reordering and detachment
+* **Comprehensive Logging (NEW v1.3.0)**: Silent by default with configurable debug output
 * **Responsive Design**: Automatic resizing and layout management
-* **Rich Components**: Status bars, toolbars, context menus, and more
 * **Easy Integration**: Simple API that works with existing Tkinter applications
 * **Cross-Platform**: Works on Windows, macOS, and Linux
 

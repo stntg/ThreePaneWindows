@@ -2,19 +2,26 @@
 ThreePaneWindows - Professional three-pane window layouts for Tkinter applications.
 
 This package provides sophisticated three-pane window layouts with advanced features:
+- Enhanced flexible layout system with weight-based distribution (NEW v1.3.0)
+- Central theme manager with unified theming (NEW v1.3.0)
+- Custom UI components: scrollbars and menu bars (NEW v1.3.0)
+- Comprehensive logging system (NEW v1.3.0)
 - Fixed and dockable layouts
 - Professional theming system
 - Cross-platform icon support (.ico, .png, .gif, .bmp, .xbm)
 - Drag-and-drop pane management
 - Resizable panes with constraints
-- Status bars, toolbars, and context menus
 - Cross-platform compatibility
 
 Main Components:
+    - EnhancedFlexibleLayout: Modern flexible layout with weight-based distribution (NEW v1.3.0)
+    - CentralThemeManager: Unified theming system across all components (NEW v1.3.0)
+    - ThemedScrollbar: Fully themeable custom scrollbar (NEW v1.3.0)
+    - CustomMenubar: Cross-platform themeable menu bar (NEW v1.3.0)
     - FixedThreePaneWindow: Simple fixed three-pane layout
     - DockableThreePaneWindow: Advanced layout with docking capabilities
     - EnhancedDockableThreePaneWindow: Full-featured layout with all bells and whistles
-    - ThemeManager: Professional theming system
+    - ThemeManager: Legacy theming system
 
 Quick Start:
     >>> import tkinter as tk
@@ -39,6 +46,12 @@ from .enhanced_dockable import (
     validate_icon_path,
 )
 from .fixed import FixedThreePaneLayout, FixedThreePaneWindow
+from .flexible import (
+    EnhancedFlexibleLayout,
+    FlexContainer,
+    FlexPaneConfig,
+    LayoutDirection,
+)
 from .logging_config import add_file_logging, disable_logging, enable_console_logging
 from .themes import ThemeManager, ThemeType, get_theme_manager, set_global_theme
 
@@ -59,8 +72,12 @@ __all__ = [
     "FixedThreePaneLayout",  # Legacy alias
     "DockableThreePaneWindow",
     "EnhancedDockableThreePaneWindow",
+    "EnhancedFlexibleLayout",
     # Configuration classes
     "PaneConfig",
+    "FlexPaneConfig",
+    "FlexContainer",
+    "LayoutDirection",
     # Icon utilities
     "get_recommended_icon_formats",
     "validate_icon_path",

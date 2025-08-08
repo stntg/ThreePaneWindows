@@ -8,12 +8,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="threepanewindows",
-    version="1.2.0",
+    version="1.3.0",
     author="Stan Griffiths",
     author_email="stantgriffiths@gmail.com",
     description=(
-        "A Python library for creating dockable and fixed three-pane window "
-        "layouts in Tkinter with cross-platform icon support"
+        "Professional three-pane window layouts for Tkinter applications with "
+        "flexible layouts, advanced theming, custom UI components, and comprehensive logging"
     ),
     long_description=long_description,
     long_description_content_type="text/markdown",

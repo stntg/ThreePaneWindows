@@ -8,51 +8,45 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Professional three-pane window layouts for Tkinter applications with
-docking, theming, and advanced UI components.**
+flexible layouts, advanced theming, custom UI components, and comprehensive logging.**
 
 ## Features
 
-- **DockableThreePaneWindow**: A sophisticated three-pane layout with
-  detachable side panels and automatic center panel expansion
-- **FixedThreePaneLayout**: A simple fixed three-pane layout with
-  customizable panels
-- **NEW: EnhancedDockableThreePaneWindow**: Professional-grade
-  interface with advanced features
-- **NEW: Fixed Width Panes**: Optional fixed-width panes that don't
-  resize with the window
-- **NEW: Menu Bar Integration**: Built-in support for menu bars
-  across all window types
-- **NEW v1.2.0: Smart Layout System**: Automatic layout detection
-  for optimal sash behavior
-- Easy-to-use builder pattern for content creation
-- Fully customizable panel sizes and colors
-- Dynamic width control and constraint management
-- Cross-platform compatibility (Windows, macOS, Linux)
+### Core Layout Systems
 
-### Enhanced Professional Features (NEW!)
+- **FixedThreePaneWindow**: Simple fixed three-pane layout with customizable panels
+- **DockableThreePaneWindow**: Sophisticated layout with detachable side panels
+- **EnhancedDockableThreePaneWindow**: Professional-grade interface with advanced features
+- **🆕 EnhancedFlexibleLayout**: Modern flexible layout system with weight-based distribution
+- **🆕 Smart Layout System**: Automatic layout detection for optimal sash behavior
 
-- **Professional Theming System**: Light, Dark, and Blue Professional
-  themes
-- **Cross-Platform Icon Support**: Multiple icon formats (.ico, .png,
-  .gif, .bmp, .xbm) with automatic platform optimization
-- **Drag & Drop Interface**: Intuitive panel detaching by dragging
-  headers
-- **Advanced Customization**: Configurable panel properties, icons, and
-  constraints
-- **Fixed Width Control**: Panes can be set to fixed widths or remain
-  resizable
-- **Smart Sash Behavior**: Fixed panes use custom layout without
-  interactive sash handles
-- **Menu Bar Integration**: Seamless menu bar support across all window
-  types
-- **Beautiful UI**: Modern, professional appearance with smooth
-  interactions
+### Advanced Theming & UI Components
+
+- **🆕 Central Theme Manager**: Unified theming system across all components
+- **🆕 Custom Scrollbars**: Fully themeable scrollbars with cross-platform support
+- **🆕 Custom Menu Bars**: Themeable menu bars that work on all platforms
+- **Professional Theming**: Light, Dark, Blue, Green, Purple, System, and Native themes
+- **Cross-Platform Icon Support**: Multiple formats (.ico, .png, .gif, .bmp, .xbm)
+
+### Professional Features
+
+- **Flexible Layout Configuration**: Weight-based pane distribution with constraints
+- **Drag & Drop Interface**: Intuitive panel detaching by dragging headers
+- **Fixed Width Control**: Panes can be set to fixed widths or remain resizable
+- **Advanced Customization**: Configurable panel properties, icons, and constraints
 - **Smart Positioning**: Intelligent window placement and sizing
 - **Visual Feedback**: Professional hover effects and drag indicators
-- **NEW: Comprehensive Logging**: Silent by default with configurable debug output
+- **🆕 Comprehensive Logging**: Silent by default with configurable debug output
+- **Cross-platform compatibility**: Windows, macOS, Linux
 
 > **See [ENHANCED_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/ENHANCED_FEATURES.md)
-> for complete documentation of the new professional features.**
+> for complete documentation of the enhanced professional features.**
+>
+> **See [FLEXIBLE_LAYOUT_SYSTEM.md](https://github.com/stntg/threepanewindows/blob/main/FLEXIBLE_LAYOUT_SYSTEM.md)
+> for comprehensive documentation of the new flexible layout system.**
+>
+> **See [CENTRAL_THEME_MANAGER.md](https://github.com/stntg/threepanewindows/blob/main/CENTRAL_THEME_MANAGER.md)
+> for detailed documentation of the central theming system.**
 >
 > **See [CROSS_PLATFORM_ICONS.md](https://github.com/stntg/threepanewindows/blob/main/CROSS_PLATFORM_ICONS.md)
 > for detailed cross-platform icon support documentation.**
@@ -176,6 +170,117 @@ window.pack(fill='both', expand=True)
 root.mainloop()
 ```
 
+### Enhanced Flexible Layout System (NEW!)
+
+The new flexible layout system provides weight-based pane distribution with advanced configuration:
+
+```python
+import tkinter as tk
+from threepanewindows import (
+    EnhancedFlexibleLayout,
+    FlexContainer,
+    FlexPaneConfig,
+    LayoutDirection
+)
+
+def build_explorer(frame):
+    tk.Label(frame, text="📁 File Explorer", font=("Arial", 12, "bold")).pack(pady=5)
+    # Add your file tree here
+    for i in range(5):
+        tk.Label(frame, text=f"📄 File {i+1}.py").pack(anchor="w", padx=10)
+
+def build_editor(frame):
+    tk.Label(frame, text="📝 Code Editor", font=("Arial", 12, "bold")).pack(pady=5)
+    text = tk.Text(frame, wrap="word")
+    text.pack(fill="both", expand=True, padx=5, pady=5)
+    text.insert("1.0", "# Welcome to the flexible layout system!\nprint('Hello, World!')")
+
+def build_properties(frame):
+    tk.Label(frame, text="🔧 Properties", font=("Arial", 12, "bold")).pack(pady=5)
+    # Add property controls
+    for prop in ["Width", "Height", "Color", "Font"]:
+        tk.Label(frame, text=f"{prop}:").pack(anchor="w", padx=10)
+
+def build_console(frame):
+    tk.Label(frame, text="💻 Console", font=("Arial", 12, "bold")).pack(pady=5)
+    console = tk.Text(frame, height=6, bg="black", fg="green")
+    console.pack(fill="both", expand=True, padx=5, pady=5)
+    console.insert("1.0", ">>> Ready for input...\n")
+
+root = tk.Tk()
+root.title("Flexible Layout IDE")
+root.geometry("1400x900")
+
+# Configure flexible panes
+explorer_config = FlexPaneConfig(
+    name="explorer",
+    title="File Explorer",
+    weight=0.2,  # 20% of available space
+    min_size=200,
+    max_size=400,
+    detachable=True,
+    builder=build_explorer,
+    icon="📁"
+)
+
+editor_config = FlexPaneConfig(
+    name="editor",
+    title="Code Editor",
+    weight=0.6,  # 60% of available space
+    min_size=400,
+    detachable=True,
+    builder=build_editor,
+    icon="📝"
+)
+
+properties_config = FlexPaneConfig(
+    name="properties",
+    title="Properties",
+    weight=0.2,  # 20% of available space
+    min_size=150,
+    max_size=300,
+    detachable=True,
+    builder=build_properties,
+    icon="🔧"
+)
+
+console_config = FlexPaneConfig(
+    name="console",
+    title="Console",
+    weight=0.3,  # 30% of bottom area
+    min_size=100,
+    detachable=True,
+    builder=build_console,
+    icon="💻"
+)
+
+# Create nested layout: horizontal main with vertical bottom section
+bottom_container = FlexContainer(
+    direction=LayoutDirection.HORIZONTAL,
+    children=[editor_config, console_config],
+    weight=0.7
+)
+
+main_layout = FlexContainer(
+    direction=LayoutDirection.HORIZONTAL,
+    children=[
+        explorer_config,
+        bottom_container,
+        properties_config
+    ]
+)
+
+# Create the flexible layout
+layout = EnhancedFlexibleLayout(
+    root,
+    layout_config=main_layout,
+    theme_name="dark"  # Use dark theme
+)
+layout.pack(fill="both", expand=True)
+
+root.mainloop()
+```
+
 ### Fixed Three-Pane Layout
 
 ```python
@@ -251,6 +356,59 @@ root.mainloop()
 
 > **See [FIXED_WIDTH_FEATURES.md](https://github.com/stntg/threepanewindows/blob/main/FIXED_WIDTH_FEATURES.md)
 > for complete documentation of the fixed width and menu bar features.**
+
+## Advanced Theming System (NEW!)
+
+ThreePaneWindows now includes a powerful central theme manager that provides consistent theming across all components:
+
+### Central Theme Manager
+
+```python
+import tkinter as tk
+from threepanewindows import EnhancedDockableThreePaneWindow, PaneConfig
+from threepanewindows.central_theme_manager import get_theme_manager, ThemeType
+
+# Get the central theme manager
+theme_manager = get_theme_manager()
+
+# Set a global theme
+theme_manager.set_theme(ThemeType.DARK)
+
+# Create your application - theming is automatic
+root = tk.Tk()
+window = EnhancedDockableThreePaneWindow(root, theme_name="dark")
+
+# All components will use the central theme automatically
+```
+
+### Available Themes
+
+- **Light**: Clean, bright interface
+- **Dark**: Modern dark theme with high contrast
+- **Blue**: Professional blue theme
+- **Green**: Nature-inspired green theme
+- **Purple**: Creative purple theme
+- **System**: Matches system theme preferences
+- **Native**: Uses platform-native styling
+
+### Custom Scrollbars and Menu Bars
+
+```python
+from threepanewindows.custom_scrollbar import ThemedScrollbar
+from threepanewindows.custom_menubar import CustomMenubar, MenuItem
+
+# Create themed scrollbar
+scrollbar = ThemedScrollbar(parent, orient="vertical")
+
+# Create custom themeable menubar
+menubar = CustomMenubar(root)
+menubar.add_menu("File", [
+    MenuItem("New", command=new_file),
+    MenuItem("Open", command=open_file),
+    MenuItem("", separator=True),
+    MenuItem("Exit", command=root.quit)
+])
+```
 
 ## Demo Application
 

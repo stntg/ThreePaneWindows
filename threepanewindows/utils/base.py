@@ -138,3 +138,24 @@ class PlatformHandler(ABC):
             tk.TclError: If the image cannot be loaded
         """
         return tk.PhotoImage(file=icon_path)
+
+    def create_platform_scrollbar(
+        self, parent: tk.Widget, orient: str = "vertical", command=None, **kwargs
+    ):
+        """
+        Create a platform-appropriate scrollbar.
+
+        Args:
+            parent: Parent widget
+            orient: Orientation ("vertical" or "horizontal")
+            command: Scroll command callback
+            **kwargs: Additional arguments
+
+        Returns:
+            Scrollbar widget (native or custom based on platform)
+        """
+        # Default implementation uses native scrollbar
+        # Platform-specific implementations can override this
+        from tkinter import ttk
+
+        return ttk.Scrollbar(parent, orient=orient, command=command, **kwargs)

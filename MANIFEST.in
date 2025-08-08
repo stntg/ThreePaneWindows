@@ -5,6 +5,12 @@ include CHANGELOG.md
 include ENHANCED_FEATURES.md
 include FIXED_WIDTH_FEATURES.md
 include CROSS_PLATFORM_ICONS.md
+include FLEXIBLE_LAYOUT_SYSTEM.md
+include CENTRAL_THEME_MANAGER.md
+include VERSION_1_3_0_FEATURES.md
+include API.md
+include CONTRIBUTING.md
+include CONTRIBUTORS.md
 recursive-include threepanewindows *.py
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]

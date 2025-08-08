@@ -24,12 +24,24 @@ ThreePaneWindows provides professional three-pane window layouts for Tkinter app
 Key Features
 ~~~~~~~~~~~~
 
+**Core Layout Systems**
+
+* **Enhanced Flexible Layout (NEW v1.3.0)**: Modern flexible layout with weight-based distribution
 * **Multiple Layout Types**: Choose from fixed-width or fully dockable layouts
-* **Professional Theming**: Built-in light and dark themes with customization options
+
+**Advanced Theming & UI Components (NEW v1.3.0)**
+
+* **Central Theme Manager**: Unified theming system across all components
+* **Custom Scrollbars**: Fully themeable scrollbars with cross-platform support
+* **Custom Menu Bars**: Themeable menu bars that work on all platforms
+* **Professional Theming**: Light, Dark, Blue, Green, Purple, System, and Native themes
+
+**Professional Features**
+
 * **Cross-Platform Icon Support**: Multiple icon formats (.ico, .png, .gif, .bmp, .xbm) with automatic platform optimization
 * **Advanced Docking**: Drag-and-drop pane reordering and window detachment
+* **Comprehensive Logging (NEW v1.3.0)**: Silent by default with configurable debug output
 * **Responsive Design**: Automatic resizing and intelligent layout management
-* **Rich Components**: Status bars, toolbars, context menus, and more
 * **Easy Integration**: Simple API that works with existing Tkinter code
 * **Cross-Platform**: Consistent behavior on Windows, macOS, and Linux
 
@@ -45,51 +57,62 @@ Layout Types Comparison
 
 .. list-table:: Layout Comparison
    :header-rows: 1
-   :widths: 20 25 25 30
+   :widths: 15 20 20 20 25
 
    * - Feature
      - FixedThreePaneWindow
      - DockableThreePaneWindow
      - EnhancedDockableThreePaneWindow
+     - EnhancedFlexibleLayout (NEW v1.3.0)
+   * - Weight-based distribution
+     - ✗
+     - ✗
+     - ✗
+     - ✓
+   * - Nested layouts
+     - ✗
+     - ✗
+     - ✗
+     - ✓
    * - Fixed pane sizes
      - ✓
      - ✗
      - ✗
+     - ✓ (configurable)
    * - Resizable panes
      - ✗
+     - ✓
      - ✓
      - ✓
    * - Drag & drop
      - ✗
      - ✓
      - ✓
+     - ✓
    * - Detachable panes
      - ✗
      - ✓
      - ✓
+     - ✓
+   * - Central theming
+     - ✗
+     - ✗
+     - ✗
+     - ✓
    * - Built-in theming
      - Basic
+     - ✓
      - ✓
      - ✓
    * - Cross-platform icons
      - ✗
      - ✗
      - ✓
-   * - Status bars
-     - ✗
-     - ✗
-     - ✓
-   * - Toolbars
-     - ✗
-     - ✗
-     - ✓
-   * - Context menus
-     - ✗
-     - ✗
      - ✓
    * - Complexity
      - Low
      - Medium
      - High
+     - Medium-High
 
 Choose the layout type that best fits your application's requirements and complexity needs.

@@ -6,7 +6,7 @@ providing type hints for better IDE support and static type checking.
 ## Requirements
 
 - **Python**: 3.9 to 3.13
-- **Compatible with**: threepanewindows >= 1.0.0
+- **Compatible with**: threepanewindows >= 1.3.0
 
 ## Installation
 
@@ -23,21 +23,36 @@ use these stubs when working with the `threepanewindows` library.
 
 The stubs cover all public APIs of the threepanewindows library:
 
-- **Main Window Classes**:
+- **Core Layout Systems**:
+  - `EnhancedFlexibleLayout` *(NEW v1.3.0)*
   - `FixedThreePaneWindow` / `FixedThreePaneLayout`
   - `DockableThreePaneWindow`
   - `EnhancedDockableThreePaneWindow`
 
 - **Configuration Classes**:
+  - `FlexPaneConfig` *(NEW v1.3.0)*
+  - `FlexContainer` *(NEW v1.3.0)*
+  - `LayoutDirection` *(NEW v1.3.0)*
   - `PaneConfig`
 
-- **Theming System**:
+- **Advanced Theming & UI Components** *(NEW v1.3.0)*:
+  - `CentralThemeManager`
+  - `ThemedScrollbar`
+  - `CustomMenubar`
+  - `MenuItem`
+  - `ThemeType` (extended)
+  - `ThemeColors`
+
+- **Legacy Theming System**:
   - `ThemeManager`
-  - `ThemeType`
   - `ColorScheme`
   - `Typography`
   - `Spacing`
   - `Theme`
+
+- **Logging System** *(NEW v1.3.0)*:
+  - `ThreePaneWindowsLogger`
+  - `get_logger()`
 
 - **Utility Functions**:
   - `get_recommended_icon_formats()`

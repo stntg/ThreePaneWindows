@@ -166,6 +166,31 @@ To run tests as they would run in the CI workflow:
 pytest -c pytest_ci.ini tests/ -m "not gui"
 ```
 
+### New Features Testing (v1.3.0)
+
+For testing the new v1.3.0 features (EnhancedFlexibleLayout,
+CentralThemeManager, CustomMenubar, etc.):
+
+```bash
+# Run the dedicated new features test suite
+python run_new_features_tests.py
+
+# Or run specific new feature test files
+pytest tests/test_flexible.py \
+       tests/test_custom_menubar.py \
+       tests/test_central_theme_manager_simple.py \
+       tests/test_logging_ci_safe.py \
+       tests/test_new_features_summary.py \
+       -m "not gui" -v
+```
+
+The new features test suite includes:
+
+- **Flexible Layout System**: Weight-based distribution, nested containers
+- **Central Theme Manager**: Unified theming across components
+- **Custom UI Components**: Themeable scrollbars and menu bars
+- **Enhanced Logging**: Silent-by-default comprehensive logging
+
 ### Writing Tests
 
 - Place tests in the `tests/` directory

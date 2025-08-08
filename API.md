@@ -11,10 +11,198 @@
 ThreePaneWindows provides multiple classes for creating three-pane layouts in
 Tkinter applications:
 
+### Core Layout Systems
+
+- `EnhancedFlexibleLayout`: **NEW v1.3.0** - Modern flexible layout system with
+   weight-based distribution
 - `EnhancedDockableThreePaneWindow`: Professional layout with advanced theming
   and cross-platform icon support
 - `DockableThreePaneWindow`: Advanced layout with detachable side panels
 - `FixedThreePaneLayout`: Simple fixed layout with customizable panels
+
+### Advanced Theming & UI Components (NEW v1.3.0)
+
+- `CentralThemeManager`: Unified theming system across all components
+- `ThemedScrollbar`: Fully themeable custom scrollbar implementation
+- `CustomMenubar`: Cross-platform themeable menu bar system
+- `ThreePaneWindowsLogger`: Comprehensive logging system
+
+## EnhancedFlexibleLayout (NEW v1.3.0)
+
+### Class: `EnhancedFlexibleLayout(tk.Frame)`
+
+A modern flexible layout system with weight-based pane distribution,
+nested containers, and professional theming.
+
+**Key Features:**
+
+- **Weight-Based Distribution**: Panes automatically size based on weight ratios
+- **Nested Layouts**: Support for complex nested horizontal and vertical containers
+- **Professional Theming**: Integration with central theme manager
+- **Detachable Panes**: Professional detached window management
+- **Constraint System**: Minimum and maximum size constraints
+- **Dynamic Reconfiguration**: Runtime layout modifications
+
+#### Constructor: EnhancedFlexibleLayout
+
+```python
+EnhancedFlexibleLayout(
+    master, layout_config, theme_name="light", **kwargs
+)
+```
+
+**Parameters:**
+
+- `master`: Parent widget
+- `layout_config`: FlexContainer object defining the layout structure
+- `theme_name`: Theme name for styling (default: "light")
+- `**kwargs`: Additional arguments passed to tk.Frame
+
+#### FlexContainer Class
+
+```python
+@dataclass
+class FlexContainer:
+    direction: LayoutDirection = LayoutDirection.HORIZONTAL
+    children: List[Union[FlexPaneConfig, FlexContainer]] = field(default_factory=list)
+    weight: float = 1.0
+    min_size: Optional[int] = None
+    max_size: Optional[int] = None
+```
+
+#### FlexPaneConfig Class
+
+```python
+@dataclass
+class FlexPaneConfig:
+    name: str
+    title: str = ""
+    weight: float = 1.0
+    min_size: Optional[int] = None
+    max_size: Optional[int] = None
+    detachable: bool = True
+    builder: Optional[Callable[[tk.Widget], None]] = None
+    icon: str = ""
+    theme_overrides: Optional[Dict[str, Any]] = None
+```
+
+#### LayoutDirection Enum
+
+```python
+class LayoutDirection(Enum):
+    HORIZONTAL = "horizontal"
+    VERTICAL = "vertical"
+```
+
+## CentralThemeManager (NEW v1.3.0)
+
+### Class: `CentralThemeManager`
+
+Unified theming system providing consistent styling across all components.
+
+**Key Features:**
+
+- **Singleton Pattern**: Single source of truth for theming
+- **Multiple Themes**: Light, Dark, Blue, Green, Purple, System, Native
+- **Automatic Application**: Themes applied automatically to all widgets
+- **Custom Theme Support**: Register and manage custom themes
+- **Platform Integration**: System theme detection and integration
+
+#### Global Functions
+
+```python
+def get_theme_manager() -> CentralThemeManager:
+    """Get the singleton theme manager instance."""
+
+def set_global_theme(theme: Union[ThemeType, str]) -> None:
+    """Set the global theme for all components."""
+```
+
+#### ThemeType Enum
+
+```python
+class ThemeType(Enum):
+    LIGHT = "light"
+    DARK = "dark"
+    BLUE = "blue"
+    GREEN = "green"
+    PURPLE = "purple"
+    SYSTEM = "system"
+    NATIVE = "native"
+```
+
+## ThemedScrollbar (NEW v1.3.0)
+
+### Class: `ThemedScrollbar(tk.Frame)`
+
+Fully themeable custom scrollbar with cross-platform support.
+
+**Key Features:**
+
+- **Custom Styling**: Complete control over scrollbar appearance
+- **Theme Integration**: Automatic theming with central theme manager
+- **Cross-Platform**: Consistent appearance across all platforms
+- **Smooth Scrolling**: Professional scrolling behavior
+
+#### Constructor: ThemedScrollbar
+
+```python
+ThemedScrollbar(
+    parent, orient="vertical", command=None, **kwargs
+)
+```
+
+## CustomMenubar (NEW v1.3.0)
+
+### Class: `CustomMenubar(tk.Frame)`
+
+Cross-platform themeable menu bar system.
+
+**Key Features:**
+
+- **Themeable Design**: Full integration with theme system
+- **Cross-Platform**: Consistent appearance on all platforms
+- **Advanced Configuration**: Support for complex menu structures
+- **Professional Styling**: Modern menu appearance and behavior
+
+#### MenuItem Class
+
+```python
+@dataclass
+class MenuItem:
+    label: str
+    command: Optional[Callable] = None
+    submenu: Optional[List['MenuItem']] = None
+    separator: bool = False
+    accelerator: str = ""
+    state: str = "normal"
+```
+
+## ThreePaneWindowsLogger (NEW v1.3.0)
+
+### Class: `ThreePaneWindowsLogger`
+
+Comprehensive logging system with silent-by-default behavior.
+
+**Key Features:**
+
+- **Silent by Default**: No output unless explicitly enabled
+- **Module-Specific Loggers**: Separate loggers for each component
+- **Configurable Output**: File and console logging support
+- **Development Tools**: Utilities for debugging and monitoring
+
+#### Global Functions
+
+```python
+def get_logger(name: str = None) -> logging.Logger:
+    """Get a logger instance for the specified module."""
+
+def enable_console_logging(level: int = logging.INFO) -> None:
+    """Enable console logging at the specified level."""
+
+def disable_logging() -> None:
+    """Disable all logging output."""
+```
 
 ## EnhancedDockableThreePaneWindow
 

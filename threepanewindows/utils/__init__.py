@@ -38,6 +38,7 @@ __all__ = [
     "get_system_accent_color",
     "get_platform_native_colors",
     "get_platform_typography",
+    "create_platform_scrollbar",
 ]
 
 
@@ -133,3 +134,22 @@ def get_platform_typography():
         dict: Dictionary of typography settings including font family and sizes.
     """
     return platform_handler.get_platform_typography()
+
+
+def create_platform_scrollbar(parent, orient="vertical", command=None, **kwargs):
+    """
+    Create a platform-appropriate scrollbar.
+
+    On Windows: Uses custom ThemedScrollbar for better theming
+    On macOS/Linux: Uses native TTK scrollbar for better system integration
+
+    Args:
+        parent: Parent widget
+        orient: Orientation ("vertical" or "horizontal")
+        command: Scroll command callback
+        **kwargs: Additional arguments
+
+    Returns:
+        Scrollbar widget (native or custom based on platform)
+    """
+    return platform_handler.create_platform_scrollbar(parent, orient, command, **kwargs)

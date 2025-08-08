@@ -8,6 +8,91 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-08-07
+
+### Added
+
+#### 🆕 Enhanced Flexible Layout System
+
+- **EnhancedFlexibleLayout**: New flexible layout system with weight-based pane distribution
+- **FlexPaneConfig**: Advanced pane configuration with constraints and detached
+  window properties
+- **FlexContainer**: Support for nested layouts with horizontal and vertical containers
+- **LayoutDirection**: Enum for controlling layout direction (HORIZONTAL/VERTICAL)
+- Weight-based space distribution with minimum and maximum size constraints
+- Professional detached window management with custom titlebars and theming
+- Complex nested layout support for IDE-style interfaces
+
+#### 🆕 Central Theme Manager
+
+- **CentralThemeManager**: Unified theming system across all components
+- **ThemeColors**: Comprehensive color palette for consistent theming
+- **ThemeType**: Extended theme types including Green, Purple, System, and Native
+- Single source of truth for all visual styling
+- Automatic theme application to all widgets
+- Custom theme registration and management
+- Platform-specific theme detection and integration
+- TTK integration with automatic style configuration
+
+#### 🆕 Custom UI Components
+
+- **ThemedScrollbar**: Fully themeable custom scrollbar implementation
+- **CustomMenubar**: Cross-platform themeable menu bar system
+- **MenuItem**: Configuration class for menu items with advanced properties
+- Cross-platform scrollbar support with automatic type detection
+- Custom menu bars that work consistently across all platforms
+- Full theme integration for all custom components
+
+#### 🆕 Enhanced Logging System
+
+- Comprehensive logging configuration with silent-by-default behavior
+- **ThreePaneWindowsLogger**: Singleton logger manager for consistent logging
+- Module-specific loggers with configurable output levels
+- File and console logging support with custom formatters
+- Development logging tools and utilities
+
+### Enhanced
+
+#### Existing Components Integration
+
+- All existing layouts now support the central theme manager
+- Enhanced theming for FixedThreePaneWindow, DockableThreePaneWindow, and EnhancedDockableThreePaneWindow
+- Improved cross-platform compatibility and appearance consistency
+- Better integration between all layout types
+
+#### Documentation
+
+- **FLEXIBLE_LAYOUT_SYSTEM.md**: Comprehensive documentation for the new
+  flexible layout system
+- **CENTRAL_THEME_MANAGER.md**: Complete guide to the central theming system
+- Updated README.md with new features and examples
+- Enhanced API documentation and type stubs
+
+#### Type Support
+
+- Complete type stubs for all new modules
+- Enhanced type annotations throughout the codebase
+- Better IDE support and development experience
+
+### Changed
+
+- Updated package description to reflect new capabilities
+- Enhanced **init**.py exports to include all new functionality
+- Improved module organization and structure
+- Better separation of concerns between theming systems
+
+### Technical Details
+
+- **New Modules**:
+  - `flexible.py`
+  - `central_theme_manager.py`
+  - `custom_scrollbar.py`
+  - `custom_menubar.py`
+- **Enhanced Modules**: Updated `__init__.py`, `themes.py`, `logging_config.py`
+- **New Documentation**: Added comprehensive guides for new features
+- **Type Stubs**: Complete type support for all new functionality
+- **Version Bump**: 1.2.0 → 1.3.0 to reflect significant new features
+
 ## [1.2.0] - 2025-07-31
 
 ### Added

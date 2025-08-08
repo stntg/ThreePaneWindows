@@ -271,3 +271,31 @@ class WindowsPlatformHandler(PlatformHandler):
             return f"#{r:02x}{g:02x}{b:02x}"
         except ValueError:
             return hex_color
+
+    def create_platform_scrollbar(
+        self, parent: tk.Widget, orient: str = "vertical", command=None, **kwargs
+    ):
+        """
+        Create a Windows-optimized scrollbar using custom ThemedScrollbar.
+
+        Args:
+            parent: Parent widget
+            orient: Orientation ("vertical" or "horizontal")
+            command: Scroll command callback
+            **kwargs: Additional arguments
+
+        Returns:
+            ThemedScrollbar widget for better Windows theming
+        """
+        try:
+            from ..custom_scrollbar import ThemedScrollbar
+
+            return ThemedScrollbar(parent, orient=orient, command=command, **kwargs)
+        except ImportError:
+            # Fallback to TTK scrollbar if custom scrollbar is not available
+            logger.warning(
+                "ThemedScrollbar not available, falling back to TTK scrollbar"
+            )
+            from tkinter import ttk
+
+            return ttk.Scrollbar(parent, orient=orient, command=command, **kwargs)

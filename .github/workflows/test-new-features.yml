@@ -1,0 +1,68 @@
+name: Test New Features v1.3.0
+
+# This workflow tests all new v1.3.0 features in headless CI environments
+# Tests: 80 non-GUI tests across 5 test files
+# Components: Flexible Layout, Theme Manager, Custom UI, Logging, Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  test-new-features:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+        pip install -e .
+
+    - name: Run new features tests (headless) - Test Runner Script
+      run: |
+        echo "🧪 Running 80 new feature tests using test runner script..."
+        python run_new_features_tests.py
+
+    - name: Run new features tests with pytest directly - Validation
+      run: |
+        echo "🔍 Validating tests with direct pytest execution..."
+        pytest tests/test_flexible.py tests/test_custom_menubar.py tests/test_central_theme_manager_simple.py tests/test_logging_ci_safe.py tests/test_new_features_summary.py -v -m "not gui" --tb=short
+
+    - name: Run comprehensive summary test - Integration Check
+      run: |
+        echo "📋 Running integration summary tests..."
+        pytest tests/test_new_features_summary.py -v
+
+    - name: Verify test counts
+      run: |
+        echo "📊 Verifying expected test counts..."
+        echo "Expected: 80 non-GUI tests total"
+        pytest tests/test_flexible.py tests/test_custom_menubar.py tests/test_central_theme_manager_simple.py tests/test_logging_ci_safe.py tests/test_new_features_summary.py --collect-only -m "not gui" -q | grep "collected"
+
+    - name: Generate coverage report (Python 3.11 on Ubuntu only)
+      if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
+      run: |
+        pytest tests/test_flexible.py tests/test_custom_menubar.py tests/test_central_theme_manager_simple.py tests/test_logging_ci_safe.py tests/test_new_features_summary.py --cov=threepanewindows --cov-report=xml -m "not gui"
+
+    - name: Upload coverage to Codecov (Python 3.11 on Ubuntu only)
+      if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: new-features
+        name: new-features-coverage
