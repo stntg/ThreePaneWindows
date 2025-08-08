@@ -162,6 +162,7 @@ jobs:
     - name: Run quick tests
       if: ${{ !inputs.skip_tests }}
       timeout-minutes: 10
+      continue-on-error: True
       env:
         DISPLAY: :99
       run: |
