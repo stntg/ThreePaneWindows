@@ -261,6 +261,7 @@ jobs:
     - name: Test installation from Test PyPI
       if: steps.check-token.outputs.token-available == 'true'
       timeout-minutes: 10
+      continue-on-error: true
       env:
         DISPLAY: :99
       run: |

@@ -6,9 +6,8 @@ functionality from the enhanced dockable module, including custom titlebars,
 theming, scrollable content, and proper restoration capabilities.
 """
 
-import platform
 import tkinter as tk
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from tkinter import ttk
 from typing import Callable, Dict, List, Optional, Union
@@ -22,13 +21,15 @@ logger = get_logger(__name__)
 
 
 class LayoutDirection(Enum):
+    """Enumeration for layout direction."""
+
     HORIZONTAL = "horizontal"
     VERTICAL = "vertical"
 
 
 @dataclass
 class FlexPaneConfig:
-    """Enhanced configuration for a flexible pane with professional detached window support."""
+    """Enhanced configuration for a flexible pane with professional detached window support."""  # noqa: E501
 
     name: str
     title: str
@@ -95,9 +96,9 @@ class FlexDetachedWindow(tk.Toplevel):
 
         Args:
             parent: The parent window (usually the main application window).
-            pane_config (FlexPaneConfig): Configuration object defining window behavior and appearance.
-            content_builder (Callable): Function to call to build the window's content.
-            on_reattach (Callable): Callback function to call when the window should be reattached.
+            pane_config (FlexPaneConfig): Configuration object defining window behavior and appearance.  # noqa: E501
+            content_builder (Callable): Function to call to build the window's content.  # noqa: E501
+            on_reattach (Callable): Callback function to call when the window should be reattached.  # noqa: E501
             theme_manager: Theme manager for consistent styling.
             layout_instance: Reference to the main layout instance (optional).
             **kwargs: Additional keyword arguments passed to tk.Toplevel.
@@ -174,9 +175,9 @@ class FlexDetachedWindow(tk.Toplevel):
 
     def _setup_platform_specific_behavior(self):
         """Set up platform-specific window behavior."""
-        import platform
+        import platform as platform_module
 
-        system = platform.system()
+        system = platform_module.system()
 
         if system == "Darwin":  # macOS
             # macOS-specific adjustments
@@ -702,7 +703,7 @@ class EnhancedFlexibleLayout(tk.Frame):
                 parent.grid_columnconfigure(i, weight=0)
             for i in range(rows):
                 parent.grid_rowconfigure(i, weight=0)
-        except:
+        except Exception:  # noqa: B110
             pass
 
     def _create_control_button(
@@ -757,7 +758,7 @@ class EnhancedFlexibleLayout(tk.Frame):
 
             # Rebuild attached panes to refresh theming
             self._rebuild_attached_panes()
-        except Exception as e:
+        except Exception:  # noqa: B110
             # If refresh fails, continue silently
             pass
 
@@ -778,7 +779,7 @@ class EnhancedFlexibleLayout(tk.Frame):
 
                 # Rebuild layout
                 self._build_layout()
-        except Exception:
+        except Exception:  # noqa: B110
             # If rebuild fails, continue silently
             pass
 
@@ -852,7 +853,7 @@ class EnhancedFlexibleLayout(tk.Frame):
             # Default content
             default_label = tk.Label(
                 content_frame,
-                text=f"{pane.title}\n\nWeight: {pane.weight}\nDetachable: {pane.detachable}\nFill Space: {pane.fill_detached_space}",
+                text=f"{pane.title}\n\nWeight: {pane.weight}\nDetachable: {pane.detachable}\nFill Space: {pane.fill_detached_space}",  # noqa: E501
                 justify="center",
                 bg=content_bg,
                 fg=theme.primary_text,
@@ -905,8 +906,8 @@ class EnhancedFlexibleLayout(tk.Frame):
 
         main_x = main_window.winfo_x()
         main_y = main_window.winfo_y()
-        main_width = main_window.winfo_width()
-        main_height = main_window.winfo_height()
+        # main_width = main_window.winfo_width()  # noqa: F841
+        # main_height = main_window.winfo_height()  # noqa: F841
 
         # Calculate position based on pane name (simple offset strategy)
         offset_multiplier = len(self.detached_windows)
@@ -924,7 +925,7 @@ class EnhancedFlexibleLayout(tk.Frame):
 
         # Set the position
         window.geometry(
-            f"{window.pane_config.default_width}x{window.pane_config.detached_height}+{x}+{y}"
+            f"{window.pane_config.default_width}x{window.pane_config.detached_height}+{x}+{y}"  # noqa: E501
         )
 
         # Ensure detached window appears in front and stays visible
@@ -971,14 +972,10 @@ class EnhancedFlexibleLayout(tk.Frame):
             # Apply theme to the entire detached window
             self.theme_manager.apply_theme_to_widget(window, recursive=True)
 
-            # Force update the window's UI with new theme
+            # Force update the window's UI with new theme settings
             window._update_theme()
         except Exception as e:
             logger.warning(f"Failed to update detached window theme: {e}")
-
-    def refresh_theme(self):
-        """Refresh the layout with the current theme."""
-        self.set_theme(self.theme_manager.current_theme.value)
 
     def detach_pane(self, pane_name: str):
         """Public method to detach a pane."""
