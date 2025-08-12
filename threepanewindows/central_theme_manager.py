@@ -733,267 +733,265 @@ class CentralThemeManager:
     ) -> None:
         """Apply theme to widget based on its class."""
         try:
-            if widget_class == "Frame":
-                widget.configure(bg=theme.panel_bg)
-                logger.debug("Themed Frame widget")
-
-            elif widget_class == "Label":
-                widget.configure(bg=theme.panel_bg, fg=theme.panel_text)
-                logger.debug("Themed Label widget")
-
-            elif widget_class == "Button":
-                # Skip control buttons (detach/reattach) that have custom styling
-                if not hasattr(widget, "_is_control_button"):
-                    widget.configure(
-                        bg=theme.button_bg,
-                        fg=theme.button_text,
-                        activebackground=theme.button_hover,
-                        activeforeground=theme.button_text,
-                        relief="flat",
-                        borderwidth=1,
-                        highlightthickness=0,
-                    )
-                    logger.debug("Themed Button widget")
-                else:
-                    logger.debug("Skipped control button")
-
-            elif widget_class == "Entry":
-                widget.configure(
-                    bg=theme.input_bg,
-                    fg=theme.input_text,
-                    insertbackground=theme.input_text,
-                    selectbackground=theme.selection_bg,
-                    selectforeground=theme.selection_text,
-                    relief="solid",
-                    borderwidth=1,
-                    highlightthickness=1,
-                    highlightcolor=theme.input_focus,
-                )
-                logger.debug("Themed Entry widget")
-
-            elif widget_class == "Text":
-                widget.configure(
-                    bg=theme.input_bg,
-                    fg=theme.input_text,
-                    insertbackground=theme.input_text,
-                    selectbackground=theme.selection_bg,
-                    selectforeground=theme.selection_text,
-                    relief="solid",
-                    borderwidth=1,
-                    highlightthickness=1,
-                    highlightcolor=theme.input_focus,
-                )
-                logger.debug("Themed Text widget")
-
-            elif widget_class == "Listbox":
-                widget.configure(
-                    bg=theme.input_bg,
-                    fg=theme.input_text,
-                    selectbackground=theme.selection_bg,
-                    selectforeground=theme.selection_text,
-                    relief="solid",
-                    borderwidth=1,
-                    highlightthickness=1,
-                    highlightcolor=theme.input_focus,
-                )
-                logger.debug("Themed Listbox widget")
-
-            elif widget_class == "LabelFrame":
-                widget.configure(
-                    bg=theme.panel_bg,
-                    fg=theme.panel_text,
-                    relief="flat",
-                    borderwidth=1,
-                    highlightbackground=theme.border,
-                )
-                logger.debug("Themed LabelFrame widget")
-
-            elif widget_class in ["Checkbutton", "Radiobutton"]:
-                widget.configure(
-                    bg=theme.panel_bg,
-                    fg=theme.panel_text,
-                    activebackground=theme.panel_bg,
-                    activeforeground=theme.panel_text,
-                    selectcolor=theme.accent_bg,
-                    relief="flat",
-                    borderwidth=0,
-                    highlightthickness=0,
-                )
-                logger.debug(f"Themed {widget_class} widget")
-
-            elif widget_class == "Scale":
-                widget.configure(
-                    bg=theme.panel_bg,
-                    fg=theme.panel_text,
-                    activebackground=theme.accent_bg,
-                    troughcolor=theme.input_bg,
-                    relief="flat",
-                    borderwidth=0,
-                    highlightthickness=0,
-                )
-                logger.debug("Themed Scale widget")
-
-            elif widget_class == "Spinbox":
-                widget.configure(
-                    bg=theme.input_bg,
-                    fg=theme.input_text,
-                    buttonbackground=theme.button_bg,
-                    relief="solid",
-                    borderwidth=1,
-                    highlightthickness=1,
-                    highlightcolor=theme.input_focus,
-                )
-                logger.debug("Themed Spinbox widget")
-
-            elif widget_class == "Canvas":
-                widget.configure(bg=theme.panel_content_bg)
-                logger.debug("Themed Canvas widget")
-
-            elif widget_class == "Message":
-                widget.configure(bg=theme.panel_bg, fg=theme.panel_text)
-                logger.debug("Themed Message widget")
-
-            elif widget_class == "Menubutton":
-                widget.configure(
-                    bg=theme.button_bg,
-                    fg=theme.button_text,
-                    activebackground=theme.button_hover,
-                    activeforeground=theme.button_text,
-                    relief="flat",
-                    borderwidth=1,
-                )
-                logger.debug("Themed Menubutton widget")
-
-            elif widget_class == "PanedWindow":
-                widget.configure(bg=theme.panel_bg)
-                logger.debug("Themed PanedWindow widget")
-
-            elif widget_class == "Toplevel":
-                widget.configure(bg=theme.primary_bg)
-                logger.debug("Themed Toplevel widget")
-
-            elif widget_class == "Tk":
-                widget.configure(bg=theme.primary_bg)
-                logger.debug("Themed Tk widget")
-
-            elif widget_class == "Scrollbar":
-                widget.configure(
-                    bg=theme.panel_bg,
-                    troughcolor=theme.secondary_bg,
-                    activebackground=theme.accent_bg,
-                    relief="flat",
-                    borderwidth=0,
-                    highlightthickness=0,
-                )
-                logger.debug("Themed Scrollbar widget")
-
-            # Additional Tkinter widgets for complete coverage
-            elif widget_class == "OptionMenu":
-                widget.configure(
-                    bg=theme.button_bg,
-                    fg=theme.button_text,
-                    activebackground=theme.button_hover,
-                    activeforeground=theme.button_text,
-                    relief="flat",
-                    borderwidth=1,
-                    highlightthickness=0,
-                )
-                # Theme the dropdown menu
-                if hasattr(widget, "nametowidget"):
-                    try:
-                        menu = widget.nametowidget(widget.menuname)
-                        self.apply_menu_theme(menu)
-                        logger.debug("Themed OptionMenu dropdown")
-                    except (tk.TclError, AttributeError) as e:
-                        logger.debug(f"Could not theme OptionMenu dropdown: {e}")
-                logger.debug("Themed OptionMenu widget")
-
-            elif widget_class == "Bitmap":
-                widget.configure(bg=theme.panel_bg)
-                logger.debug("Themed Bitmap widget")
-
-            elif widget_class in ["PhotoImage", "BitmapImage"]:
-                # Image widgets don't have configurable colors
-                logger.debug(f"Skipped {widget_class} (no configurable colors)")
-
-            elif widget_class == "Wm":
-                # Window manager class - configure as window
-                widget.configure(bg=theme.primary_bg)
-                logger.debug("Themed Wm widget")
-
-            # Handle any other Frame-like widgets
-            elif "Frame" in widget_class:
-                widget.configure(bg=theme.panel_bg)
-                logger.debug(f"Themed Frame-like widget: {widget_class}")
-
-            # Handle any other Label-like widgets
-            elif "Label" in widget_class:
-                widget.configure(bg=theme.panel_bg, fg=theme.panel_text)
-                logger.debug(f"Themed Label-like widget: {widget_class}")
-
-            # Handle any other Button-like widgets
-            elif "Button" in widget_class and not hasattr(widget, "_is_control_button"):
-                widget.configure(
-                    bg=theme.button_bg,
-                    fg=theme.button_text,
-                    activebackground=theme.button_hover,
-                    activeforeground=theme.button_text,
-                    relief="flat",
-                    borderwidth=1,
-                    highlightthickness=0,
-                )
-                logger.debug(f"Themed Button-like widget: {widget_class}")
-
-            # Handle any other Entry-like widgets
-            elif "Entry" in widget_class:
-                widget.configure(
-                    bg=theme.input_bg,
-                    fg=theme.input_text,
-                    insertbackground=theme.input_text,
-                    selectbackground=theme.selection_bg,
-                    selectforeground=theme.selection_text,
-                    relief="solid",
-                    borderwidth=1,
-                    highlightthickness=1,
-                    highlightcolor=theme.input_focus,
-                )
-                logger.debug(f"Themed Entry-like widget: {widget_class}")
-
-            # Handle any other Text-like widgets
-            elif "Text" in widget_class:
-                widget.configure(
-                    bg=theme.input_bg,
-                    fg=theme.input_text,
-                    insertbackground=theme.input_text,
-                    selectbackground=theme.selection_bg,
-                    selectforeground=theme.selection_text,
-                    relief="solid",
-                    borderwidth=1,
-                    highlightthickness=1,
-                    highlightcolor=theme.input_focus,
-                )
-                logger.debug(f"Themed Text-like widget: {widget_class}")
-
-            # Handle TTK widgets
+            # Use dispatch table for better maintainability and reduced complexity
+            if self._theme_basic_widgets(widget, widget_class, theme):
+                return
+            elif self._theme_input_widgets(widget, widget_class, theme):
+                return
+            elif self._theme_button_widgets(widget, widget_class, theme):
+                return
+            elif self._theme_container_widgets(widget, widget_class, theme):
+                return
+            elif self._theme_special_widgets(widget, widget_class, theme):
+                return
+            elif self._theme_pattern_based_widgets(widget, widget_class, theme):
+                return
             elif widget_class.startswith("T"):
                 self._theme_ttk_widget(widget, theme)
                 logger.debug(f"Themed TTK widget: {widget_class}")
-
-            # Handle custom widgets
             elif self._is_custom_scrollbar(widget):
                 self._theme_custom_scrollbar(widget, theme)
                 logger.debug("Themed custom scrollbar")
             elif self._is_scrollbar_component(widget):
-                # Skip theming scrollbar components - they're handled by the scrollbar itself
                 logger.debug("Skipped scrollbar component")
             else:
                 logger.debug(f"Unknown widget class: {widget_class}")
 
         except tk.TclError as e:
-            # Some widgets might not support certain options, ignore
             logger.debug(f"TclError while theming {widget_class}: {e}")
         except Exception as e:
             logger.error(f"Error theming {widget_class}: {e}", exc_info=True)
+
+    def _theme_basic_widgets(
+        self, widget: tk.Widget, widget_class: str, theme: ThemeColors
+    ) -> bool:
+        """Theme basic display widgets. Returns True if widget was handled."""
+        if widget_class == "Frame":
+            widget.configure(bg=theme.panel_bg)
+            logger.debug("Themed Frame widget")
+            return True
+        elif widget_class == "Label":
+            widget.configure(bg=theme.panel_bg, fg=theme.panel_text)
+            logger.debug("Themed Label widget")
+            return True
+        elif widget_class == "Canvas":
+            widget.configure(bg=theme.panel_content_bg)
+            logger.debug("Themed Canvas widget")
+            return True
+        elif widget_class == "Message":
+            widget.configure(bg=theme.panel_bg, fg=theme.panel_text)
+            logger.debug("Themed Message widget")
+            return True
+        elif widget_class == "Bitmap":
+            widget.configure(bg=theme.panel_bg)
+            logger.debug("Themed Bitmap widget")
+            return True
+        elif widget_class in ["PhotoImage", "BitmapImage"]:
+            logger.debug(f"Skipped {widget_class} (no configurable colors)")
+            return True
+        return False
+
+    def _theme_input_widgets(
+        self, widget: tk.Widget, widget_class: str, theme: ThemeColors
+    ) -> bool:
+        """Theme input widgets. Returns True if widget was handled."""
+        input_config = {
+            "bg": theme.input_bg,
+            "fg": theme.input_text,
+            "insertbackground": theme.input_text,
+            "selectbackground": theme.selection_bg,
+            "selectforeground": theme.selection_text,
+            "relief": "solid",
+            "borderwidth": 1,
+            "highlightthickness": 1,
+            "highlightcolor": theme.input_focus,
+        }
+
+        if widget_class == "Entry":
+            widget.configure(**input_config)
+            logger.debug("Themed Entry widget")
+            return True
+        elif widget_class == "Text":
+            widget.configure(**input_config)
+            logger.debug("Themed Text widget")
+            return True
+        elif widget_class == "Listbox":
+            # Listbox doesn't support insertbackground
+            listbox_config = {
+                k: v for k, v in input_config.items() if k != "insertbackground"
+            }
+            widget.configure(**listbox_config)
+            logger.debug("Themed Listbox widget")
+            return True
+        elif widget_class == "Spinbox":
+            spinbox_config = input_config.copy()
+            spinbox_config["buttonbackground"] = theme.button_bg
+            widget.configure(**spinbox_config)
+            logger.debug("Themed Spinbox widget")
+            return True
+        return False
+
+    def _theme_button_widgets(
+        self, widget: tk.Widget, widget_class: str, theme: ThemeColors
+    ) -> bool:
+        """Theme button widgets. Returns True if widget was handled."""
+        button_config = {
+            "bg": theme.button_bg,
+            "fg": theme.button_text,
+            "activebackground": theme.button_hover,
+            "activeforeground": theme.button_text,
+            "relief": "flat",
+            "borderwidth": 1,
+            "highlightthickness": 0,
+        }
+
+        if widget_class == "Button":
+            if not hasattr(widget, "_is_control_button"):
+                widget.configure(**button_config)
+                logger.debug("Themed Button widget")
+            else:
+                logger.debug("Skipped control button")
+            return True
+        elif widget_class == "Menubutton":
+            widget.configure(**button_config)
+            logger.debug("Themed Menubutton widget")
+            return True
+        elif widget_class == "OptionMenu":
+            widget.configure(**button_config)
+            self._theme_option_menu_dropdown(widget)
+            logger.debug("Themed OptionMenu widget")
+            return True
+        return False
+
+    def _theme_container_widgets(
+        self, widget: tk.Widget, widget_class: str, theme: ThemeColors
+    ) -> bool:
+        """Theme container widgets. Returns True if widget was handled."""
+        if widget_class == "LabelFrame":
+            widget.configure(
+                bg=theme.panel_bg,
+                fg=theme.panel_text,
+                relief="flat",
+                borderwidth=1,
+                highlightbackground=theme.border,
+            )
+            logger.debug("Themed LabelFrame widget")
+            return True
+        elif widget_class == "PanedWindow":
+            widget.configure(bg=theme.panel_bg)
+            logger.debug("Themed PanedWindow widget")
+            return True
+        elif widget_class in ["Toplevel", "Tk", "Wm"]:
+            widget.configure(bg=theme.primary_bg)
+            logger.debug(f"Themed {widget_class} widget")
+            return True
+        return False
+
+    def _theme_special_widgets(
+        self, widget: tk.Widget, widget_class: str, theme: ThemeColors
+    ) -> bool:
+        """Theme special widgets. Returns True if widget was handled."""
+        if widget_class in ["Checkbutton", "Radiobutton"]:
+            widget.configure(
+                bg=theme.panel_bg,
+                fg=theme.panel_text,
+                activebackground=theme.panel_bg,
+                activeforeground=theme.panel_text,
+                selectcolor=theme.accent_bg,
+                relief="flat",
+                borderwidth=0,
+                highlightthickness=0,
+            )
+            logger.debug(f"Themed {widget_class} widget")
+            return True
+        elif widget_class == "Scale":
+            widget.configure(
+                bg=theme.panel_bg,
+                fg=theme.panel_text,
+                activebackground=theme.accent_bg,
+                troughcolor=theme.input_bg,
+                relief="flat",
+                borderwidth=0,
+                highlightthickness=0,
+            )
+            logger.debug("Themed Scale widget")
+            return True
+        elif widget_class == "Scrollbar":
+            widget.configure(
+                bg=theme.panel_bg,
+                troughcolor=theme.secondary_bg,
+                activebackground=theme.accent_bg,
+                relief="flat",
+                borderwidth=0,
+                highlightthickness=0,
+            )
+            logger.debug("Themed Scrollbar widget")
+            return True
+        return False
+
+    def _theme_pattern_based_widgets(
+        self, widget: tk.Widget, widget_class: str, theme: ThemeColors
+    ) -> bool:
+        """Theme widgets based on class name patterns. Returns True if widget was handled."""
+        if "Frame" in widget_class:
+            widget.configure(bg=theme.panel_bg)
+            logger.debug(f"Themed Frame-like widget: {widget_class}")
+            return True
+        elif "Label" in widget_class:
+            widget.configure(bg=theme.panel_bg, fg=theme.panel_text)
+            logger.debug(f"Themed Label-like widget: {widget_class}")
+            return True
+        elif "Button" in widget_class and not hasattr(widget, "_is_control_button"):
+            widget.configure(
+                bg=theme.button_bg,
+                fg=theme.button_text,
+                activebackground=theme.button_hover,
+                activeforeground=theme.button_text,
+                relief="flat",
+                borderwidth=1,
+                highlightthickness=0,
+            )
+            logger.debug(f"Themed Button-like widget: {widget_class}")
+            return True
+        elif "Entry" in widget_class:
+            widget.configure(
+                bg=theme.input_bg,
+                fg=theme.input_text,
+                insertbackground=theme.input_text,
+                selectbackground=theme.selection_bg,
+                selectforeground=theme.selection_text,
+                relief="solid",
+                borderwidth=1,
+                highlightthickness=1,
+                highlightcolor=theme.input_focus,
+            )
+            logger.debug(f"Themed Entry-like widget: {widget_class}")
+            return True
+        elif "Text" in widget_class:
+            widget.configure(
+                bg=theme.input_bg,
+                fg=theme.input_text,
+                insertbackground=theme.input_text,
+                selectbackground=theme.selection_bg,
+                selectforeground=theme.selection_text,
+                relief="solid",
+                borderwidth=1,
+                highlightthickness=1,
+                highlightcolor=theme.input_focus,
+            )
+            logger.debug(f"Themed Text-like widget: {widget_class}")
+            return True
+        return False
+
+    def _theme_option_menu_dropdown(self, widget: tk.Widget) -> None:
+        """Theme the dropdown menu of an OptionMenu widget."""
+        if hasattr(widget, "nametowidget"):
+            try:
+                menu = widget.nametowidget(widget.menuname)
+                self.apply_menu_theme(menu)
+                logger.debug("Themed OptionMenu dropdown")
+            except (tk.TclError, AttributeError) as e:
+                logger.debug(f"Could not theme OptionMenu dropdown: {e}")
 
     def _theme_ttk_widget(self, widget: tk.Widget, theme: ThemeColors) -> None:
         """Apply theme to TTK widgets using TTK styling."""

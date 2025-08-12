@@ -2,21 +2,27 @@
 
 ## Overview
 
-The `DynamicDockableGrid` now supports sophisticated pane expansion preferences that control how panes behave when other panes are detached. This provides maximum flexibility for creating adaptive layouts.
+The `DynamicDockableGrid` now supports sophisticated pane expansion preferences
+that control how panes behave when other panes are detached.
+This provides maximum flexibility for creating adaptive layouts.
 
 ## New PaneConfig Properties
 
 ### `expand_vertical: bool = True`
+
 - Controls whether a pane can expand vertically into originally `None` cells
 - When `True`, the pane will span multiple rows if there are `None` cells below it
 - When `False`, the pane stays in its original row only
 
 ### `expand_horizontal: bool = False`
+
 - Controls whether a pane can expand horizontally into originally `None` cells
-- When `True`, the pane will span multiple columns if there are `None` cells to the right
+- When `True`, the pane will span multiple columns if there are `None` cells
+  to the right
 - When `False`, the pane stays in its original column only
 
 ### `fill_detached_space: bool = False`
+
 - Controls whether a pane should expand to fill space left by detached panes
 - When `True`, the pane will dynamically expand when adjacent panes are detached
 - When `False`, the pane ignores detached space and maintains its original size
@@ -24,17 +30,20 @@ The `DynamicDockableGrid` now supports sophisticated pane expansion preferences 
 ## How It Works
 
 ### 1. Basic Span Calculation
+
 - Panes first calculate their spans based on `expand_vertical` and `expand_horizontal`
 - Only expands into cells that were originally `None` in the layout
 - Does not expand into space occupied by detached panes during this phase
 
 ### 2. Detached Space Filling
+
 - After basic spans are calculated, the algorithm handles detached space filling
 - For each detached pane, calculates what its original span would have been
 - Tries to expand adjacent panes with `fill_detached_space=True` into that space
 - Expansion priority: left → up → right → down
 
 ### 3. Dynamic Recalculation
+
 - When panes are detached or reattached, the layout is automatically recalculated
 - All attached panes are repositioned with updated spans
 - Space is efficiently filled by appropriate adjacent panes
@@ -42,6 +51,7 @@ The `DynamicDockableGrid` now supports sophisticated pane expansion preferences 
 ## Example Configurations
 
 ### Sidebar Panes (Left Column)
+
 ```python
 PaneConfig(
     title="Sidebar",
@@ -52,6 +62,7 @@ PaneConfig(
 ```
 
 ### Main Content Pane (Center)
+
 ```python
 PaneConfig(
     title="Main View",
@@ -62,6 +73,7 @@ PaneConfig(
 ```
 
 ### Tool Panes (Right Column)
+
 ```python
 PaneConfig(
     title="Tools",
@@ -74,13 +86,15 @@ PaneConfig(
 ## Layout Example
 
 Original layout:
-```
+
+```text
 ["left1",  "center", "right1"]
 ["left2",     None,  "right2"]
 ["left3",     None,     None]
 ```
 
 Initial spans (with expansion preferences):
+
 - `left1`: (0,0,1,1) - no expansion
 - `left2`: (1,0,1,1) - no expansion
 - `left3`: (2,0,1,1) - no expansion
@@ -89,6 +103,7 @@ Initial spans (with expansion preferences):
 - `right2`: (1,2,2,1) - expands vertically into None cell
 
 After detaching center pane:
+
 - `left1`: (0,0,1,2) - fills detached space horizontally
 - `left2`: (1,0,1,2) - fills detached space horizontally
 - `left3`: (2,0,1,2) - fills detached space horizontally
@@ -98,7 +113,8 @@ After detaching center pane:
 ## Benefits
 
 1. **Flexible Layout Control**: Each pane can have different expansion behaviors
-2. **Dynamic Space Utilization**: Detached space is automatically filled by appropriate panes
+2. **Dynamic Space Utilization**: Detached space is automatically filled
+   by appropriate panes
 3. **Predictable Behavior**: Clear rules for how panes expand and fill space
 4. **Backward Compatible**: Default values maintain existing behavior
 5. **Real-time Updates**: Layout recalculates automatically on detach/reattach

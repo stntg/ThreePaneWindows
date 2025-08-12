@@ -17,6 +17,10 @@ if TYPE_CHECKING:
 
 # Import platform-specific functionality
 from .logging_config import get_logger
+from .spacing import Spacing, SpacingManager, get_spacing_manager
+
+# Import typography and spacing modules
+from .typography import Typography, TypographyManager, get_typography_manager
 from .utils import platform_handler
 
 # Initialize logger for this module
@@ -65,34 +69,7 @@ class ColorScheme:
     drop_zone: str = "#e3f2fd"
 
 
-@dataclass
-class Typography:
-    """Typography configuration for themes."""
-
-    font_family: str = "Segoe UI"
-    font_family_fallback: str = "Arial"
-    font_size_small: int = 9
-    font_size_normal: int = 10
-    font_size_large: int = 12
-    font_size_title: int = 14
-    font_weight_light: str = "normal"
-    font_weight_normal: str = "normal"
-    font_weight_medium: str = "bold"
-    font_weight_bold: str = "bold"
-
-
-@dataclass
-class Spacing:
-    """Spacing configuration for themes."""
-
-    padding_small: int = 4
-    padding_normal: int = 8
-    padding_large: int = 16
-    margin_small: int = 2
-    margin_normal: int = 4
-    margin_large: int = 8
-    border_width: int = 1
-    separator_width: int = 1
+# Typography and Spacing classes are now imported from separate modules
 
 
 @dataclass

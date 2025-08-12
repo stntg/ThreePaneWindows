@@ -18,6 +18,9 @@ Main Components:
     - CentralThemeManager: Unified theming system across all components (NEW v1.3.0)
     - ThemedScrollbar: Fully themeable custom scrollbar (NEW v1.3.0)
     - CustomMenubar: Cross-platform themeable menu bar (NEW v1.3.0)
+    - Typography: Comprehensive typography management system (NEW v1.3.0)
+    - Spacing: Advanced spacing and layout utilities (NEW v1.3.0)
+    - StyleManager: High-level styling utilities and presets (NEW v1.3.0)
     - FixedThreePaneWindow: Simple fixed three-pane layout
     - DockableThreePaneWindow: Advanced layout with docking capabilities
     - EnhancedDockableThreePaneWindow: Full-featured layout with all bells and whistles
@@ -53,7 +56,50 @@ from .flexible import (
     LayoutDirection,
 )
 from .logging_config import add_file_logging, disable_logging, enable_console_logging
+from .spacing import (
+    ACCESSIBILITY_SPACING,
+    COMPACT_SPACING,
+    DEFAULT_SPACING,
+    GENEROUS_SPACING,
+    Spacing,
+    SpacingManager,
+    get_spacing_manager,
+    set_global_spacing,
+)
+from .style_utils import (
+    BODY_PRESET,
+    BUTTON_PRESET,
+    CAPTION_PRESET,
+    CODE_PRESET,
+    HEADING_PRESET,
+    INPUT_PRESET,
+    TITLE_PRESET,
+    StyleManager,
+    StylePreset,
+    create_styled_button,
+    create_styled_entry,
+    create_styled_label,
+    get_style_manager,
+    set_global_style_manager,
+    style_as_body,
+    style_as_button,
+    style_as_caption,
+    style_as_code,
+    style_as_heading,
+    style_as_input,
+    style_as_title,
+)
 from .themes import ThemeManager, ThemeType, get_theme_manager, set_global_theme
+from .typography import (
+    ACCESSIBILITY_TYPOGRAPHY,
+    COMPACT_TYPOGRAPHY,
+    DEFAULT_TYPOGRAPHY,
+    LARGE_TYPOGRAPHY,
+    Typography,
+    TypographyManager,
+    get_typography_manager,
+    set_global_typography,
+)
 
 # Metadata
 __author__ = "Stan Griffiths"
@@ -86,6 +132,46 @@ __all__ = [
     "get_theme_manager",
     "set_global_theme",
     "ThemeType",
+    # Typography system
+    "Typography",
+    "TypographyManager",
+    "get_typography_manager",
+    "set_global_typography",
+    "DEFAULT_TYPOGRAPHY",
+    "COMPACT_TYPOGRAPHY",
+    "LARGE_TYPOGRAPHY",
+    "ACCESSIBILITY_TYPOGRAPHY",
+    # Spacing system
+    "Spacing",
+    "SpacingManager",
+    "get_spacing_manager",
+    "set_global_spacing",
+    "DEFAULT_SPACING",
+    "COMPACT_SPACING",
+    "GENEROUS_SPACING",
+    "ACCESSIBILITY_SPACING",
+    # Style utilities
+    "StyleManager",
+    "StylePreset",
+    "get_style_manager",
+    "set_global_style_manager",
+    "style_as_title",
+    "style_as_heading",
+    "style_as_body",
+    "style_as_caption",
+    "style_as_button",
+    "style_as_input",
+    "style_as_code",
+    "create_styled_label",
+    "create_styled_button",
+    "create_styled_entry",
+    "TITLE_PRESET",
+    "HEADING_PRESET",
+    "BODY_PRESET",
+    "CAPTION_PRESET",
+    "BUTTON_PRESET",
+    "INPUT_PRESET",
+    "CODE_PRESET",
     # Logging system
     "enable_console_logging",
     "disable_logging",
