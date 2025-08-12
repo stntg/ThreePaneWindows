@@ -24,6 +24,8 @@ from enum import Enum
 from tkinter import ttk
 from typing import Any, Dict, Optional, Union
 
+from .logging_config import get_logger
+
 # Import platform handlers
 try:
     from .utils.linux import LinuxPlatformHandler
@@ -34,6 +36,9 @@ except ImportError:
     WindowsPlatformHandler = None
     MacOSPlatformHandler = None
     LinuxPlatformHandler = None
+
+# Initialize logger for this module
+logger = get_logger(__name__)
 
 
 class ThemeType(Enum):
@@ -121,16 +126,27 @@ class CentralThemeManager:
 
     def _get_platform_handler(self):
         """Get the appropriate platform handler."""
-        system = platform.system()
+        try:
+            system = platform.system()
+            logger.debug(f"Detected platform: {system}")
 
-        if system == "Windows" and WindowsPlatformHandler:
-            return WindowsPlatformHandler()
-        elif system == "Darwin" and MacOSPlatformHandler:
-            return MacOSPlatformHandler()
-        elif system == "Linux" and LinuxPlatformHandler:
-            return LinuxPlatformHandler()
-        else:
-            # Return None if no platform handler available
+            if system == "Windows" and WindowsPlatformHandler:
+                handler = WindowsPlatformHandler()
+                logger.info("Windows platform handler initialized")
+                return handler
+            elif system == "Darwin" and MacOSPlatformHandler:
+                handler = MacOSPlatformHandler()
+                logger.info("macOS platform handler initialized")
+                return handler
+            elif system == "Linux" and LinuxPlatformHandler:
+                handler = LinuxPlatformHandler()
+                logger.info("Linux platform handler initialized")
+                return handler
+            else:
+                logger.warning(f"No platform handler available for {system}")
+                return None
+        except Exception as e:
+            logger.error(f"Failed to initialize platform handler: {e}", exc_info=True)
             return None
 
     def _create_theme_definitions(self) -> Dict[ThemeType, ThemeColors]:
@@ -350,71 +366,86 @@ class CentralThemeManager:
 
     def _detect_system_theme(self) -> ThemeColors:
         """Detect the current system theme and return appropriate colors."""
-        if self._system_theme_cache is not None:
-            return self._system_theme_cache
+        try:
+            if self._system_theme_cache is not None:
+                logger.debug("Using cached system theme")
+                return self._system_theme_cache
 
-        # Try to detect system theme
-        is_dark = self._is_system_dark_theme()
+            logger.debug("Detecting system theme...")
+            # Try to detect system theme
+            is_dark = self._is_system_dark_theme()
+            logger.info(f"System theme detected: {'dark' if is_dark else 'light'}")
 
-        if is_dark:
-            # Use dark theme colors for dark system theme
-            base_theme = self.themes[ThemeType.DARK]
-        else:
-            # Use light theme colors for light system theme
-            base_theme = self.themes[ThemeType.LIGHT]
+            if is_dark:
+                # Use dark theme colors for dark system theme
+                base_theme = self.themes[ThemeType.DARK]
+            else:
+                # Use light theme colors for light system theme
+                base_theme = self.themes[ThemeType.LIGHT]
 
-        # Create system theme based on detected theme but with system colors where appropriate
-        system_theme = ThemeColors(
-            # Use detected theme colors but with some system integration
-            primary_bg=base_theme.primary_bg,
-            primary_text=base_theme.primary_text,
-            secondary_bg=base_theme.secondary_bg,
-            secondary_text=base_theme.secondary_text,
-            panel_bg=base_theme.panel_bg,
-            panel_text=base_theme.panel_text,
-            panel_header_bg=base_theme.panel_header_bg,
-            panel_header_text=base_theme.panel_header_text,
-            panel_content_bg=base_theme.panel_content_bg,
-            accent_bg=base_theme.accent_bg,
-            accent_text=base_theme.accent_text,
-            accent_hover=base_theme.accent_hover,
-            button_bg=base_theme.button_bg,
-            button_text=base_theme.button_text,
-            button_hover=base_theme.button_hover,
-            button_active=base_theme.button_active,
-            input_bg=base_theme.input_bg,
-            input_text=base_theme.input_text,
-            input_border=base_theme.input_border,
-            input_focus=base_theme.input_focus,
-            menu_bg=base_theme.menu_bg,
-            menu_text=base_theme.menu_text,
-            menu_hover=base_theme.menu_hover,
-            menu_active=base_theme.menu_active,
-            border=base_theme.border,
-            separator=base_theme.separator,
-            selection_bg=base_theme.selection_bg,
-            selection_text=base_theme.selection_text,
-            success=base_theme.success,
-            warning=base_theme.warning,
-            error=base_theme.error,
-            info=base_theme.info,
-        )
+            # Create system theme based on detected theme but with system colors where appropriate
+            system_theme = ThemeColors(
+                # Use detected theme colors but with some system integration
+                primary_bg=base_theme.primary_bg,
+                primary_text=base_theme.primary_text,
+                secondary_bg=base_theme.secondary_bg,
+                secondary_text=base_theme.secondary_text,
+                panel_bg=base_theme.panel_bg,
+                panel_text=base_theme.panel_text,
+                panel_header_bg=base_theme.panel_header_bg,
+                panel_header_text=base_theme.panel_header_text,
+                panel_content_bg=base_theme.panel_content_bg,
+                accent_bg=base_theme.accent_bg,
+                accent_text=base_theme.accent_text,
+                accent_hover=base_theme.accent_hover,
+                button_bg=base_theme.button_bg,
+                button_text=base_theme.button_text,
+                button_hover=base_theme.button_hover,
+                button_active=base_theme.button_active,
+                input_bg=base_theme.input_bg,
+                input_text=base_theme.input_text,
+                input_border=base_theme.input_border,
+                input_focus=base_theme.input_focus,
+                menu_bg=base_theme.menu_bg,
+                menu_text=base_theme.menu_text,
+                menu_hover=base_theme.menu_hover,
+                menu_active=base_theme.menu_active,
+                border=base_theme.border,
+                separator=base_theme.separator,
+                selection_bg=base_theme.selection_bg,
+                selection_text=base_theme.selection_text,
+                success=base_theme.success,
+                warning=base_theme.warning,
+                error=base_theme.error,
+                info=base_theme.info,
+            )
 
-        self._system_theme_cache = system_theme
-        return system_theme
+            self._system_theme_cache = system_theme
+            logger.debug("System theme cached successfully")
+            return system_theme
+        except Exception as e:
+            logger.error(f"Failed to detect system theme: {e}", exc_info=True)
+            # Fallback to light theme
+            logger.warning("Falling back to light theme")
+            return self.themes[ThemeType.LIGHT]
 
     def _is_system_dark_theme(self) -> bool:
         """Detect if the system is using a dark theme."""
-        if self._platform_handler:
-            try:
-                return self._platform_handler.is_dark_mode()
-            except Exception:
-                pass
-
-        # Fallback detection if no platform handler
         try:
+            if self._platform_handler:
+                try:
+                    result = self._platform_handler.is_dark_mode()
+                    logger.debug(f"Platform handler detected dark mode: {result}")
+                    return result
+                except Exception as e:
+                    logger.warning(f"Platform handler dark mode detection failed: {e}")
+
+            # Fallback detection if no platform handler
+            system = platform.system()
+            logger.debug(f"Using fallback dark mode detection for {system}")
+
             # Windows detection
-            if platform.system() == "Windows":
+            if system == "Windows":
                 try:
                     import winreg
 
@@ -425,12 +456,14 @@ class CentralThemeManager:
                     )
                     value, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
                     winreg.CloseKey(key)
-                    return value == 0  # 0 = dark theme, 1 = light theme
-                except:
-                    pass
+                    is_dark = value == 0  # 0 = dark theme, 1 = light theme
+                    logger.debug(f"Windows registry dark mode detection: {is_dark}")
+                    return is_dark
+                except Exception as e:
+                    logger.warning(f"Windows registry dark mode detection failed: {e}")
 
             # macOS detection
-            elif platform.system() == "Darwin":
+            elif system == "Darwin":
                 try:
                     import subprocess
 
@@ -439,12 +472,14 @@ class CentralThemeManager:
                         capture_output=True,
                         text=True,
                     )
-                    return "Dark" in result.stdout
-                except:
-                    pass
+                    is_dark = "Dark" in result.stdout
+                    logger.debug(f"macOS defaults dark mode detection: {is_dark}")
+                    return is_dark
+                except Exception as e:
+                    logger.warning(f"macOS defaults dark mode detection failed: {e}")
 
             # Linux detection (basic)
-            elif platform.system() == "Linux":
+            elif system == "Linux":
                 try:
                     import subprocess
 
@@ -460,59 +495,111 @@ class CentralThemeManager:
                         text=True,
                     )
                     theme_name = result.stdout.strip().lower()
-                    return "dark" in theme_name
-                except:
-                    pass
+                    is_dark = "dark" in theme_name
+                    logger.debug(f"Linux gsettings dark mode detection: {is_dark}")
+                    return is_dark
+                except Exception as e:
+                    logger.warning(f"Linux gsettings dark mode detection failed: {e}")
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"System dark theme detection failed: {e}", exc_info=True)
 
         # Default to light theme if detection fails
+        logger.debug("Defaulting to light theme due to detection failure")
         return False
 
     def _invalidate_system_theme_cache(self):
         """Invalidate the system theme cache to force re-detection."""
-        self._system_theme_cache = None
+        try:
+            self._system_theme_cache = None
+            logger.debug("System theme cache invalidated")
+        except Exception as e:
+            logger.error(f"Failed to invalidate system theme cache: {e}", exc_info=True)
 
     def set_theme(self, theme: Union[str, ThemeType]) -> None:
         """Set the current theme."""
-        if isinstance(theme, str):
-            theme = ThemeType(theme.lower())
+        try:
+            if isinstance(theme, str):
+                try:
+                    theme = ThemeType(theme.lower())
+                except ValueError as e:
+                    logger.error(f"Invalid theme string '{theme}': {e}")
+                    raise ValueError(
+                        f"Unknown theme: {theme}. Available themes: {[t.value for t in ThemeType]}"
+                    )
 
-        # Special handling for system and native themes
-        if theme == ThemeType.SYSTEM:
-            self._invalidate_system_theme_cache()  # Force re-detection
-            self.current_theme = theme
-            detected = "dark" if self._is_system_dark_theme() else "light"
-            print(f"🎨 Theme set to: {theme.value} (detected: {detected})")
-        elif theme == ThemeType.NATIVE:
-            self.current_theme = theme
-            print(f"🎨 Theme set to: {theme.value} (using system colors)")
-        else:
-            if theme not in self.themes:
-                raise ValueError(f"Unknown theme: {theme}")
-            self.current_theme = theme
-            print(f"🎨 Theme set to: {theme.value}")
+            logger.info(f"Setting theme to: {theme.value}")
+
+            # Special handling for system and native themes
+            if theme == ThemeType.SYSTEM:
+                self._invalidate_system_theme_cache()  # Force re-detection
+                self.current_theme = theme
+                detected = "dark" if self._is_system_dark_theme() else "light"
+                logger.info(f"Theme set to: {theme.value} (detected: {detected})")
+            elif theme == ThemeType.NATIVE:
+                self.current_theme = theme
+                logger.info(f"Theme set to: {theme.value} (using system colors)")
+            else:
+                if theme not in self.themes:
+                    available_themes = [t.value for t in ThemeType]
+                    error_msg = (
+                        f"Unknown theme: {theme}. Available themes: {available_themes}"
+                    )
+                    logger.error(error_msg)
+                    raise ValueError(error_msg)
+                self.current_theme = theme
+                logger.info(f"Theme set to: {theme.value}")
+        except Exception as e:
+            logger.error(f"Failed to set theme: {e}", exc_info=True)
+            raise
 
     def get_current_theme(self) -> ThemeColors:
         """Get the current theme colors."""
-        if self.current_theme == ThemeType.SYSTEM:
-            return self._detect_system_theme()
-        elif self.current_theme == ThemeType.NATIVE:
-            return self._get_native_theme()
-        return self.themes[self.current_theme]
+        try:
+            logger.debug(f"Getting current theme: {self.current_theme.value}")
+
+            if self.current_theme == ThemeType.SYSTEM:
+                return self._detect_system_theme()
+            elif self.current_theme == ThemeType.NATIVE:
+                return self._get_native_theme()
+
+            if self.current_theme not in self.themes:
+                logger.error(f"Current theme {self.current_theme} not found in themes")
+                # Fallback to light theme
+                logger.warning("Falling back to light theme")
+                return self.themes[ThemeType.LIGHT]
+
+            return self.themes[self.current_theme]
+        except Exception as e:
+            logger.error(f"Failed to get current theme: {e}", exc_info=True)
+            # Fallback to light theme
+            logger.warning("Falling back to light theme due to error")
+            return self.themes[ThemeType.LIGHT]
 
     def _get_theme_for_scrollbar(self):
         """Get theme in format compatible with create_themed_scrollbar function."""
-        theme_colors = self.get_current_theme()
+        try:
+            theme_colors = self.get_current_theme()
+            logger.debug("Retrieved theme colors for scrollbar")
 
-        # Return a wrapper object that has a .colors property for compatibility
-        # with the create_themed_scrollbar function
-        class ThemeWrapper:
-            def __init__(self, colors):
-                self.colors = colors
+            # Return a wrapper object that has a .colors property for compatibility
+            # with the create_themed_scrollbar function
+            class ThemeWrapper:
+                def __init__(self, colors):
+                    self.colors = colors
 
-        return ThemeWrapper(theme_colors)
+            return ThemeWrapper(theme_colors)
+        except Exception as e:
+            logger.error(f"Failed to get theme for scrollbar: {e}", exc_info=True)
+            # Return a fallback theme wrapper
+            fallback_colors = self.themes[ThemeType.LIGHT]
+
+            class ThemeWrapper:
+                def __init__(self, colors):
+                    self.colors = colors
+
+            logger.warning("Using fallback light theme for scrollbar")
+            return ThemeWrapper(fallback_colors)
 
     @property
     def colors(self) -> ThemeColors:
@@ -567,48 +654,79 @@ class CentralThemeManager:
 
         This is the main theming method that should be used by all modules.
         """
-        theme = self.get_current_theme()
+        try:
+            if widget is None:
+                logger.warning("Cannot apply theme to None widget")
+                return
 
-        # Special handling for root window
-        if isinstance(widget, tk.Tk):
-            self.apply_window_theme(widget)
+            logger.debug(f"Applying theme to widget: {widget.__class__.__name__}")
+            theme = self.get_current_theme()
 
-        # Apply theme based on widget type
-        self._theme_widget_by_type(widget, theme)
+            # Special handling for root window
+            if isinstance(widget, tk.Tk):
+                logger.debug("Applying window theme to Tk root")
+                self.apply_window_theme(widget)
 
-        # Recursively theme children if requested
-        if recursive:
-            try:
-                for child in widget.winfo_children():
-                    self.apply_theme_to_widget(child, recursive=True)
-            except tk.TclError:
-                # Widget might be destroyed, ignore
-                pass
+            # Apply theme based on widget type
+            self._theme_widget_by_type(widget, theme)
+
+            # Recursively theme children if requested
+            if recursive:
+                try:
+                    children = widget.winfo_children()
+                    logger.debug(f"Theming {len(children)} child widgets recursively")
+                    for child in children:
+                        self.apply_theme_to_widget(child, recursive=True)
+                except tk.TclError as e:
+                    # Widget might be destroyed, ignore
+                    logger.debug(f"Widget destroyed during recursive theming: {e}")
+                except Exception as e:
+                    logger.warning(f"Error during recursive theming: {e}")
+
+        except Exception as e:
+            logger.error(
+                f"Failed to apply theme to widget {widget}: {e}", exc_info=True
+            )
 
     def _theme_widget_by_type(self, widget: tk.Widget, theme: ThemeColors) -> None:
         """Apply theme to a specific widget based on its type."""
-        # Check for custom scrollbars first (before getting widget_class)
-        if self._is_custom_scrollbar(widget):
-            self._theme_custom_scrollbar(widget, theme)
-            return
+        try:
+            # Check for custom scrollbars first (before getting widget_class)
+            if self._is_custom_scrollbar(widget):
+                logger.debug("Theming custom scrollbar")
+                self._theme_custom_scrollbar(widget, theme)
+                return
 
-        widget_class = widget.winfo_class()
+            widget_class = widget.winfo_class()
+            logger.debug(f"Theming widget of class: {widget_class}")
 
-        # Check if this is a scrollbar component - don't theme them
-        if hasattr(widget, "master") and self._is_custom_scrollbar(widget.master):
-            return  # Don't theme scrollbar components
+            # Check if this is a scrollbar component - don't theme them
+            if hasattr(widget, "master") and self._is_custom_scrollbar(widget.master):
+                logger.debug("Skipping scrollbar component")
+                return  # Don't theme scrollbar components
 
-        # Debug: Track which widget types we're theming
-        if not hasattr(self, "_themed_widget_types"):
-            self._themed_widget_types = set()
-        self._themed_widget_types.add(widget_class)
+            # Debug: Track which widget types we're theming
+            if not hasattr(self, "_themed_widget_types"):
+                self._themed_widget_types = set()
+            self._themed_widget_types.add(widget_class)
 
+            self._apply_widget_theme_by_class(widget, widget_class, theme)
+
+        except Exception as e:
+            logger.error(f"Failed to theme widget by type: {e}", exc_info=True)
+
+    def _apply_widget_theme_by_class(
+        self, widget: tk.Widget, widget_class: str, theme: ThemeColors
+    ) -> None:
+        """Apply theme to widget based on its class."""
         try:
             if widget_class == "Frame":
                 widget.configure(bg=theme.panel_bg)
+                logger.debug("Themed Frame widget")
 
             elif widget_class == "Label":
                 widget.configure(bg=theme.panel_bg, fg=theme.panel_text)
+                logger.debug("Themed Label widget")
 
             elif widget_class == "Button":
                 # Skip control buttons (detach/reattach) that have custom styling
@@ -622,6 +740,9 @@ class CentralThemeManager:
                         borderwidth=1,
                         highlightthickness=0,
                     )
+                    logger.debug("Themed Button widget")
+                else:
+                    logger.debug("Skipped control button")
 
             elif widget_class == "Entry":
                 widget.configure(
@@ -635,6 +756,7 @@ class CentralThemeManager:
                     highlightthickness=1,
                     highlightcolor=theme.input_focus,
                 )
+                logger.debug("Themed Entry widget")
 
             elif widget_class == "Text":
                 widget.configure(
@@ -648,6 +770,7 @@ class CentralThemeManager:
                     highlightthickness=1,
                     highlightcolor=theme.input_focus,
                 )
+                logger.debug("Themed Text widget")
 
             elif widget_class == "Listbox":
                 widget.configure(
@@ -660,6 +783,7 @@ class CentralThemeManager:
                     highlightthickness=1,
                     highlightcolor=theme.input_focus,
                 )
+                logger.debug("Themed Listbox widget")
 
             elif widget_class == "LabelFrame":
                 widget.configure(
@@ -669,6 +793,7 @@ class CentralThemeManager:
                     borderwidth=1,
                     highlightbackground=theme.border,
                 )
+                logger.debug("Themed LabelFrame widget")
 
             elif widget_class in ["Checkbutton", "Radiobutton"]:
                 widget.configure(
@@ -681,6 +806,7 @@ class CentralThemeManager:
                     borderwidth=0,
                     highlightthickness=0,
                 )
+                logger.debug(f"Themed {widget_class} widget")
 
             elif widget_class == "Scale":
                 widget.configure(
@@ -692,6 +818,7 @@ class CentralThemeManager:
                     borderwidth=0,
                     highlightthickness=0,
                 )
+                logger.debug("Themed Scale widget")
 
             elif widget_class == "Spinbox":
                 widget.configure(
@@ -703,12 +830,15 @@ class CentralThemeManager:
                     highlightthickness=1,
                     highlightcolor=theme.input_focus,
                 )
+                logger.debug("Themed Spinbox widget")
 
             elif widget_class == "Canvas":
                 widget.configure(bg=theme.panel_content_bg)
+                logger.debug("Themed Canvas widget")
 
             elif widget_class == "Message":
                 widget.configure(bg=theme.panel_bg, fg=theme.panel_text)
+                logger.debug("Themed Message widget")
 
             elif widget_class == "Menubutton":
                 widget.configure(
@@ -719,15 +849,19 @@ class CentralThemeManager:
                     relief="flat",
                     borderwidth=1,
                 )
+                logger.debug("Themed Menubutton widget")
 
             elif widget_class == "PanedWindow":
                 widget.configure(bg=theme.panel_bg)
+                logger.debug("Themed PanedWindow widget")
 
             elif widget_class == "Toplevel":
                 widget.configure(bg=theme.primary_bg)
+                logger.debug("Themed Toplevel widget")
 
             elif widget_class == "Tk":
                 widget.configure(bg=theme.primary_bg)
+                logger.debug("Themed Tk widget")
 
             elif widget_class == "Scrollbar":
                 widget.configure(
@@ -738,6 +872,7 @@ class CentralThemeManager:
                     borderwidth=0,
                     highlightthickness=0,
                 )
+                logger.debug("Themed Scrollbar widget")
 
             # Additional Tkinter widgets for complete coverage
             elif widget_class == "OptionMenu":
@@ -755,31 +890,33 @@ class CentralThemeManager:
                     try:
                         menu = widget.nametowidget(widget.menuname)
                         self.apply_menu_theme(menu)
-                    except (tk.TclError, AttributeError):
-                        pass
+                        logger.debug("Themed OptionMenu dropdown")
+                    except (tk.TclError, AttributeError) as e:
+                        logger.debug(f"Could not theme OptionMenu dropdown: {e}")
+                logger.debug("Themed OptionMenu widget")
 
             elif widget_class == "Bitmap":
                 widget.configure(bg=theme.panel_bg)
+                logger.debug("Themed Bitmap widget")
 
-            elif widget_class == "PhotoImage":
-                # PhotoImage doesn't have configurable colors
-                pass
-
-            elif widget_class == "BitmapImage":
-                # BitmapImage doesn't have configurable colors
-                pass
+            elif widget_class in ["PhotoImage", "BitmapImage"]:
+                # Image widgets don't have configurable colors
+                logger.debug(f"Skipped {widget_class} (no configurable colors)")
 
             elif widget_class == "Wm":
                 # Window manager class - configure as window
                 widget.configure(bg=theme.primary_bg)
+                logger.debug("Themed Wm widget")
 
             # Handle any other Frame-like widgets
             elif "Frame" in widget_class:
                 widget.configure(bg=theme.panel_bg)
+                logger.debug(f"Themed Frame-like widget: {widget_class}")
 
             # Handle any other Label-like widgets
             elif "Label" in widget_class:
                 widget.configure(bg=theme.panel_bg, fg=theme.panel_text)
+                logger.debug(f"Themed Label-like widget: {widget_class}")
 
             # Handle any other Button-like widgets
             elif "Button" in widget_class and not hasattr(widget, "_is_control_button"):
@@ -792,6 +929,7 @@ class CentralThemeManager:
                     borderwidth=1,
                     highlightthickness=0,
                 )
+                logger.debug(f"Themed Button-like widget: {widget_class}")
 
             # Handle any other Entry-like widgets
             elif "Entry" in widget_class:
@@ -806,6 +944,7 @@ class CentralThemeManager:
                     highlightthickness=1,
                     highlightcolor=theme.input_focus,
                 )
+                logger.debug(f"Themed Entry-like widget: {widget_class}")
 
             # Handle any other Text-like widgets
             elif "Text" in widget_class:
@@ -820,37 +959,56 @@ class CentralThemeManager:
                     highlightthickness=1,
                     highlightcolor=theme.input_focus,
                 )
+                logger.debug(f"Themed Text-like widget: {widget_class}")
 
             # Handle TTK widgets
             elif widget_class.startswith("T"):
                 self._theme_ttk_widget(widget, theme)
+                logger.debug(f"Themed TTK widget: {widget_class}")
 
             # Handle custom widgets
             elif self._is_custom_scrollbar(widget):
                 self._theme_custom_scrollbar(widget, theme)
+                logger.debug("Themed custom scrollbar")
             elif self._is_scrollbar_component(widget):
                 # Skip theming scrollbar components - they're handled by the scrollbar itself
-                pass
+                logger.debug("Skipped scrollbar component")
+            else:
+                logger.debug(f"Unknown widget class: {widget_class}")
 
-        except tk.TclError:
+        except tk.TclError as e:
             # Some widgets might not support certain options, ignore
-            pass
+            logger.debug(f"TclError while theming {widget_class}: {e}")
+        except Exception as e:
+            logger.error(f"Error theming {widget_class}: {e}", exc_info=True)
 
     def _theme_ttk_widget(self, widget: tk.Widget, theme: ThemeColors) -> None:
         """Apply theme to TTK widgets using TTK styling."""
-        if not self._ttk_style:
-            self._ttk_style = ttk.Style()
+        try:
+            if not self._ttk_style:
+                self._ttk_style = ttk.Style()
+                logger.debug("Initialized TTK Style")
 
-        widget_class = widget.winfo_class()
+            widget_class = widget.winfo_class()
+            logger.debug(f"Theming TTK widget: {widget_class}")
 
+            self._apply_ttk_theme_by_class(widget_class, theme)
+
+        except Exception as e:
+            logger.error(f"Failed to theme TTK widget: {e}", exc_info=True)
+
+    def _apply_ttk_theme_by_class(self, widget_class: str, theme: ThemeColors) -> None:
+        """Apply TTK theme based on widget class."""
         try:
             if widget_class == "TFrame":
                 self._ttk_style.configure("TFrame", background=theme.panel_bg)
+                logger.debug("Themed TFrame")
 
             elif widget_class == "TLabel":
                 self._ttk_style.configure(
                     "TLabel", background=theme.panel_bg, foreground=theme.panel_text
                 )
+                logger.debug("Themed TLabel")
 
             elif widget_class == "TButton":
                 self._ttk_style.configure(
@@ -865,6 +1023,7 @@ class CentralThemeManager:
                     background=[("active", theme.button_hover)],
                     foreground=[("active", theme.button_text)],
                 )
+                logger.debug("Themed TButton")
 
             elif widget_class == "TEntry":
                 self._ttk_style.configure(
@@ -875,6 +1034,7 @@ class CentralThemeManager:
                     relief="solid",
                 )
                 self._ttk_style.map("TEntry", focuscolor=[("focus", theme.input_focus)])
+                logger.debug("Themed TEntry")
 
             elif widget_class == "TCombobox":
                 self._ttk_style.configure(
@@ -884,6 +1044,7 @@ class CentralThemeManager:
                     borderwidth=1,
                     relief="solid",
                 )
+                logger.debug("Themed TCombobox")
 
             elif widget_class == "TCheckbutton":
                 self._ttk_style.configure(
@@ -891,6 +1052,7 @@ class CentralThemeManager:
                     background=theme.panel_bg,
                     foreground=theme.panel_text,
                 )
+                logger.debug("Themed TCheckbutton")
 
             elif widget_class == "TRadiobutton":
                 self._ttk_style.configure(
@@ -898,11 +1060,13 @@ class CentralThemeManager:
                     background=theme.panel_bg,
                     foreground=theme.panel_text,
                 )
+                logger.debug("Themed TRadiobutton")
 
             elif widget_class == "TScale":
                 self._ttk_style.configure(
                     "TScale", background=theme.panel_bg, troughcolor=theme.input_bg
                 )
+                logger.debug("Themed TScale")
 
             elif widget_class == "TProgressbar":
                 self._ttk_style.configure(
@@ -912,6 +1076,7 @@ class CentralThemeManager:
                     borderwidth=1,
                     relief="solid",
                 )
+                logger.debug("Themed TProgressbar")
 
             elif widget_class == "TScrollbar":
                 self._ttk_style.configure(
@@ -924,6 +1089,7 @@ class CentralThemeManager:
                 self._ttk_style.map(
                     "TScrollbar", background=[("active", theme.accent_bg)]
                 )
+                logger.debug("Themed TScrollbar")
 
             elif widget_class == "TNotebook":
                 self._ttk_style.configure(
@@ -943,6 +1109,7 @@ class CentralThemeManager:
                     background=[("selected", theme.panel_bg)],
                     foreground=[("selected", theme.panel_text)],
                 )
+                logger.debug("Themed TNotebook")
 
             elif widget_class == "TLabelFrame":
                 self._ttk_style.configure(
@@ -952,13 +1119,19 @@ class CentralThemeManager:
                     borderwidth=1,
                     relief="solid",
                 )
+                logger.debug("Themed TLabelFrame")
 
             elif widget_class == "TPanedwindow":
                 self._ttk_style.configure("TPanedwindow", background=theme.panel_bg)
+                logger.debug("Themed TPanedwindow")
+            else:
+                logger.debug(f"Unknown TTK widget class: {widget_class}")
 
-        except tk.TclError:
+        except tk.TclError as e:
             # Some TTK widgets might not support certain options, ignore
-            pass
+            logger.debug(f"TclError while theming TTK {widget_class}: {e}")
+        except Exception as e:
+            logger.error(f"Error theming TTK {widget_class}: {e}", exc_info=True)
 
     def _theme_custom_scrollbar(self, scrollbar, theme: ThemeColors) -> None:
         """Apply theme to custom ThemedScrollbar widgets using their built-in theming."""
@@ -971,9 +1144,12 @@ class CentralThemeManager:
             # Use the scrollbar's own apply_theme method, just like themes.py does
             # The theme parameter is already a ThemeColors object, which is what apply_theme expects
             scrollbar.apply_theme(theme)
-        except (tk.TclError, AttributeError):
+            logger.debug("Themed custom scrollbar using built-in method")
+        except (tk.TclError, AttributeError) as e:
             # Some custom scrollbar attributes might not exist, ignore
-            pass
+            logger.debug(f"Custom scrollbar theming failed: {e}")
+        except Exception as e:
+            logger.error(f"Error theming custom scrollbar: {e}", exc_info=True)
 
     def _is_custom_scrollbar(self, widget) -> bool:
         """Check if a widget is a custom scrollbar."""
@@ -1011,9 +1187,9 @@ class CentralThemeManager:
     def print_themed_widget_report(self) -> None:
         """Print a report of all widget types that have been themed."""
         themed_types = self.get_themed_widget_types()
-        print(f"🎨 Themed Widget Types Report ({len(themed_types)} types):")
+        logger.info(f"🎨 Themed Widget Types Report ({len(themed_types)} types):")
         for widget_type in sorted(themed_types):
-            print(f"   ✅ {widget_type}")
+            logger.info(f"   ✅ {widget_type}")
 
     def should_use_custom_scrollbars(self) -> bool:
         """
@@ -1109,9 +1285,9 @@ class CentralThemeManager:
             except:
                 pass
 
-            print(f"✓ Menu themed: {menu}")
+            logger.info(f"✓ Menu themed: {menu}")
         except tk.TclError as e:
-            print(f"✗ Failed to theme menu {menu}: {e}")
+            logger.error(f"✗ Failed to theme menu {menu}: {e}")
 
     def apply_menubar_theme(self, menubar: tk.Menu, root_window: tk.Tk) -> None:
         """Apply theme specifically to the main menubar."""
@@ -1141,9 +1317,9 @@ class CentralThemeManager:
             menubar.update_idletasks()
             root_window.update_idletasks()
 
-            print(f"✓ Menubar themed with platform-specific handling")
+            logger.info(f"✓ Menubar themed with platform-specific handling")
         except tk.TclError as e:
-            print(f"✗ Failed to theme menubar: {e}")
+            logger.error(f"✗ Failed to theme menubar: {e}")
 
     def _apply_windows_menubar_theme(
         self, menubar: tk.Menu, root_window: tk.Tk, theme: ThemeColors
@@ -1192,9 +1368,9 @@ class CentralThemeManager:
                         menuinfo.hbrBack = brush
                         user32.SetMenuInfo(hmenu, ctypes.byref(menuinfo))
 
-                    print("✓ Windows dark menubar applied")
+                    logger.info("✓ Windows dark menubar applied")
                 except Exception as e:
-                    print(f"✗ Windows dark menubar failed: {e}")
+                    logger.error(f"✗ Windows dark menubar failed: {e}")
             else:
                 # Light theme
                 try:
@@ -1206,12 +1382,12 @@ class CentralThemeManager:
                         ctypes.byref(value),
                         ctypes.sizeof(value),
                     )
-                    print("✓ Windows light menubar applied")
+                    logger.info("✓ Windows light menubar applied")
                 except Exception as e:
-                    print(f"✗ Windows light menubar failed: {e}")
+                    logger.error(f"✗ Windows light menubar failed: {e}")
 
         except Exception as e:
-            print(f"✗ Windows menubar theming failed: {e}")
+            logger.error(f"✗ Windows menubar theming failed: {e}")
 
     def _apply_macos_menubar_theme(
         self, menubar: tk.Menu, root_window: tk.Tk, theme: ThemeColors
@@ -1227,7 +1403,7 @@ class CentralThemeManager:
                     "document",
                     "closeBox collapseBox resizable",
                 )
-                print("✓ macOS dark menubar style applied")
+                logger.info("✓ macOS dark menubar style applied")
             else:
                 root_window.tk.call(
                     "::tk::unsupported::MacWindowStyle",
@@ -1236,9 +1412,9 @@ class CentralThemeManager:
                     "document",
                     "closeBox collapseBox resizable",
                 )
-                print("✓ macOS light menubar style applied")
+                logger.info("✓ macOS light menubar style applied")
         except Exception as e:
-            print(f"✗ macOS menubar theming failed: {e}")
+            logger.error(f"✗ macOS menubar theming failed: {e}")
 
     def _apply_linux_menubar_theme(
         self, menubar: tk.Menu, root_window: tk.Tk, theme: ThemeColors
@@ -1248,12 +1424,12 @@ class CentralThemeManager:
             # Linux menubar theming through window manager
             if self._is_dark_color(theme.menu_bg):
                 root_window.wm_attributes("-type", "normal")
-                print("✓ Linux dark menubar applied")
+                logger.info("✓ Linux dark menubar applied")
             else:
                 root_window.wm_attributes("-type", "normal")
-                print("✓ Linux light menubar applied")
+                logger.info("✓ Linux light menubar applied")
         except Exception as e:
-            print(f"✗ Linux menubar theming failed: {e}")
+            logger.error(f"✗ Linux menubar theming failed: {e}")
 
     def apply_window_theme(self, window: tk.Tk) -> None:
         """Apply theme to window including titlebar and frame."""
@@ -1270,18 +1446,18 @@ class CentralThemeManager:
                         window, theme
                     )
                     if success:
-                        print(f"✓ Platform-specific titlebar applied")
+                        logger.info(f"✓ Platform-specific titlebar applied")
                     else:
-                        print(f"✗ Platform-specific titlebar failed")
+                        logger.error(f"✗ Platform-specific titlebar failed")
                 except Exception as e:
-                    print(f"✗ Platform titlebar error: {e}")
+                    logger.error(f"✗ Platform titlebar error: {e}")
 
             # Apply additional comprehensive window theming
             self._apply_comprehensive_window_theme(window, theme)
 
-            print(f"✓ Window themed: {window}")
+            logger.info(f"✓ Window themed: {window}")
         except tk.TclError as e:
-            print(f"✗ Failed to theme window {window}: {e}")
+            logger.error(f"✗ Failed to theme window {window}: {e}")
 
     def _apply_comprehensive_window_theme(
         self, window: tk.Tk, theme: ThemeColors
@@ -1295,7 +1471,7 @@ class CentralThemeManager:
             elif platform.system() == "Linux":
                 self._apply_linux_comprehensive_theme(window, theme)
         except Exception as e:
-            print(f"✗ Comprehensive window theming failed: {e}")
+            logger.error(f"✗ Comprehensive window theming failed: {e}")
 
     def _apply_windows_comprehensive_theme(
         self, window: tk.Tk, theme: ThemeColors
@@ -1322,14 +1498,16 @@ class CentralThemeManager:
                 )
 
                 if result == 0:  # S_OK
-                    print(
+                    logger.info(
                         f"✓ Windows {'dark' if is_dark else 'light'} mode applied to window"
                     )
                 else:
-                    print(f"✗ Windows theme application failed with code: {result}")
+                    logger.error(
+                        f"✗ Windows theme application failed with code: {result}"
+                    )
 
             except Exception as e:
-                print(f"✗ Windows DWM theming failed: {e}")
+                logger.error(f"✗ Windows DWM theming failed: {e}")
 
             # Try to apply window frame colors
             try:
@@ -1347,10 +1525,10 @@ class CentralThemeManager:
                     ctypes.byref(border_value),
                     ctypes.sizeof(border_value),
                 )
-                print(f"✓ Windows border color set")
+                logger.info(f"✓ Windows border color set")
 
             except Exception as e:
-                print(f"✗ Windows border color failed: {e}")
+                logger.error(f"✗ Windows border color failed: {e}")
 
             # Try to set caption color (Windows 11)
             try:
@@ -1367,10 +1545,10 @@ class CentralThemeManager:
                     ctypes.byref(caption_value),
                     ctypes.sizeof(caption_value),
                 )
-                print(f"✓ Windows caption color set")
+                logger.info(f"✓ Windows caption color set")
 
             except Exception as e:
-                print(f"✗ Windows caption color failed: {e}")
+                logger.error(f"✗ Windows caption color failed: {e}")
 
             # Force window to redraw
             try:
@@ -1378,12 +1556,12 @@ class CentralThemeManager:
                 user32.RedrawWindow(
                     hwnd, None, None, 0x0001 | 0x0004
                 )  # RDW_INVALIDATE | RDW_UPDATENOW
-                print("✓ Windows forced redraw")
+                logger.info("✓ Windows forced redraw")
             except Exception as e:
-                print(f"✗ Windows redraw failed: {e}")
+                logger.error(f"✗ Windows redraw failed: {e}")
 
         except Exception as e:
-            print(f"✗ Windows comprehensive theming failed: {e}")
+            logger.error(f"✗ Windows comprehensive theming failed: {e}")
 
     def _apply_macos_comprehensive_theme(
         self, window: tk.Tk, theme: ThemeColors
@@ -1409,9 +1587,9 @@ class CentralThemeManager:
                         window._w,
                         "darkAqua",
                     )
-                    print("✓ macOS dark appearance set")
+                    logger.info("✓ macOS dark appearance set")
                 except:
-                    print("✗ macOS dark appearance failed")
+                    logger.error("✗ macOS dark appearance failed")
             else:
                 window.tk.call(
                     "::tk::unsupported::MacWindowStyle",
@@ -1427,12 +1605,12 @@ class CentralThemeManager:
                         window._w,
                         "aqua",
                     )
-                    print("✓ macOS light appearance set")
+                    logger.info("✓ macOS light appearance set")
                 except:
-                    print("✗ macOS light appearance failed")
+                    logger.error("✗ macOS light appearance failed")
 
         except Exception as e:
-            print(f"✗ macOS comprehensive theming failed: {e}")
+            logger.error(f"✗ macOS comprehensive theming failed: {e}")
 
     def _apply_linux_comprehensive_theme(
         self, window: tk.Tk, theme: ThemeColors
@@ -1447,19 +1625,19 @@ class CentralThemeManager:
                 # Try to set dark theme hint
                 try:
                     window.tk.call("wm", "attributes", window._w, "-class", "dark")
-                    print("✓ Linux dark theme hint set")
+                    logger.info("✓ Linux dark theme hint set")
                 except:
-                    print("✗ Linux dark theme hint failed")
+                    logger.error("✗ Linux dark theme hint failed")
             else:
                 window.wm_attributes("-type", "normal")
                 try:
                     window.tk.call("wm", "attributes", window._w, "-class", "light")
-                    print("✓ Linux light theme hint set")
+                    logger.info("✓ Linux light theme hint set")
                 except:
-                    print("✗ Linux light theme hint failed")
+                    logger.error("✗ Linux light theme hint failed")
 
         except Exception as e:
-            print(f"✗ Linux comprehensive theming failed: {e}")
+            logger.error(f"✗ Linux comprehensive theming failed: {e}")
 
     def _apply_titlebar_theme(self, window: tk.Tk, theme: ThemeColors) -> None:
         """Apply titlebar theming based on platform."""
@@ -1471,7 +1649,7 @@ class CentralThemeManager:
             elif platform.system() == "Linux":
                 self._apply_linux_titlebar_theme(window, theme)
         except Exception as e:
-            print(f"✗ Titlebar theming failed: {e}")
+            logger.error(f"✗ Titlebar theming failed: {e}")
 
     def _apply_windows_titlebar_theme(self, window: tk.Tk, theme: ThemeColors) -> None:
         """Apply Windows-specific titlebar theming."""
@@ -1498,7 +1676,7 @@ class CentralThemeManager:
                             ctypes.byref(value),
                             ctypes.sizeof(value),
                         )
-                        print("✓ Windows dark titlebar enabled")
+                        logger.info("✓ Windows dark titlebar enabled")
                     except:
                         # Fallback: just set window background
                         pass
@@ -1517,11 +1695,11 @@ class CentralThemeManager:
                             ctypes.byref(value),
                             ctypes.sizeof(value),
                         )
-                        print("✓ Windows light titlebar enabled")
+                        logger.info("✓ Windows light titlebar enabled")
                     except:
                         pass
         except Exception as e:
-            print(f"✗ Windows titlebar theming failed: {e}")
+            logger.error(f"✗ Windows titlebar theming failed: {e}")
 
     def _apply_macos_titlebar_theme(self, window: tk.Tk, theme: ThemeColors) -> None:
         """Apply macOS-specific titlebar theming."""
@@ -1536,7 +1714,7 @@ class CentralThemeManager:
                     "document",
                     "closeBox collapseBox resizable",
                 )
-                print("✓ macOS dark titlebar style applied")
+                logger.info("✓ macOS dark titlebar style applied")
             else:
                 # Light appearance
                 window.tk.call(
@@ -1546,9 +1724,9 @@ class CentralThemeManager:
                     "document",
                     "closeBox collapseBox resizable",
                 )
-                print("✓ macOS light titlebar style applied")
+                logger.info("✓ macOS light titlebar style applied")
         except Exception as e:
-            print(f"✗ macOS titlebar theming failed: {e}")
+            logger.error(f"✗ macOS titlebar theming failed: {e}")
 
     def _apply_linux_titlebar_theme(self, window: tk.Tk, theme: ThemeColors) -> None:
         """Apply Linux-specific titlebar theming."""
@@ -1556,12 +1734,12 @@ class CentralThemeManager:
             # Linux window manager hints
             if self._is_dark_color(theme.primary_bg):
                 window.wm_attributes("-type", "normal")
-                print("✓ Linux dark window hints applied")
+                logger.info("✓ Linux dark window hints applied")
             else:
                 window.wm_attributes("-type", "normal")
-                print("✓ Linux light window hints applied")
+                logger.info("✓ Linux light window hints applied")
         except Exception as e:
-            print(f"✗ Linux titlebar theming failed: {e}")
+            logger.error(f"✗ Linux titlebar theming failed: {e}")
 
     def _is_dark_color(self, color: str) -> bool:
         """Check if a color is dark."""
@@ -1676,7 +1854,7 @@ class CentralThemeManager:
             borderwidth=1,
         )
 
-        print("✓ TTK theme applied")
+        logger.info("✓ TTK theme applied")
 
     def create_themed_menu(self, parent: tk.Widget, **kwargs) -> tk.Menu:
         """Create a new menu with theme applied and proper border handling."""
@@ -1713,7 +1891,7 @@ class CentralThemeManager:
             menubar: The main menubar (optional)
             menus: List of individual menus to theme (optional)
         """
-        print(f"🎨 Applying comprehensive {self.current_theme.value} theme...")
+        logger.info(f"🎨 Applying comprehensive {self.current_theme.value} theme...")
 
         # 1. Apply TTK theme first
         self.apply_ttk_theme()
@@ -1724,7 +1902,7 @@ class CentralThemeManager:
         # 3. Apply menubar theme with platform-specific handling
         if menubar:
             self.apply_menubar_theme(menubar, root_window)
-            print(f"✓ Menubar themed with platform-specific handling")
+            logger.info(f"✓ Menubar themed with platform-specific handling")
 
         # 4. Apply theme to all widgets recursively
         self.apply_theme_to_widget(root_window, recursive=True)
@@ -1734,7 +1912,7 @@ class CentralThemeManager:
             for menu in menus:
                 if menu:
                     self.apply_menu_theme(menu)
-            print(f"✓ {len([m for m in menus if m])} individual menus themed")
+            logger.info(f"✓ {len([m for m in menus if m])} individual menus themed")
 
         # 6. Force multiple display updates for proper rendering
         root_window.update_idletasks()
@@ -1749,11 +1927,11 @@ class CentralThemeManager:
                 hwnd = root_window.winfo_id()
                 ctypes.windll.user32.InvalidateRect(hwnd, None, True)
                 ctypes.windll.user32.UpdateWindow(hwnd)
-                print("✓ Windows display refresh forced")
+                logger.info("✓ Windows display refresh forced")
             except:
                 pass
 
-        print(
+        logger.info(
             f"✅ Comprehensive {self.current_theme.value} theme applied successfully!"
         )
 
