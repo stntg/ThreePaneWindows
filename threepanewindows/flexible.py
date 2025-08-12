@@ -186,9 +186,12 @@ class FlexDetachedWindow(tk.Toplevel):
                 # Consider using attributes instead
                 try:
                     self.attributes("-titlebar", False)
-                except tk.TclError:
+                except tk.TclError as e:
                     # Fall back to overrideredirect if attributes not supported
-                    pass
+                    logger.debug(
+                        f"macOS titlebar attribute not supported: {e}. Using overrideredirect fallback."
+                    )
+                    # The overrideredirect(True) call in _setup_window will handle this
 
         elif system == "Linux":
             # Linux-specific adjustments
@@ -197,8 +200,10 @@ class FlexDetachedWindow(tk.Toplevel):
                 try:
                     # Try to set window type hint for better behavior
                     self.attributes("-type", "dialog")
-                except tk.TclError:
-                    pass
+                except tk.TclError as e:
+                    logger.debug(
+                        f"Linux window type attribute not supported: {e}. Continuing with default behavior."
+                    )
 
         elif system == "Windows":
             # Windows-specific adjustments are now handled in _setup_window
@@ -321,9 +326,9 @@ class FlexDetachedWindow(tk.Toplevel):
 
             # Rebuild the UI with new theme
             self._setup_ui()
-        except tk.TclError:
+        except tk.TclError as e:
             # Widget has been destroyed, ignore
-            pass
+            logger.debug(f"Widget destroyed during theme refresh: {e}")
 
     def _setup_ui(self):
         """Set up the UI."""
@@ -469,9 +474,9 @@ class FlexDetachedWindow(tk.Toplevel):
                 else:
                     # Recursively theme non-scrollbar children
                     self._apply_theme_skip_scrollbars(child)
-        except tk.TclError:
+        except tk.TclError as e:
             # Widget might be destroyed, ignore
-            pass
+            logger.debug(f"Widget destroyed during theme application: {e}")
 
     def _is_custom_scrollbar(self, widget):
         """Check if a widget is a custom scrollbar."""
@@ -703,8 +708,9 @@ class EnhancedFlexibleLayout(tk.Frame):
                 parent.grid_columnconfigure(i, weight=0)
             for i in range(rows):
                 parent.grid_rowconfigure(i, weight=0)
-        except Exception:  # noqa: B110
-            pass
+        except (tk.TclError, AttributeError) as e:
+            # Widget might not support grid or might be destroyed
+            logger.debug(f"Failed to clear grid weights for {parent}: {e}")
 
     def _create_control_button(
         self, parent, text: str, command, tooltip: str = ""
@@ -758,9 +764,9 @@ class EnhancedFlexibleLayout(tk.Frame):
 
             # Rebuild attached panes to refresh theming
             self._rebuild_attached_panes()
-        except Exception:  # noqa: B110
-            # If refresh fails, continue silently
-            pass
+        except (tk.TclError, AttributeError) as e:
+            # If refresh fails, continue silently but log the issue
+            logger.warning(f"Failed to refresh theme: {e}")
 
     def _rebuild_attached_panes(self):
         """Rebuild attached panes to refresh their theming."""
@@ -779,9 +785,9 @@ class EnhancedFlexibleLayout(tk.Frame):
 
                 # Rebuild layout
                 self._build_layout()
-        except Exception:  # noqa: B110
-            # If rebuild fails, continue silently
-            pass
+        except (tk.TclError, AttributeError, KeyError) as e:
+            # If rebuild fails, continue silently but log the issue
+            logger.warning(f"Failed to rebuild attached panes: {e}")
 
     def _create_pane_widget(self, parent: tk.Widget, pane: FlexPaneConfig) -> tk.Frame:
         """Create a widget for a pane with professional styling."""

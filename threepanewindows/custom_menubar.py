@@ -11,6 +11,10 @@ from dataclasses import dataclass
 from tkinter import ttk
 from typing import Any, Callable, Dict, List, Optional, Union
 
+from .logging_config import get_logger
+
+logger = get_logger(__name__)
+
 
 @dataclass
 class MenuItem:
@@ -117,8 +121,10 @@ class CustomMenubar(tk.Frame):
             # Highlight the active button
             self._highlight_active_button(button)
 
-        except tk.TclError:
-            pass
+        except tk.TclError as e:
+            logger.debug(f"TclError in _show_menu: {e}")
+            # Menu creation or display failed, but this is not critical
+            # The UI will continue to function without this menu
 
     def _build_menu_items(self, menu: tk.Menu, items: List[MenuItem]) -> None:
         """Recursively build menu items including submenus."""
@@ -241,14 +247,17 @@ class CustomMenubar(tk.Frame):
                     try:
                         menu.configure(highlightbackground=theme.menu_bg)
                         menu.configure(highlightcolor=theme.menu_bg)
-                    except tk.TclError:
-                        pass
+                    except tk.TclError as e:
+                        logger.debug(f"TclError setting menu highlight colors: {e}")
+                        # Highlight color setting failed, but menu will still work
 
-            except (tk.TclError, AttributeError):
-                pass
+            except (tk.TclError, AttributeError) as e:
+                logger.debug(f"Error in additional menu theming: {e}")
+                # Additional theming failed, but basic theming should still work
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Unexpected error in _apply_menu_theme: {e}")
+            # Menu theming failed completely, but menu should still be functional
 
     def _apply_menu_theme_recursive(self, menu: tk.Menu) -> None:
         """Apply theme to a menu and all its submenus recursively."""
@@ -270,11 +279,13 @@ class CustomMenubar(tk.Frame):
                                 self._apply_menu_theme_recursive(
                                     submenu
                                 )  # Recursive call
-                    except (tk.TclError, AttributeError):
+                    except (tk.TclError, AttributeError) as e:
+                        logger.debug(f"Error processing menu item {i}: {e}")
                         # Skip items that can't be processed
                         continue
 
         except Exception as e:
+            logger.warning(f"Error in recursive menu theming: {e}")
             # Fallback to basic theming if recursive fails
             self._apply_menu_theme(menu)
 
@@ -301,8 +312,9 @@ class CustomMenubar(tk.Frame):
             if self.active_menu:
                 self._apply_menu_theme_recursive(self.active_menu)
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Error applying theme to menubar: {e}")
+            # Theme application failed, but menubar should still be functional
 
     def get_menu_height(self) -> int:
         """Get the height of the menubar."""
@@ -318,8 +330,9 @@ class CustomMenubar(tk.Frame):
             # Also re-theme the menubar itself
             self.apply_theme()
 
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Error in force_menu_retheme: {e}")
+            # Re-theming failed, but menubar should still be functional
 
 
 class ThemedMenubarMixin:
