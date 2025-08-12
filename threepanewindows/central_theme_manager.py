@@ -17,6 +17,7 @@ Features:
 
 import os
 import platform
+import shutil
 import sys
 import tkinter as tk
 from dataclasses import dataclass
@@ -467,8 +468,14 @@ class CentralThemeManager:
                 try:
                     import subprocess
 
+                    # Find the full path to defaults command
+                    defaults_path = shutil.which("defaults")
+                    if not defaults_path:
+                        logger.warning("defaults command not found in PATH")
+                        return False
+
                     result = subprocess.run(
-                        ["defaults", "read", "-g", "AppleInterfaceStyle"],
+                        [defaults_path, "read", "-g", "AppleInterfaceStyle"],
                         capture_output=True,
                         text=True,
                     )
@@ -483,10 +490,16 @@ class CentralThemeManager:
                 try:
                     import subprocess
 
+                    # Find the full path to gsettings command
+                    gsettings_path = shutil.which("gsettings")
+                    if not gsettings_path:
+                        logger.warning("gsettings command not found in PATH")
+                        return False
+
                     # Try to detect GNOME theme
                     result = subprocess.run(
                         [
-                            "gsettings",
+                            gsettings_path,
                             "get",
                             "org.gnome.desktop.interface",
                             "gtk-theme",
@@ -1282,8 +1295,8 @@ class CentralThemeManager:
             # Force menu to update its appearance
             try:
                 menu.update_idletasks()
-            except:
-                pass
+            except Exception as e:
+                logger.debug(f"Menu update_idletasks failed: {e}")
 
             logger.info(f"✓ Menu themed: {menu}")
         except tk.TclError as e:
@@ -1588,8 +1601,8 @@ class CentralThemeManager:
                         "darkAqua",
                     )
                     logger.info("✓ macOS dark appearance set")
-                except:
-                    logger.error("✗ macOS dark appearance failed")
+                except Exception as e:
+                    logger.error(f"✗ macOS dark appearance failed: {e}")
             else:
                 window.tk.call(
                     "::tk::unsupported::MacWindowStyle",
@@ -1606,8 +1619,8 @@ class CentralThemeManager:
                         "aqua",
                     )
                     logger.info("✓ macOS light appearance set")
-                except:
-                    logger.error("✗ macOS light appearance failed")
+                except Exception as e:
+                    logger.error(f"✗ macOS light appearance failed: {e}")
 
         except Exception as e:
             logger.error(f"✗ macOS comprehensive theming failed: {e}")
@@ -1626,15 +1639,15 @@ class CentralThemeManager:
                 try:
                     window.tk.call("wm", "attributes", window._w, "-class", "dark")
                     logger.info("✓ Linux dark theme hint set")
-                except:
-                    logger.error("✗ Linux dark theme hint failed")
+                except Exception as e:
+                    logger.error(f"✗ Linux dark theme hint failed: {e}")
             else:
                 window.wm_attributes("-type", "normal")
                 try:
                     window.tk.call("wm", "attributes", window._w, "-class", "light")
                     logger.info("✓ Linux light theme hint set")
-                except:
-                    logger.error("✗ Linux light theme hint failed")
+                except Exception as e:
+                    logger.error(f"✗ Linux light theme hint failed: {e}")
 
         except Exception as e:
             logger.error(f"✗ Linux comprehensive theming failed: {e}")
@@ -1677,9 +1690,9 @@ class CentralThemeManager:
                             ctypes.sizeof(value),
                         )
                         logger.info("✓ Windows dark titlebar enabled")
-                    except:
+                    except Exception as e:
                         # Fallback: just set window background
-                        pass
+                        logger.debug(f"Windows dark titlebar failed: {e}")
                 else:
                     try:
                         # Light titlebar
@@ -1696,8 +1709,8 @@ class CentralThemeManager:
                             ctypes.sizeof(value),
                         )
                         logger.info("✓ Windows light titlebar enabled")
-                    except:
-                        pass
+                    except Exception as e:
+                        logger.debug(f"Windows light titlebar failed: {e}")
         except Exception as e:
             logger.error(f"✗ Windows titlebar theming failed: {e}")
 
@@ -1754,8 +1767,8 @@ class CentralThemeManager:
                     # Calculate luminance
                     luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
                     return luminance < 0.5
-        except:
-            pass
+        except Exception as e:
+            logger.debug(f"Color darkness detection failed for {color}: {e}")
         return False
 
     def apply_ttk_theme(self, style: Optional[ttk.Style] = None) -> None:
@@ -1928,8 +1941,8 @@ class CentralThemeManager:
                 ctypes.windll.user32.InvalidateRect(hwnd, None, True)
                 ctypes.windll.user32.UpdateWindow(hwnd)
                 logger.info("✓ Windows display refresh forced")
-            except:
-                pass
+            except Exception as e:
+                logger.debug(f"Windows display refresh failed: {e}")
 
         logger.info(
             f"✅ Comprehensive {self.current_theme.value} theme applied successfully!"
