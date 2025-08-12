@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Visual Demo: Using Typography, Spacing, and Central Theme Manager Together
+Visual Demo: Using Typography, Spacing, and Central Theme Manager Together.
 
 This demo shows how all three modules can work together independently:
 - Typography module for font management
@@ -11,21 +11,17 @@ Each module operates independently but they complement each other perfectly.
 """
 
 import tkinter as tk
-from tkinter import ttk
 
-from threepanewindows.central_theme_manager import CentralThemeManager, ThemeType
-from threepanewindows.spacing import Spacing, SpacingManager, get_spacing_manager
-from threepanewindows.typography import (
-    Typography,
-    TypographyManager,
-    get_typography_manager,
-)
+from threepanewindows.central_theme_manager import CentralThemeManager
+from threepanewindows.spacing import Spacing, SpacingManager
+from threepanewindows.typography import Typography, TypographyManager
 
 
 class CombinedModulesDemo:
     """Demo application showing all three modules working together."""
 
     def __init__(self):
+        """Initialize the combined modules demo application."""
         self.root = tk.Tk()
         self.root.title("Typography + Spacing + Central Theme Manager Demo")
         self.root.geometry("800x600")
@@ -41,7 +37,6 @@ class CombinedModulesDemo:
 
     def setup_modules(self):
         """Set up all three modules independently."""
-
         # 1. Typography Module - Custom font configuration
         self.custom_typography = Typography(
             font_family="Segoe UI",
@@ -70,7 +65,6 @@ class CombinedModulesDemo:
 
     def create_ui(self):
         """Create the user interface using all three modules."""
-
         # Main container with spacing
         main_frame = tk.Frame(self.root)
         main_frame.pack(
@@ -424,7 +418,7 @@ class CombinedModulesDemo:
             # Calculate luminance
             luminance = 0.299 * r + 0.587 * g + 0.114 * b
             return luminance < 128
-        except:
+        except (ValueError, IndexError):
             return False
 
     def run(self):
