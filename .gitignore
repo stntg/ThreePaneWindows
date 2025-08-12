@@ -156,18 +156,16 @@ dmypy.json
 cython_debug/
 
 # PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be added to the global gitignore or merged into this project gitignore.  For a PyCharm
-#  project, it is recommended to ignore the whole .idea directory.
 .idea/
 
 # VS Code
 .vscode/
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
+#!.vscode/settings.json
+#!.vscode/tasks.json
+#!.vscode/launch.json
+#!.vscode/extensions.json
+#!.vscode/*.code-snippets
+ThreePaneWindows.code-workspace
 
 # Local History for Visual Studio Code
 .history/
@@ -208,38 +206,22 @@ release/
 dev_files/
 
 # Individual development and testing files (in case they're not moved)
-debug_demo.py
-example_cross_platform_theming.py
 .github/README.md
 
 # Legacy/deprecated files
 
 # Development summaries and research
 research.md
-dev/SUMMARY_*.md
 
 # Monitoring scripts
 monitor_workflows.ps1
 monitor_workflows.py
 
-# Development tools
-dev_tools.py
-run_tests.py
-
 # Local test files (keep these local-only)
 tests/test_runner.py
-tests/pytest_local.ini
-tests/pytest_robust.ini
+tests/pytest_*.ini
 tests/LOCAL_TESTING_README.md
 tests/test_local_examples.py
-
-
-# Enhanced coverage tests (include in remote repo)
-# The following files have been REMOVED from gitignore to include in repo:
-# - tests/test_enhanced_coverage.py (new comprehensive coverage tests)
-#
-# Note: Other test files may be enhanced versions of existing tests
-# and should be reviewed before including in remote repo
 
 # Local test scripts
 run_local_tests.bat
@@ -248,8 +230,6 @@ run_local_tests.sh
 # Local test documentation (keep local-only)
 LOCAL_TEST_SUITE_SUMMARY.md
 LOCAL_TEST_GITIGNORE.txt
-TESTING_EXAMPLES_FIX.md
-TEST_FIXES_SUMMARY.md
 
 # Enhanced test documentation (include in remote repo)
 # The following files have been REMOVED from gitignore to include in repo:
@@ -283,4 +263,3 @@ desktop.ini
 # (These should only exist in threepanewindows/ directory)
 /__init__.py
 /_version.py
-ThreePaneWindows.code-workspace

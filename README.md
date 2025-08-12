@@ -359,7 +359,8 @@ root.mainloop()
 
 ## Advanced Theming System (NEW!)
 
-ThreePaneWindows now includes a powerful central theme manager that provides consistent theming across all components:
+ThreePaneWindows now includes a powerful central theme manager that provides
+consistent theming across all components:
 
 ### Central Theme Manager
 
@@ -475,7 +476,8 @@ logger.setLevel(logging.INFO)
 
 ## Development Logging
 
-For developers working on the ThreePaneWindows library, comprehensive development logging tools are available:
+For developers working on the ThreePaneWindows library, comprehensive
+development logging tools are available:
 
 ### Quick Development Setup
 
@@ -489,7 +491,8 @@ import setup_dev_logging  # Enables logging automatically
 
 ### Development Tools
 
-- **`dev_logger.py`** - Full-featured development logger with examples and interactive mode
+- **`dev_logger.py`** - Full-featured development logger with examples
+  and interactive mode
 - **`setup_dev_logging.py`** - Quick import-and-go logging setup
 - **`example_with_logging.py`** - Complete example showing logging in action
 - **`start_dev_logging.bat`** - Windows batch file for easy access
