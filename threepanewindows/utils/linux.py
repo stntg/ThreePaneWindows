@@ -95,34 +95,246 @@ class LinuxPlatformHandler(PlatformHandler):
 
     def apply_custom_titlebar(self, window: tk.Tk, theme_colors: Any) -> bool:
         """Apply Linux-specific titlebar customization."""
-        # On Linux, we generally don't customize the titlebar as extensively
-        # as on Windows or macOS, since window managers handle this
-        # However, we can still apply some basic theming
         try:
-            # Set window background to match theme
-            window.configure(bg=theme_colors.primary_bg)
+            # Import the custom titlebar system
+            from .custom_titlebar import CustomTitleBarManager
 
-            # On some Linux desktop environments, we can set window properties
-            # that might influence the titlebar appearance
+            # Convert theme_colors to dictionary format
+            theme_dict = self._convert_theme_to_dict(theme_colors)
+
+            # Create custom titlebar (Linux uses full custom titlebar)
+            titlebar = CustomTitleBarManager.create_titlebar(
+                window, theme_dict, force_custom=True
+            )
+
+            if titlebar:
+                # Store reference to prevent garbage collection
+                if not hasattr(window, "_custom_titlebar"):
+                    window._custom_titlebar = titlebar
+
+                # Set window background to match theme
+                window.configure(bg=theme_dict.get("content_bg", "#ffffff"))
+
+                # Set window class for better integration with window managers
+                try:
+                    window.wm_class("ThreePaneWindows", "ThreePaneWindows")
+                except (tk.TclError, AttributeError):
+                    pass
+
+                return True
+
+            # Fallback to basic theming
+            window.configure(bg=getattr(theme_colors, "primary_bg", "#ffffff"))
+
+            # Set window class for better integration with window managers
             try:
-                # Try to set window class for better integration with window managers
                 window.wm_class("ThreePaneWindows", "ThreePaneWindows")
             except (tk.TclError, AttributeError):
                 pass
+
+            # Try to apply desktop environment specific theming
+            desktop_env = self.get_desktop_environment()
+
+            if desktop_env == "wsl":
+                self._apply_wsl_titlebar_theme(window, theme_colors)
+            elif desktop_env == "gnome":
+                self._apply_gnome_titlebar_theme(window, theme_colors)
+            elif desktop_env == "kde":
+                self._apply_kde_titlebar_theme(window, theme_colors)
+            elif desktop_env == "xfce":
+                self._apply_xfce_titlebar_theme(window, theme_colors)
+            else:
+                self._apply_generic_titlebar_theme(window, theme_colors)
 
             return True
         except Exception as e:
             logger.warning("Could not apply Linux titlebar customization: %s", e)
             return False
 
+    def _convert_theme_to_dict(self, theme_colors: Any) -> dict:
+        """Convert theme colors object to dictionary format."""
+        try:
+            # Try to extract common theme properties
+            theme_dict = {}
+
+            # Map common attributes
+            attr_mapping = {
+                "bg": ["primary_bg", "window_bg", "bg"],
+                "fg": ["primary_fg", "text_primary", "fg"],
+                "btn_bg": ["button_bg", "btn_bg"],
+                "btn_fg": ["button_fg", "btn_fg"],
+                "btn_active_bg": ["button_hover", "btn_active_bg"],
+                "content_bg": ["content_bg", "secondary_bg"],
+                "height": ["titlebar_height", "height"],
+            }
+
+            for key, attrs in attr_mapping.items():
+                for attr in attrs:
+                    if hasattr(theme_colors, attr):
+                        theme_dict[key] = getattr(theme_colors, attr)
+                        break
+
+            # Set Linux-specific defaults if not found
+            defaults = {
+                "bg": "#f6f6f6",
+                "fg": "#2e3436",
+                "btn_bg": "#e9e9e9",
+                "btn_fg": "#2e3436",
+                "btn_active_bg": "#4a90d9",
+                "content_bg": "#ffffff",
+                "font": ("Ubuntu", 10),
+                "height": 30,
+            }
+
+            for key, default_value in defaults.items():
+                if key not in theme_dict:
+                    theme_dict[key] = default_value
+
+            return theme_dict
+
+        except Exception as e:
+            logger.warning("Failed to convert theme colors: %s", e)
+            # Return default Linux theme
+            return {
+                "bg": "#f6f6f6",
+                "fg": "#2e3436",
+                "btn_bg": "#e9e9e9",
+                "btn_fg": "#2e3436",
+                "btn_active_bg": "#4a90d9",
+                "content_bg": "#ffffff",
+                "font": ("Ubuntu", 10),
+                "height": 30,
+            }
+
+    def _apply_wsl_titlebar_theme(self, window: tk.Tk, theme_colors: Any) -> None:
+        """Apply WSL-specific titlebar theming."""
+        try:
+            # WSL runs on Windows, so we need different approaches
+            # Set window properties that work well with WSL's X server
+            try:
+                window.wm_attributes("-type", "normal")
+                # WSL often uses VcXsrv or similar X servers
+                window.wm_class("ThreePaneWindows", "ThreePaneWindows")
+
+                # Set window manager hints that work better with WSL
+                window.wm_protocol("WM_DELETE_WINDOW", window.quit)
+
+                # Try to set window properties for better WSL integration
+                window.wm_resizable(True, True)
+
+                # WSL X servers often have better support for window properties
+                try:
+                    # Set window role for better window manager integration
+                    window.wm_command("threepane-wsl-demo")
+                except (tk.TclError, AttributeError):
+                    pass
+
+            except (tk.TclError, AttributeError):
+                pass
+
+        except Exception as e:
+            logger.debug(f"WSL titlebar theming failed: {e}")
+
+    def _apply_gnome_titlebar_theme(self, window: tk.Tk, theme_colors: Any) -> None:
+        """Apply GNOME-specific titlebar theming."""
+        try:
+            # GNOME uses GTK, try to set GTK-compatible properties
+            if hasattr(
+                theme_colors, "primary_bg"
+            ) and theme_colors.primary_bg.startswith("#"):
+                # Try to influence GTK theme through environment
+                import subprocess
+
+                # Check if we're in a dark theme
+                is_dark = theme_colors.primary_bg in ["#1e1e1e", "#2d2d30", "#383838"]
+
+                # Try to set GTK theme preference (this affects new windows)
+                try:
+                    if is_dark:
+                        subprocess.run(
+                            [
+                                "gsettings",
+                                "set",
+                                "org.gnome.desktop.interface",
+                                "gtk-theme",
+                                "Adwaita-dark",
+                            ],
+                            capture_output=True,
+                            timeout=2,
+                        )
+                    else:
+                        subprocess.run(
+                            [
+                                "gsettings",
+                                "set",
+                                "org.gnome.desktop.interface",
+                                "gtk-theme",
+                                "Adwaita",
+                            ],
+                            capture_output=True,
+                            timeout=2,
+                        )
+                except (
+                    subprocess.TimeoutExpired,
+                    subprocess.CalledProcessError,
+                    FileNotFoundError,
+                ):
+                    pass
+
+        except Exception as e:
+            logger.debug(f"GNOME titlebar theming failed: {e}")
+
+    def _apply_kde_titlebar_theme(self, window: tk.Tk, theme_colors: Any) -> None:
+        """Apply KDE-specific titlebar theming."""
+        try:
+            # KDE uses Qt, try to set Qt-compatible properties
+            # Set window properties that KDE window manager might use
+            try:
+                window.wm_attributes("-type", "normal")
+                # Try to set window role for better KDE integration
+                window.wm_command("ThreePaneWindows")
+            except (tk.TclError, AttributeError):
+                pass
+
+        except Exception as e:
+            logger.debug(f"KDE titlebar theming failed: {e}")
+
+    def _apply_xfce_titlebar_theme(self, window: tk.Tk, theme_colors: Any) -> None:
+        """Apply XFCE-specific titlebar theming."""
+        try:
+            # XFCE is more lightweight, basic window properties should suffice
+            try:
+                window.wm_attributes("-type", "normal")
+            except (tk.TclError, AttributeError):
+                pass
+
+        except Exception as e:
+            logger.debug(f"XFCE titlebar theming failed: {e}")
+
+    def _apply_generic_titlebar_theme(self, window: tk.Tk, theme_colors: Any) -> None:
+        """Apply generic Linux titlebar theming."""
+        try:
+            # Generic approach for unknown desktop environments
+            try:
+                window.wm_attributes("-type", "normal")
+            except (tk.TclError, AttributeError):
+                pass
+
+        except Exception as e:
+            logger.debug(f"Generic titlebar theming failed: {e}")
+
     def get_desktop_environment(self) -> str:
         """
         Detect the desktop environment on Linux.
 
         Returns:
-            String identifying the desktop environment (e.g., 'gnome', 'kde', 'xfce')
+            String identifying the desktop environment (e.g., 'gnome', 'kde', 'xfce', 'wsl')
         """
         try:
+            # Check if running on WSL first
+            if self.is_wsl():
+                return "wsl"
+
             # Try to detect desktop environment
             desktop = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
             if desktop:
@@ -139,6 +351,52 @@ class LinuxPlatformHandler(PlatformHandler):
             return "unknown"
         except (OSError, KeyError):
             return "unknown"
+
+    def is_wsl(self) -> bool:
+        """
+        Check if running on Windows Subsystem for Linux (WSL).
+
+        Returns:
+            True if running on WSL, False otherwise
+        """
+        try:
+            # Check for WSL-specific indicators
+            # Method 1: Check /proc/version for Microsoft
+            if os.path.exists("/proc/version"):
+                with open("/proc/version", "r") as f:
+                    version_info = f.read().lower()
+                    if "microsoft" in version_info or "wsl" in version_info:
+                        return True
+
+            # Method 2: Check for WSL environment variable
+            if os.environ.get("WSL_DISTRO_NAME"):
+                return True
+
+            # Method 3: Check for Windows interop
+            if os.path.exists("/mnt/c") and os.path.exists(
+                "/proc/sys/fs/binfmt_misc/WSLInterop"
+            ):
+                return True
+
+            # Method 4: Check uname for WSL
+            import subprocess
+
+            try:
+                result = subprocess.run(
+                    ["uname", "-r"], capture_output=True, text=True, timeout=2
+                )
+                if result.returncode == 0 and "microsoft" in result.stdout.lower():
+                    return True
+            except (
+                subprocess.TimeoutExpired,
+                subprocess.CalledProcessError,
+                FileNotFoundError,
+            ):
+                pass
+
+            return False
+        except Exception:
+            return False
 
     def supports_transparency(self) -> bool:
         """

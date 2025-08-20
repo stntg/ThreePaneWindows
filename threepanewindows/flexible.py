@@ -589,6 +589,9 @@ class EnhancedFlexibleLayout(tk.Frame):
         self.theme_manager = get_theme_manager()
         self.theme_manager.set_theme(theme_name)
 
+        # Custom titlebar integration
+        self._setup_custom_titlebar()
+
         # Collect all panes from the container hierarchy
         self._collect_panes(root_container)
 
@@ -597,6 +600,38 @@ class EnhancedFlexibleLayout(tk.Frame):
 
         # Apply initial theme
         self.theme_manager.apply_theme_to_widget(self, recursive=True)
+
+    def _setup_custom_titlebar(self):
+        """Set up custom titlebar integration."""
+        try:
+            # Only apply to top-level windows
+            if isinstance(self.master, tk.Tk) or isinstance(self.master, tk.Toplevel):
+                from .utils import apply_custom_titlebar
+
+                # Get current theme and convert to titlebar format
+                current_theme = self.theme_manager.get_current_theme()
+
+                # Create a theme object that matches the platform handler expectations
+                class FlexibleTitlebarTheme:
+                    def __init__(self, theme):
+                        self.primary_bg = theme.colors.primary_bg
+                        self.primary_fg = theme.colors.primary_fg
+                        self.button_bg = theme.colors.button_bg
+                        self.button_fg = theme.colors.button_fg
+                        self.button_hover = theme.colors.button_hover_bg
+                        self.content_bg = theme.colors.secondary_bg
+                        self.panel_header_bg = theme.colors.panel_header_bg
+
+                titlebar_theme = FlexibleTitlebarTheme(current_theme)
+
+                # Apply custom titlebar through platform handler
+                success = apply_custom_titlebar(self.master, titlebar_theme)
+
+                if success:
+                    logger.info("Custom titlebar applied to flexible layout")
+
+        except Exception as e:
+            logger.warning(f"Failed to setup custom titlebar for flexible layout: {e}")
 
     def _collect_panes(self, container: FlexContainer):
         """Recursively collect all panes from the container hierarchy."""

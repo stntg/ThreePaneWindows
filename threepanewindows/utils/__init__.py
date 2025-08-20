@@ -39,6 +39,9 @@ __all__ = [
     "get_platform_native_colors",
     "get_platform_typography",
     "create_platform_scrollbar",
+    "CustomTitleBarManager",
+    "apply_custom_titlebar_direct",
+    "get_titlebar_theme",
 ]
 
 
@@ -153,3 +156,72 @@ def create_platform_scrollbar(parent, orient="vertical", command=None, **kwargs)
         Scrollbar widget (native or custom based on platform)
     """
     return platform_handler.create_platform_scrollbar(parent, orient, command, **kwargs)
+
+
+def apply_custom_titlebar_direct(window, theme, title="", force_custom=False):
+    """
+    Apply custom titlebar directly without going through platform handler.
+
+    Args:
+        window: The Tkinter window
+        theme: Theme dictionary with colors and fonts
+        title: Window title (optional)
+        force_custom: Force custom titlebar on all platforms
+
+    Returns:
+        CustomTitleBarBase instance or None if not supported
+    """
+    try:
+        from .custom_titlebar import CustomTitleBarManager
+
+        return CustomTitleBarManager.create_titlebar(window, theme, title, force_custom)
+    except ImportError as e:
+        print(f"Could not import custom titlebar: {e}")
+        return None
+
+
+def get_titlebar_theme(is_dark=False):
+    """
+    Get a default titlebar theme.
+
+    Args:
+        is_dark: Whether to use dark theme
+
+    Returns:
+        Theme dictionary
+    """
+    try:
+        from .custom_titlebar import CustomTitleBarManager
+
+        return CustomTitleBarManager.get_default_theme(is_dark)
+    except ImportError:
+        # Fallback theme
+        if is_dark:
+            return {
+                "bg": "#2d2d30",
+                "fg": "#ffffff",
+                "btn_bg": "#3e3e42",
+                "btn_fg": "#ffffff",
+                "btn_active_bg": "#007acc",
+                "content_bg": "#1e1e1e",
+                "font": ("Segoe UI", 10),
+                "height": 30,
+            }
+        else:
+            return {
+                "bg": "#f0f0f0",
+                "fg": "#000000",
+                "btn_bg": "#e1e1e1",
+                "btn_fg": "#000000",
+                "btn_active_bg": "#bee6fd",
+                "content_bg": "#ffffff",
+                "font": ("Segoe UI", 10),
+                "height": 30,
+            }
+
+
+# Import and expose CustomTitleBarManager for direct use
+try:
+    from .custom_titlebar import CustomTitleBarManager
+except ImportError:
+    CustomTitleBarManager = None

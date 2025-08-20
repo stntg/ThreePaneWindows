@@ -42,7 +42,40 @@ class DockableThreePaneWindow(tk.Frame):
         self.left_placeholder = None
         self.right_window = None
         self.right_placeholder = None
+
+        # Custom titlebar integration
+        self._setup_custom_titlebar()
+
         self._create_widgets()
+
+    def _setup_custom_titlebar(self):
+        """Set up custom titlebar integration."""
+        try:
+            # Only apply to top-level windows
+            if isinstance(self.master, tk.Tk) or isinstance(self.master, tk.Toplevel):
+                from .utils import apply_custom_titlebar
+
+                # Create a simple theme object for basic dockable windows
+                class SimpleTitlebarTheme:
+                    def __init__(self):
+                        self.primary_bg = "#f0f0f0"
+                        self.primary_fg = "#000000"
+                        self.button_bg = "#e1e1e1"
+                        self.button_fg = "#000000"
+                        self.button_hover = "#bee6fd"
+                        self.content_bg = "#ffffff"
+                        self.panel_header_bg = "#f0f0f0"
+
+                titlebar_theme = SimpleTitlebarTheme()
+
+                # Apply custom titlebar through platform handler
+                success = apply_custom_titlebar(self.master, titlebar_theme)
+
+                if success:
+                    print("Custom titlebar applied to dockable window")
+
+        except Exception as e:
+            print(f"Failed to setup custom titlebar for dockable window: {e}")
 
     def _create_widgets(self):
         # Add menu bar if provided

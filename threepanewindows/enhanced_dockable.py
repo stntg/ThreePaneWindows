@@ -1117,6 +1117,10 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             {}
         )  # Track visibility (winfo_children() doesn't update immediately)
 
+        # Custom titlebar integration
+        self.custom_titlebar = None
+        self._setup_custom_titlebar()
+
         # Setup
         self._setup_styles()
         self._create_widgets()
@@ -1143,6 +1147,80 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
             )
         except tk.TclError:
             pass
+
+    def _setup_custom_titlebar(self):
+        """Set up custom titlebar integration."""
+        try:
+            # Only apply to top-level windows
+            if isinstance(self.master, tk.Tk) or isinstance(self.master, tk.Toplevel):
+                from .utils import apply_custom_titlebar
+
+                # Get current theme and convert to titlebar format
+                current_theme = self.theme_manager.get_current_theme()
+
+                # Create a mock theme object that matches the platform handler expectations
+                class TitlebarTheme:
+                    def __init__(self, theme):
+                        self.primary_bg = theme.colors.primary_bg
+                        self.primary_fg = theme.colors.primary_fg
+                        self.button_bg = theme.colors.button_bg
+                        self.button_fg = theme.colors.button_fg
+                        self.button_hover = theme.colors.button_hover_bg
+                        self.content_bg = theme.colors.secondary_bg
+                        self.panel_header_bg = theme.colors.panel_header_bg
+
+                titlebar_theme = TitlebarTheme(current_theme)
+
+                # Apply custom titlebar through platform handler
+                success = apply_custom_titlebar(self.master, titlebar_theme)
+
+                if success:
+                    logger.info("Custom titlebar applied successfully")
+                else:
+                    logger.debug(
+                        "Custom titlebar not applied (may be platform-specific)"
+                    )
+
+        except Exception as e:
+            logger.warning(f"Failed to setup custom titlebar: {e}")
+
+    def _update_custom_titlebar(self):
+        """Update custom titlebar with current theme."""
+        try:
+            # Only update if we have a top-level window
+            if isinstance(self.master, tk.Tk) or isinstance(self.master, tk.Toplevel):
+                # Check if window has a custom titlebar
+                if (
+                    hasattr(self.master, "_custom_titlebar")
+                    and self.master._custom_titlebar
+                ):
+                    # Get current theme and convert to titlebar format
+                    current_theme = self.theme_manager.get_current_theme()
+
+                    # Convert to dictionary format for titlebar
+                    theme_dict = {
+                        "bg": current_theme.colors.primary_bg,
+                        "fg": current_theme.colors.primary_fg,
+                        "btn_bg": current_theme.colors.button_bg,
+                        "btn_fg": current_theme.colors.button_fg,
+                        "btn_active_bg": current_theme.colors.button_hover_bg,
+                        "content_bg": current_theme.colors.secondary_bg,
+                        "font": (
+                            current_theme.typography.font_family,
+                            current_theme.typography.font_size_normal,
+                        ),
+                        "height": 30,
+                    }
+
+                    # Update the titlebar theme
+                    self.master._custom_titlebar.apply_theme(theme_dict)
+                    logger.debug("Custom titlebar theme updated")
+                else:
+                    # Try to apply custom titlebar if it doesn't exist
+                    self._setup_custom_titlebar()
+
+        except Exception as e:
+            logger.warning(f"Failed to update custom titlebar: {e}")
 
     def _create_widgets(self):
         """Create the main widget structure."""
@@ -2207,6 +2285,8 @@ class EnhancedDockableThreePaneWindow(tk.Frame):
 
         if self.theme_manager.set_theme(theme_name):
             self._refresh_theme()
+            # Update custom titlebar with new theme
+            self._update_custom_titlebar()
 
     def _refresh_theme(self):
         """Refresh the theme for all components."""

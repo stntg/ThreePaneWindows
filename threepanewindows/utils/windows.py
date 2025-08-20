@@ -125,19 +125,90 @@ class WindowsPlatformHandler(PlatformHandler):
     def apply_custom_titlebar(self, window: tk.Tk, theme_colors: Any) -> bool:
         """Apply Windows-specific titlebar customization."""
         try:
-            # Try to get the window handle
+            # Import the custom titlebar system
+            from .custom_titlebar import CustomTitleBarManager
+
+            # Convert theme_colors to dictionary format
+            theme_dict = self._convert_theme_to_dict(theme_colors)
+
+            # Create custom titlebar (Windows uses native titlebar with color theming)
+            titlebar = CustomTitleBarManager.create_titlebar(window, theme_dict)
+
+            if titlebar:
+                # Store reference to prevent garbage collection
+                if not hasattr(window, "_custom_titlebar"):
+                    window._custom_titlebar = titlebar
+                return True
+
+            # Fallback to direct DWM API call
             hwnd = window.winfo_id()
-            # If it's a child window, get the parent
             parent_hwnd = ctypes.windll.user32.GetParent(hwnd)
             if parent_hwnd:
                 hwnd = parent_hwnd
 
             # Set the titlebar color using Windows DWM API
-            set_windows_titlebar_color(hwnd, theme_colors.primary_bg)
+            set_windows_titlebar_color(
+                hwnd, getattr(theme_colors, "primary_bg", "#f0f0f0")
+            )
             return True
         except Exception as e:
             logger.warning("Could not set Windows titlebar color: %s", e)
             return False
+
+    def _convert_theme_to_dict(self, theme_colors: Any) -> dict:
+        """Convert theme colors object to dictionary format."""
+        try:
+            # Try to extract common theme properties
+            theme_dict = {}
+
+            # Map common attributes
+            attr_mapping = {
+                "bg": ["primary_bg", "window_bg", "bg"],
+                "fg": ["primary_fg", "text_primary", "fg"],
+                "btn_bg": ["button_bg", "btn_bg"],
+                "btn_fg": ["button_fg", "btn_fg"],
+                "btn_active_bg": ["button_hover", "btn_active_bg"],
+                "content_bg": ["content_bg", "secondary_bg"],
+                "height": ["titlebar_height", "height"],
+            }
+
+            for key, attrs in attr_mapping.items():
+                for attr in attrs:
+                    if hasattr(theme_colors, attr):
+                        theme_dict[key] = getattr(theme_colors, attr)
+                        break
+
+            # Set defaults if not found
+            defaults = {
+                "bg": "#f0f0f0",
+                "fg": "#000000",
+                "btn_bg": "#e1e1e1",
+                "btn_fg": "#000000",
+                "btn_active_bg": "#bee6fd",
+                "content_bg": "#ffffff",
+                "font": ("Segoe UI", 10),
+                "height": 30,
+            }
+
+            for key, default_value in defaults.items():
+                if key not in theme_dict:
+                    theme_dict[key] = default_value
+
+            return theme_dict
+
+        except Exception as e:
+            logger.warning("Failed to convert theme colors: %s", e)
+            # Return default Windows theme
+            return {
+                "bg": "#f0f0f0",
+                "fg": "#000000",
+                "btn_bg": "#e1e1e1",
+                "btn_fg": "#000000",
+                "btn_active_bg": "#bee6fd",
+                "content_bg": "#ffffff",
+                "font": ("Segoe UI", 10),
+                "height": 30,
+            }
 
     def is_dark_mode(self) -> bool:
         """Check if Windows is in dark mode."""

@@ -1607,7 +1607,7 @@ class ThemeManager:
         style.configure(
             "Header.TFrame",
             background=colors.panel_header_bg,
-            borderwidth=theme.spacing.border_width,
+            borderwidth=theme.spacing.get_border_width(),
             relief="solid",
         )
 

@@ -192,11 +192,82 @@ class MacOSPlatformHandler(PlatformHandler):
     def apply_custom_titlebar(self, window: tk.Tk, theme_colors: Any) -> bool:
         """Apply macOS-specific custom titlebar."""
         try:
+            # Import the custom titlebar system
+            from .custom_titlebar import CustomTitleBarManager
+
+            # Convert theme_colors to dictionary format
+            theme_dict = self._convert_theme_to_dict(theme_colors)
+
+            # Create custom titlebar (macOS uses native titlebar with theming)
+            titlebar = CustomTitleBarManager.create_titlebar(window, theme_dict)
+
+            if titlebar:
+                # Store reference to prevent garbage collection
+                if not hasattr(window, "_custom_titlebar"):
+                    window._custom_titlebar = titlebar
+                return True
+
+            # Fallback to existing implementation
             self._apply_macos_custom_titlebar(window, theme_colors)
             return True
         except Exception as e:
             logger.warning("Could not apply macOS custom titlebar: %s", e)
             return False
+
+    def _convert_theme_to_dict(self, theme_colors: Any) -> dict:
+        """Convert theme colors object to dictionary format."""
+        try:
+            # Try to extract common theme properties
+            theme_dict = {}
+
+            # Map common attributes
+            attr_mapping = {
+                "bg": ["primary_bg", "window_bg", "bg", "panel_header_bg"],
+                "fg": ["primary_fg", "text_primary", "fg"],
+                "btn_bg": ["button_bg", "btn_bg"],
+                "btn_fg": ["button_fg", "btn_fg"],
+                "btn_active_bg": ["button_hover", "btn_active_bg"],
+                "content_bg": ["content_bg", "secondary_bg"],
+                "height": ["titlebar_height", "height"],
+            }
+
+            for key, attrs in attr_mapping.items():
+                for attr in attrs:
+                    if hasattr(theme_colors, attr):
+                        theme_dict[key] = getattr(theme_colors, attr)
+                        break
+
+            # Set macOS-specific defaults if not found
+            defaults = {
+                "bg": "#ececec",
+                "fg": "#000000",
+                "btn_bg": "#e0e0e0",
+                "btn_fg": "#000000",
+                "btn_active_bg": "#007aff",
+                "content_bg": "#ffffff",
+                "font": ("SF Pro Display", 13),
+                "height": 28,
+            }
+
+            for key, default_value in defaults.items():
+                if key not in theme_dict:
+                    theme_dict[key] = default_value
+
+            return theme_dict
+
+        except Exception as e:
+            logger.warning("Failed to convert theme colors: %s", e)
+            # Return default macOS theme
+            return {
+                "bg": "#ececec",
+                "fg": "#000000",
+                "btn_bg": "#e0e0e0",
+                "btn_fg": "#000000",
+                "btn_active_bg": "#007aff",
+                "content_bg": "#ffffff",
+                "font": ("SF Pro Display", 13),
+                "height": 28,
+            }
 
     def _apply_macos_custom_titlebar(self, window: tk.Tk, colors: Any) -> None:
         """Apply custom titlebar for macOS."""
