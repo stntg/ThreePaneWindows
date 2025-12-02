@@ -1033,3 +1033,107 @@ class EnhancedFlexibleLayout(tk.Frame):
     def get_available_panes(self) -> List[str]:
         """Get list of all available pane names."""
         return list(self.panes.keys())
+
+    def get_pane(self, pane_name: str) -> Optional[tk.Frame]:
+        """Get a pane widget by name."""
+        return self.pane_widgets.get(pane_name)
+
+    def get_pane_config(self, pane_name: str) -> Optional[FlexPaneConfig]:
+        """Get pane configuration by name."""
+        return self.panes.get(pane_name)
+
+    def get_layout_info(self) -> Dict:
+        """Get information about the current layout."""
+        return {
+            "panes": list(self.panes.keys()),
+            "attached_panes": [
+                name for name in self.panes.keys() if name not in self.detached_windows
+            ],
+            "detached_panes": list(self.detached_windows.keys()),
+            "total_panes": len(self.panes),
+            "detached_count": len(self.detached_windows),
+        }
+
+    def apply_theme(self, theme_name: str):
+        """Apply a theme to the layout."""
+        self.set_theme(theme_name)
+
+    def is_pane_detached(self, pane_name: str) -> bool:
+        """Check if a pane is currently detached."""
+        return pane_name in self.detached_windows
+
+    def save_layout_state(self) -> Dict:
+        """Save the current layout state."""
+        state = {
+            "theme": self.theme_manager.get_current_theme_name(),
+            "detached_panes": list(self.detached_windows.keys()),
+            "pane_configs": {},
+        }
+
+        for pane_name, pane_config in self.panes.items():
+            state["pane_configs"][pane_name] = {
+                "weight": pane_config.weight,
+                "min_size": pane_config.min_size,
+                "max_size": pane_config.max_size,
+                "detachable": pane_config.detachable,
+            }
+
+        return state
+
+    def restore_layout_state(self, state: Dict) -> bool:
+        """Restore a previously saved layout state."""
+        try:
+            # Restore theme if available
+            if "theme" in state:
+                self.apply_theme(state["theme"])
+
+            # Close all currently detached windows
+            for pane_name in list(self.detached_windows.keys()):
+                self._reattach_pane(pane_name)
+
+            # Re-detach panes that were detached in the saved state
+            if "detached_panes" in state:
+                for pane_name in state["detached_panes"]:
+                    if pane_name in self.panes:
+                        self._detach_pane(pane_name)
+
+            return True
+        except Exception as e:
+            logger.warning(f"Failed to restore layout state: {e}")
+            return False
+
+    def update_pane_config(self, pane_name: str, **kwargs) -> bool:
+        """Update configuration for a pane."""
+        if pane_name not in self.panes:
+            return False
+
+        pane_config = self.panes[pane_name]
+
+        # Update allowed attributes
+        allowed_attrs = [
+            "weight",
+            "min_size",
+            "max_size",
+            "title",
+            "detachable",
+            "fill_detached_space",
+        ]
+
+        for key, value in kwargs.items():
+            if key in allowed_attrs and hasattr(pane_config, key):
+                setattr(pane_config, key, value)
+
+        # Rebuild layout if weight changed
+        if "weight" in kwargs:
+            self._build_layout()
+
+        return True
+
+    def get_detached_windows(self) -> List[FlexDetachedWindow]:
+        """Get list of currently open detached windows."""
+        return list(self.detached_windows.values())
+
+    def close_all_detached(self):
+        """Close all detached windows."""
+        for pane_name in list(self.detached_windows.keys()):
+            self._reattach_pane(pane_name)
