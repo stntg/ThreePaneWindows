@@ -19,12 +19,13 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.12'
+        cache: 'pip'
 
     - name: Install dependencies
       timeout-minutes: 10
       run: |
-        python -m pip install --upgrade pip
+        python -m pip install --upgrade pip setuptools wheel
         pip install -r docs/requirements.txt
         pip install -e .
 
@@ -41,9 +42,9 @@ jobs:
         python -c "from linkify_it import LinkifyIt; import linkify_it; print(f'Linkify-it-py: {linkify_it.__version__}')" || echo "Linkify-it-py not available"
         # Show installed packages for debugging
         echo "Installed documentation packages:"
-        pip list | grep -E "(sphinx|myst|linkify|rtd)"
+        pip list | grep -E "(sphinx|myst|linkify|rtd|sphinx-autodoc)"
         # Build documentation with verbose output
-        sphinx-build -b html -v . _build/html
+        sphinx-build -b html -W --keep-going . _build/html
         touch _build/html/.nojekyll
 
     - name: Upload documentation
@@ -75,7 +76,7 @@ jobs:
       uses: actions/configure-pages@v4
 
     - name: Upload to GitHub Pages
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v4
       with:
         path: docs/
 

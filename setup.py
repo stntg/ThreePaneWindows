@@ -32,6 +32,9 @@ setup(
         "Programming Language :: Python :: 3.13",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: User Interfaces",
+        "Environment :: X11 Applications",
+        "Environment :: Win32 (MS Windows)",
+        "Environment :: MacOS X",
     ],
     python_requires=">=3.9",
     install_requires=[
@@ -39,10 +42,24 @@ setup(
     ],
     extras_require={
         "dev": [
-            "pytest>=6.0",
-            "pytest-cov",
-            "black",
-            "flake8",
+            "pytest>=8.0",
+            "pytest-cov>=5.0",
+            "pytest-xvfb>=2.0; sys_platform=='linux'",
+            "pytest-timeout>=2.1",
+            "black>=24.12.0",
+            "flake8>=7.1.0",
+            "mypy>=1.14.0",
+            "isort>=5.13.0",
+            "pre-commit>=3.7.0",
+            "bandit>=1.8.0",
+            "safety>=3.2.0",
+        ],
+        "docs": [
+            "sphinx>=7.4.0",
+            "sphinx-rtd-theme>=2.0.0",
+            "myst-parser>=2.1.0",
+            "sphinx-autodoc-typehints>=2.4.0",
+            "sphinx-copybutton>=0.5.2",
         ],
     },
     entry_points={

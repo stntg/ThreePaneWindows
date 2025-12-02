@@ -1,37 +1,39 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+        args: ['--maxkb=1000']
       - id: check-merge-conflict
       - id: check-toml
       - id: debug-statements
       - id: mixed-line-ending
 
   - repo: https://github.com/psf/black
-    rev: 24.3.0
+    rev: 25.11.0
     hooks:
       - id: black
-        language_version: python3
+        language_version: python3.12
 
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+    rev: 7.0.0
     hooks:
       - id: isort
         args: ["--profile", "black"]
 
   - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
+    rev: 7.3.0
     hooks:
       - id: flake8
-        additional_dependencies: [flake8-docstrings]
+        additional_dependencies: [flake8-docstrings, flake8-bugbear, flake8-comprehensions]
         exclude: ^(stubs-package/|threepanewindows-stubs/)
+        args: ['--max-complexity=10', '--max-line-length=88']
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.19.0
     hooks:
       - id: mypy
         additional_dependencies: [
@@ -41,15 +43,16 @@ repos:
           types-click,
           types-Pillow
         ]
-        args: [--ignore-missing-imports, --no-strict-optional]
+        args: [--ignore-missing-imports, --show-error-codes]
         exclude: ^(stubs-package/|threepanewindows-stubs/)
 
   - repo: https://github.com/pycqa/bandit
-    rev: 1.7.7
+    rev: 1.9.2
     hooks:
       - id: bandit
         args: ["-c", "pyproject.toml"]
         additional_dependencies: ["bandit[toml]"]
+        exclude: ^(stubs-package/|threepanewindows-stubs/|tests/)
 
   # Note: Safety check disabled as it requires Poetry configuration
   # - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
